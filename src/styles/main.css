@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@theme static {
+  --font-display: "Pixelify Sans", ui-monospace, monospace;
+  --font-body: "Sora", ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: #0a0e1a;
+  --color-panel: #111729;
+  --color-panel2: #182138;
+  --color-line: #233052;
+  --color-line2: #2e3f6b;
+  --color-ink: #e9eefc;
+  --color-muted: #8d99bd;
+  --color-dim: #5b678c;
+
+  --color-dex: #e3350d;
+  --color-dexglow: #ff5c33;
+  --color-lens: #58c7f3;
+
+  --color-type-normal: #9099a1;
+  --color-type-fire: #ff9c54;
+  --color-type-water: #4d90d5;
+  --color-type-electric: #f3d23b;
+  --color-type-grass: #63bb5b;
+  --color-type-ice: #74cec0;
+  --color-type-fighting: #ce4069;
+  --color-type-poison: #ab6ac8;
+  --color-type-ground: #d97746;
+  --color-type-flying: #8fa8dd;
+  --color-type-psychic: #f97176;
+  --color-type-bug: #90c12c;
+  --color-type-rock: #c7b78b;
+  --color-type-ghost: #5269ac;
+  --color-type-dragon: #0a6dc4;
+  --color-type-dark: #6e6486;
+  --color-type-steel: #5a8ea1;
+
+  --animate-marker: marker 1.6s ease-in-out infinite;
+  /* `backwards`, not `both`: a persisted transform (even identity) keeps a stacking
+     context on the section forever, pushing its dropdowns under later sections */
+  --animate-fadeup: fadeup 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  --animate-blink: blink 2.4s ease-in-out infinite;
+
+  @keyframes marker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+  @keyframes fadeup {
+    from { opacity: 0; transform: translateY(10px); }
+    /* end on `none` so the finished animation leaves no stacking context behind
+       (otherwise dropdowns inside one section render beneath the next section) */
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes blink {
+    0%, 92%, 100% { opacity: 1; }
+    96% { opacity: 0.2; }
+  }
+}
+
+html {
+  background: var(--color-bg);
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background:
+    radial-gradient(1100px 500px at 80% -10%, rgba(227, 53, 13, 0.08), transparent 60%),
+    radial-gradient(900px 600px at -10% 20%, rgba(88, 199, 243, 0.06), transparent 55%),
+    var(--color-bg);
+  min-height: 100vh;
+}
+
+/* faint device grid over the whole app */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(141, 153, 189, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(141, 153, 189, 0.045) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 95%);
+  z-index: 0;
+}
+
+#app { position: relative; z-index: 1; }
+
+.pixelated { image-rendering: pixelated; }
+
+.scrollbar-thin { scrollbar-width: thin; scrollbar-color: var(--color-line2) transparent; }
+
+::selection { background: rgba(227, 53, 13, 0.5); }

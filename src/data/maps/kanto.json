@@ -1,0 +1,103 @@
+{
+  "region": "kanto",
+  "label": "Kanto",
+  "grid": { "w": 16, "h": 17 },
+  "bands": [{ "label": "SEVII ISLANDS", "y": 12.5 }],
+  "places": [
+    { "slug": "kanto-victory-road-2", "label": "Victory Road", "kind": "cave", "x": 2, "y": 4 },
+    { "slug": "kanto-route-23", "label": "Route 23", "kind": "route", "x": 2, "y": 5, "h": 2 },
+    { "slug": "kanto-route-22", "label": "Route 22", "kind": "route", "x": 3, "y": 7 },
+
+    { "slug": "pallet-town", "label": "Pallet Town", "kind": "city", "x": 4, "y": 9 },
+    { "slug": "kanto-route-1", "label": "Route 1", "kind": "route", "x": 4, "y": 8 },
+    { "slug": "viridian-city", "label": "Viridian City", "kind": "city", "x": 4, "y": 7 },
+    { "slug": "kanto-route-2", "label": "Route 2", "kind": "route", "x": 4, "y": 5, "h": 2 },
+    { "slug": "viridian-forest", "label": "Viridian Forest", "kind": "forest", "x": 3, "y": 5 },
+    { "slug": "pewter-city", "label": "Pewter City", "kind": "city", "x": 4, "y": 4 },
+    { "slug": "digletts-cave", "label": "Diglett's Cave", "kind": "cave", "x": 5, "y": 5 },
+
+    { "slug": "kanto-route-3", "label": "Route 3", "kind": "route", "x": 5, "y": 4, "w": 2 },
+    { "slug": "mt-moon", "label": "Mt. Moon", "kind": "cave", "x": 7, "y": 4 },
+    { "slug": "kanto-route-4", "label": "Route 4", "kind": "route", "x": 8, "y": 4, "w": 2 },
+    { "slug": "cerulean-city", "label": "Cerulean City", "kind": "city", "x": 10, "y": 4 },
+    { "slug": "cerulean-cave", "label": "Cerulean Cave", "kind": "cave", "x": 9, "y": 3 },
+    { "slug": "kanto-route-24", "label": "Route 24", "kind": "route", "x": 10, "y": 3 },
+    { "slug": "kanto-route-25", "label": "Route 25", "kind": "route", "x": 11, "y": 2, "w": 2 },
+
+    { "slug": "kanto-route-5", "label": "Route 5", "kind": "route", "x": 10, "y": 5 },
+    { "slug": "saffron-city", "label": "Saffron City", "kind": "city", "x": 10, "y": 6 },
+    { "slug": "kanto-route-6", "label": "Route 6", "kind": "route", "x": 10, "y": 7 },
+    { "slug": "vermilion-city", "label": "Vermilion City", "kind": "city", "x": 10, "y": 8, "areas": ["ss-anne"] },
+    { "slug": "kanto-route-7", "label": "Route 7", "kind": "route", "x": 9, "y": 6 },
+    { "slug": "celadon-city", "label": "Celadon City", "kind": "city", "x": 8, "y": 6 },
+    { "slug": "kanto-route-8", "label": "Route 8", "kind": "route", "x": 11, "y": 6, "w": 2 },
+    { "slug": "lavender-town", "label": "Lavender Town", "kind": "city", "x": 13, "y": 6 },
+    { "slug": "pokemon-tower", "label": "Pokémon Tower", "kind": "cave", "x": 14, "y": 6 },
+
+    { "slug": "kanto-route-9", "label": "Route 9", "kind": "route", "x": 11, "y": 4, "w": 2 },
+    { "slug": "kanto-route-10", "label": "Route 10", "kind": "route", "x": 13, "y": 4, "h": 2 },
+    { "slug": "rock-tunnel", "label": "Rock Tunnel", "kind": "cave", "x": 14, "y": 4 },
+    { "slug": "kanto-power-plant", "label": "Power Plant", "kind": "cave", "x": 14, "y": 5 },
+
+    { "slug": "kanto-route-16", "label": "Route 16", "kind": "route", "x": 7, "y": 6 },
+    { "slug": "kanto-route-17", "label": "Route 17", "kind": "route", "x": 6, "y": 7, "h": 3 },
+    { "slug": "kanto-route-18", "label": "Route 18", "kind": "route", "x": 6, "y": 10, "w": 2 },
+    { "slug": "fuchsia-city", "label": "Fuchsia City", "kind": "city", "x": 8, "y": 10 },
+    { "slug": "kanto-safari-zone", "label": "Safari Zone", "kind": "forest", "x": 8, "y": 9 },
+
+    { "slug": "kanto-route-11", "label": "Route 11", "kind": "route", "x": 11, "y": 8, "w": 2 },
+    { "slug": "kanto-route-12", "label": "Route 12", "kind": "route", "x": 13, "y": 7, "h": 2 },
+    { "slug": "kanto-route-13", "label": "Route 13", "kind": "route", "x": 12, "y": 9, "w": 2 },
+    { "slug": "kanto-route-14", "label": "Route 14", "kind": "route", "x": 11, "y": 9, "h": 2 },
+    { "slug": "kanto-route-15", "label": "Route 15", "kind": "route", "x": 9, "y": 10, "w": 2 },
+
+    { "slug": "kanto-sea-route-19", "label": "Route 19", "kind": "water", "x": 8, "y": 11 },
+    { "slug": "kanto-sea-route-20", "label": "Route 20", "kind": "water", "x": 6, "y": 11, "w": 2 },
+    { "slug": "seafoam-islands", "label": "Seafoam Islands", "kind": "cave", "x": 5, "y": 11 },
+    { "slug": "cinnabar-island", "label": "Cinnabar Island", "kind": "city", "x": 4, "y": 11 },
+    { "slug": "pokemon-mansion", "label": "Pokémon Mansion", "kind": "cave", "x": 3, "y": 11 },
+    { "slug": "kanto-sea-route-21", "label": "Route 21", "kind": "water", "x": 4, "y": 10 },
+
+    { "slug": "one-island", "label": "One Island", "kind": "city", "x": 0, "y": 14 },
+    { "slug": "treasure-beach", "label": "Treasure Beach", "kind": "water", "x": 0, "y": 15 },
+    { "slug": "kindle-road", "label": "Kindle Road", "kind": "water", "x": 1, "y": 13, "h": 2 },
+    { "slug": "mt-ember", "label": "Mt. Ember", "kind": "cave", "x": 2, "y": 13 },
+
+    { "slug": "cape-brink", "label": "Cape Brink", "kind": "route", "x": 3, "y": 13 },
+    { "slug": "bond-bridge", "label": "Bond Bridge", "kind": "water", "x": 3, "y": 14 },
+    { "slug": "berry-forest", "label": "Berry Forest", "kind": "forest", "x": 4, "y": 13 },
+    { "slug": "three-isle-port", "label": "Three Isle Port", "kind": "route", "x": 4, "y": 15 },
+
+    { "slug": "four-island", "label": "Four Island", "kind": "city", "x": 6, "y": 14 },
+    { "slug": "icefall-cave", "label": "Icefall Cave", "kind": "cave", "x": 6, "y": 13 },
+
+    { "slug": "resort-gorgeous", "label": "Resort Gorgeous", "kind": "water", "x": 8, "y": 13 },
+    { "slug": "five-island", "label": "Five Island", "kind": "city", "x": 8, "y": 14 },
+    { "slug": "water-labyrinth", "label": "Water Labyrinth", "kind": "water", "x": 8, "y": 15 },
+    { "slug": "lost-cave", "label": "Lost Cave", "kind": "cave", "x": 9, "y": 13 },
+    { "slug": "five-isle-meadow", "label": "Five Isle Meadow", "kind": "route", "x": 9, "y": 14 },
+    { "slug": "memorial-pillar", "label": "Memorial Pillar", "kind": "water", "x": 9, "y": 15 },
+
+    { "slug": "outcast-island", "label": "Outcast Island", "kind": "water", "x": 10, "y": 13 },
+    { "slug": "kanto-altering-cave", "label": "Altering Cave", "kind": "cave", "x": 10, "y": 14 },
+    { "slug": "green-path", "label": "Green Path", "kind": "route", "x": 11, "y": 13 },
+    { "slug": "water-path", "label": "Water Path", "kind": "water", "x": 12, "y": 13 },
+    { "slug": "pattern-bush", "label": "Pattern Bush", "kind": "forest", "x": 12, "y": 14 },
+    { "slug": "ruin-valley", "label": "Ruin Valley", "kind": "route", "x": 12, "y": 15 },
+
+    { "slug": "trainer-tower", "label": "Trainer Tower", "kind": "landmark", "x": 13, "y": 13 },
+    { "slug": "canyon-entrance", "label": "Canyon Entrance", "kind": "route", "x": 13, "y": 14 },
+    { "slug": "sevault-canyon", "label": "Sevault Canyon", "kind": "route", "x": 14, "y": 14 },
+    {
+      "slug": "tanoby-ruins",
+      "label": "Tanoby Ruins",
+      "kind": "cave",
+      "x": 14,
+      "y": 15,
+      "areas": ["monean-chamber", "liptoo-chamber", "weepth-chamber", "dilford-chamber", "scufib-chamber", "rixy-chamber", "viapos-chamber"]
+    },
+
+    { "slug": "navel-rock", "label": "Navel Rock", "kind": "event", "x": 15, "y": 13 },
+    { "slug": "birth-island", "label": "Birth Island", "kind": "event", "x": 15, "y": 15 }
+  ]
+}
