@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { loadIndex } from '../lib/api'
 import { TYPES } from '../lib/typeChart'
 import { GAMES, GAME_ORDER } from '../data/games'
@@ -16,10 +17,61 @@ onMounted(async () => {
   loaded.value = true
 })
 
-// deterministic "featured today" pick
+const router = useRouter()
+const goRandom = () => router.push(`/pokemon/${Math.floor(Math.random() * 386) + 1}`)
+
+// ---- Who's that Pokémon? — deterministic daily pick, guess to reveal ----
 const now = new Date()
 const featuredId = (now.getFullYear() * 372 + (now.getMonth() + 1) * 31 + now.getDate()) % 386 + 1
 const featured = computed(() => index.value.find((p) => p.id === featuredId))
+
+const WTP_KEY = 'dex3-wtp'
+const dateKey = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
+const solved = ref(false)
+const gaveUp = ref(false)
+const misses = ref(0)
+try {
+  const saved = JSON.parse(localStorage.getItem(WTP_KEY))
+  if (saved?.date === dateKey) {
+    solved.value = !!saved.solved
+    gaveUp.value = !!saved.gaveUp
+    misses.value = saved.misses ?? 0
+  }
+} catch { /* fresh day */ }
+const saveWtp = () =>
+  localStorage.setItem(WTP_KEY, JSON.stringify({ date: dateKey, solved: solved.value, gaveUp: gaveUp.value, misses: misses.value }))
+
+const guess = ref('')
+const wrongShake = ref(0) // increments to retrigger the shake animation
+const guessMsg = ref('')
+const revealed = computed(() => solved.value || gaveUp.value)
+
+const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '')
+
+function submitGuess() {
+  const q = normalize(guess.value)
+  if (!q || !featured.value) return
+  if (q === normalize(featured.value.name) || q === normalize(featured.value.label)) {
+    solved.value = true
+    guessMsg.value = ''
+    saveWtp()
+    playCry()
+    return
+  }
+  const known = index.value.some((p) => normalize(p.name) === q || normalize(p.label) === q)
+  guessMsg.value = known ? 'Nope, that’s not it!' : 'No such Pokémon in this dex…'
+  misses.value++
+  wrongShake.value++
+  guess.value = ''
+  saveWtp()
+}
+
+function giveUp() {
+  gaveUp.value = true
+  guessMsg.value = ''
+  saveWtp()
+}
+
 const crying = ref(false)
 function playCry() {
   const audio = new Audio(cryUrl(featuredId))
@@ -97,19 +149,51 @@ const hasFilters = computed(() => query.value || selectedTypes.value.length || g
           </p>
         </div>
 
-        <!-- featured today -->
+        <!-- Who's that Pokémon? -->
         <div v-if="featured" class="flex shrink-0 items-center gap-4 sm:pr-2">
-          <RouterLink :to="`/pokemon/${featured.id}`" class="group">
+          <component
+            :is="revealed ? 'router-link' : 'div'"
+            :to="revealed ? `/pokemon/${featured.id}` : undefined"
+            class="group relative"
+          >
             <img
               :src="spriteUrl(featured.id, 'art')"
-              :alt="featured.label"
-              class="size-28 object-contain drop-shadow-[0_6px_18px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-110 sm:size-32"
+              :alt="revealed ? featured.label : '???'"
+              class="size-28 object-contain drop-shadow-[0_6px_18px_rgba(0,0,0,0.5)] transition-all duration-500 sm:size-32"
+              :class="revealed ? 'group-hover:scale-110' : 'brightness-0 invert'"
+              draggable="false"
             />
-          </RouterLink>
-          <div>
-            <p class="font-display text-[10px] tracking-[0.2em] text-dim">FEATURED TODAY</p>
+          </component>
+
+          <!-- unsolved: the quiz -->
+          <div v-if="!revealed" class="w-52">
+            <p class="font-display text-[10px] tracking-[0.2em] text-lens">WHO'S THAT POKÉMON?</p>
+            <form class="mt-1.5 flex gap-1.5" :key="wrongShake" :class="wrongShake ? 'shake' : ''" @submit.prevent="submitGuess">
+              <input
+                v-model="guess"
+                type="text"
+                placeholder="Your guess…"
+                autocomplete="off"
+                class="w-full min-w-0 rounded-lg border border-line bg-panel px-2.5 py-1.5 text-sm text-ink outline-none placeholder:text-dim focus:border-lens"
+              />
+              <button type="submit" class="rounded-lg border border-lens/50 px-2.5 font-display text-[10px] tracking-wider text-lens transition-colors hover:bg-lens/10">GO</button>
+            </form>
+            <p v-if="guessMsg" class="mt-1 text-[11px] text-[#e0564b]">{{ guessMsg }}</p>
+            <div v-if="misses >= 1" class="mt-1.5 flex items-center gap-1.5">
+              <span class="font-display text-[9px] tracking-wider text-dim">HINT</span>
+              <TypeBadge v-for="t in featured.types" :key="t" :type="t" size="sm" />
+              <span v-if="misses >= 2" class="text-[11px] text-muted">{{ featured.genus }}</span>
+            </div>
+            <button v-if="misses >= 3" class="mt-1.5 text-[11px] text-dim underline hover:text-muted" @click="giveUp">I give up, show me</button>
+          </div>
+
+          <!-- revealed -->
+          <div v-else>
+            <p class="font-display text-[10px] tracking-[0.2em]" :class="solved ? 'text-[#7ac74c]' : 'text-dim'">
+              {{ solved ? "IT'S…" : 'IT WAS…' }}
+            </p>
             <RouterLink :to="`/pokemon/${featured.id}`" class="font-display text-xl text-ink transition-colors hover:text-dexglow">
-              {{ featured.label }}
+              {{ featured.label }}<span v-if="solved">!</span>
             </RouterLink>
             <p class="text-xs text-muted">{{ featured.genus }}</p>
             <div class="mt-1.5 flex items-center gap-1.5">
@@ -148,6 +232,11 @@ const hasFilters = computed(() => query.value || selectedTypes.value.length || g
         >
           <option v-for="s in SORTS" :key="s.id" :value="s.id">Sort: {{ s.label }}</option>
         </select>
+        <button
+          class="rounded-lg border border-line px-2.5 py-2 font-display text-xs tracking-wider text-muted transition-all hover:border-dex hover:text-dexglow"
+          title="Open a random Pokémon"
+          @click="goRandom"
+        >🎲 RANDOM</button>
         <button v-if="hasFilters" class="text-xs text-dim underline hover:text-muted" @click="reset">reset</button>
         <span class="ml-auto font-display text-xs text-dim">{{ filtered.length }} FOUND</span>
       </div>
@@ -191,3 +280,15 @@ const hasFilters = computed(() => query.value || selectedTypes.value.length || g
     </div>
   </div>
 </template>
+
+<style scoped>
+.shake {
+  animation: shake 0.4s ease;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+</style>

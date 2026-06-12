@@ -89,13 +89,6 @@ const links = [
         >{{ l.label }}</RouterLink>
       </nav>
 
-      <!-- random pokemon -->
-      <button
-        class="order-2 grid size-9 shrink-0 place-items-center rounded-lg border border-line text-base text-muted transition-all hover:rotate-12 hover:border-dex hover:text-dexglow sm:order-none"
-        title="Random Pokémon"
-        @click="router.push(`/pokemon/${Math.floor(Math.random() * 386) + 1}`)"
-      >🎲</button>
-
       <!-- global search: shares the top row with the logo on mobile -->
       <div class="relative order-2 min-w-0 flex-1 sm:order-none sm:w-56 sm:flex-none">
         <input
