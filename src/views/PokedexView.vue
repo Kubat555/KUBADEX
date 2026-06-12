@@ -20,10 +20,15 @@ onMounted(async () => {
 const router = useRouter()
 const goRandom = () => router.push(`/pokemon/${Math.floor(Math.random() * 386) + 1}`)
 
-// ---- Who's that Pokémon? — deterministic daily pick, guess to reveal ----
+// ---- Who's that Pokémon? — daily pick first, then endless random rounds ----
 const now = new Date()
 const featuredId = (now.getFullYear() * 372 + (now.getMonth() + 1) * 31 + now.getDate()) % 386 + 1
-const featured = computed(() => index.value.find((p) => p.id === featuredId))
+const currentId = ref(featuredId)
+const round = ref(0) // 0 = the daily one (persisted), 1+ = bonus rounds
+const featured = computed(() => index.value.find((p) => p.id === currentId.value))
+
+const streak = ref(Number(localStorage.getItem('dex3-streak')) || 0)
+const saveStreak = () => localStorage.setItem('dex3-streak', String(streak.value))
 
 const WTP_KEY = 'dex3-wtp'
 const dateKey = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
@@ -38,8 +43,10 @@ try {
     misses.value = saved.misses ?? 0
   }
 } catch { /* fresh day */ }
-const saveWtp = () =>
+const saveWtp = () => {
+  if (round.value > 0) return // bonus rounds aren't persisted, only the daily one
   localStorage.setItem(WTP_KEY, JSON.stringify({ date: dateKey, solved: solved.value, gaveUp: gaveUp.value, misses: misses.value }))
+}
 
 const guess = ref('')
 const wrongShake = ref(0) // increments to retrigger the shake animation
@@ -54,6 +61,8 @@ function submitGuess() {
   if (q === normalize(featured.value.name) || q === normalize(featured.value.label)) {
     solved.value = true
     guessMsg.value = ''
+    streak.value++
+    saveStreak()
     saveWtp()
     playCry()
     return
@@ -69,12 +78,27 @@ function submitGuess() {
 function giveUp() {
   gaveUp.value = true
   guessMsg.value = ''
+  streak.value = 0
+  saveStreak()
   saveWtp()
+}
+
+function playAgain() {
+  round.value++
+  let next = currentId.value
+  while (next === currentId.value) next = Math.floor(Math.random() * 386) + 1
+  currentId.value = next
+  solved.value = false
+  gaveUp.value = false
+  misses.value = 0
+  guess.value = ''
+  guessMsg.value = ''
+  wrongShake.value = 0
 }
 
 const crying = ref(false)
 function playCry() {
-  const audio = new Audio(cryUrl(featuredId))
+  const audio = new Audio(cryUrl(currentId.value))
   crying.value = true
   audio.addEventListener('ended', () => (crying.value = false))
   audio.addEventListener('error', () => (crying.value = false))
@@ -167,7 +191,10 @@ const hasFilters = computed(() => query.value || selectedTypes.value.length || g
 
           <!-- unsolved: the quiz -->
           <div v-if="!revealed" class="w-52">
-            <p class="font-display text-[10px] tracking-[0.2em] text-lens">WHO'S THAT POKÉMON?</p>
+            <p class="font-display text-[10px] tracking-[0.2em] text-lens">
+              WHO'S THAT POKÉMON?
+              <span v-if="streak >= 2" class="ml-1 text-type-electric">×{{ streak }}🔥</span>
+            </p>
             <form class="mt-1.5 flex gap-1.5" :key="wrongShake" :class="wrongShake ? 'shake' : ''" @submit.prevent="submitGuess">
               <input
                 v-model="guess"
@@ -204,6 +231,10 @@ const hasFilters = computed(() => query.value || selectedTypes.value.length || g
                 @click="playCry"
               >▶ CRY</button>
             </div>
+            <button
+              class="mt-2 rounded-lg border border-lens/50 px-2.5 py-1 font-display text-[10px] tracking-wider text-lens transition-all hover:bg-lens/10"
+              @click="playAgain"
+            >🎲 PLAY AGAIN<template v-if="streak >= 2"> · STREAK ×{{ streak }}</template></button>
           </div>
         </div>
       </div>
