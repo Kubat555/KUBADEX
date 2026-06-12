@@ -105,5 +105,28 @@ await new Promise((r) => setTimeout(r, 300))
 await page.screenshot({ path: `${OUT}/team.png` })
 console.log('✓ team.png')
 
+// 7. Bosses guide — Emerald gyms
+await open('/bosses', { version: 'emerald' })
+await scrollToGrid()
+await new Promise((r) => setTimeout(r, 300))
+await page.screenshot({ path: `${OUT}/bosses.png` })
+console.log('✓ bosses.png')
+
+// 8. EV hotspots — Emerald, Speed
+await open('/ev-training', { version: 'emerald' })
+await page.screenshot({ path: `${OUT}/ev.png` })
+console.log('✓ ev.png')
+
+// 9. Movedex — Thunderbolt learners
+await open('/moves', { version: 'emerald' })
+await page.evaluate(() => {
+  ;[...document.querySelectorAll('tbody tr')].find((r) => r.textContent.includes('Thunderbolt'))?.click()
+})
+await new Promise((r) => setTimeout(r, 400))
+await page.evaluate(() => window.scrollTo(0, 330))
+await new Promise((r) => setTimeout(r, 200))
+await page.screenshot({ path: `${OUT}/movedex.png` })
+console.log('✓ movedex.png')
+
 await browser.close()
 console.log('Done.')

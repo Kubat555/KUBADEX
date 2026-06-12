@@ -51,6 +51,9 @@ const closeSoon = () => setTimeout(() => (open.value = false), 150)
 const links = [
   { to: '/', label: 'POKÉDEX' },
   { to: '/map', label: 'MAP' },
+  { to: '/moves', label: 'MOVES' },
+  { to: '/bosses', label: 'BOSSES' },
+  { to: '/ev-training', label: 'EV' },
   { to: '/compare', label: 'COMPARE' },
   { to: '/team', label: 'TEAM' },
 ]
@@ -77,8 +80,8 @@ const links = [
         </span>
       </RouterLink>
 
-      <!-- nav: its own full-width row on mobile, inline on sm+ -->
-      <nav class="order-3 -mb-1 flex w-full items-center justify-around border-t border-line/60 pt-1.5 sm:order-none sm:ml-auto sm:w-auto sm:justify-start sm:gap-1 sm:border-t-0 sm:pt-0">
+      <!-- nav: scrollable full-width row on mobile, inline on sm+ -->
+      <nav class="scrollbar-thin order-3 -mb-1 flex w-full items-center gap-0.5 overflow-x-auto whitespace-nowrap border-t border-line/60 pt-1.5 sm:order-none sm:ml-auto sm:w-auto sm:gap-1 sm:border-t-0 sm:pt-0">
         <RouterLink
           v-for="l in links" :key="l.to" :to="l.to"
           class="rounded-md px-2 py-1.5 font-display text-[13px] tracking-wider text-muted transition-colors hover:text-ink sm:px-3 sm:text-sm"

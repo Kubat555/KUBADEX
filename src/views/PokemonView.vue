@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { usePrefsStore } from '../stores/prefs'
-import { loadPokemon, loadMoves, loadAbilities, spriteUrl } from '../lib/api'
+import { loadPokemon, loadMoves, loadAbilities, spriteUrl, cryUrl } from '../lib/api'
 import { matchupBuckets } from '../lib/typeChart'
 import { GAMES, GAME_ORDER, METHOD_LABELS, METHOD_ICONS } from '../data/games'
 import { SPECIAL_ENCOUNTERS } from '../data/specialEncounters'
@@ -16,6 +16,7 @@ import GameTabs from '../components/GameTabs.vue'
 import RegionMap from '../components/RegionMap.vue'
 import EvolutionTree from '../components/EvolutionTree.vue'
 import MovesTable from '../components/MovesTable.vue'
+import CatchCalculator from '../components/CatchCalculator.vue'
 
 const route = useRoute()
 const prefs = usePrefsStore()
@@ -102,6 +103,16 @@ const versionsWithData = computed(() =>
 
 const prevId = computed(() => (p.value && p.value.id > 1 ? p.value.id - 1 : null))
 const nextId = computed(() => (p.value && p.value.id < 386 ? p.value.id + 1 : null))
+
+// GBA cry playback
+const crying = ref(false)
+function playCry() {
+  const audio = new Audio(cryUrl(p.value.id))
+  crying.value = true
+  audio.addEventListener('ended', () => (crying.value = false))
+  audio.addEventListener('error', () => (crying.value = false))
+  audio.play().catch(() => (crying.value = false))
+}
 </script>
 
 <template>
@@ -132,7 +143,7 @@ const nextId = computed(() => (p.value && p.value.id < 386 ? p.value.id + 1 : nu
         <div class="flex flex-col items-center">
           <img :src="spriteUrl(p.id, 'art')" :alt="p.label" class="size-56 object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)]" />
           <div class="mt-3 flex items-center gap-2 rounded-xl border border-line bg-bg/40 p-2">
-            <img :src="spriteUrl(p.id, sprite)" :alt="`${p.label} sprite`" class="pixelated size-14 object-contain" />
+            <img :src="spriteUrl(p.id, sprite)" :alt="`${p.label} sprite`" class="pixelated size-14 object-contain" :class="crying ? 'animate-marker' : ''" />
             <div class="flex flex-col gap-1">
               <button
                 v-for="s in sprites" :key="s.id"
@@ -142,6 +153,11 @@ const nextId = computed(() => (p.value && p.value.id < 386 ? p.value.id + 1 : nu
               >{{ s.label }}</button>
             </div>
           </div>
+          <button
+            class="mt-2 flex items-center gap-1.5 rounded-lg border px-3 py-1.5 font-display text-xs tracking-wider transition-all"
+            :class="crying ? 'border-dex bg-dex/15 text-dexglow' : 'border-line text-muted hover:border-dex hover:text-dexglow'"
+            @click="playCry"
+          >▶ CRY</button>
         </div>
 
         <!-- identity + flavor -->
@@ -311,6 +327,11 @@ const nextId = computed(() => (p.value && p.value.id < 386 ? p.value.id + 1 : nu
         <div><dt class="font-display text-[10px] tracking-wider text-dim">EGG GROUPS</dt><dd class="text-ink">{{ p.training.eggGroups.join(', ') || '—' }}</dd></div>
         <div><dt class="font-display text-[10px] tracking-wider text-dim">HATCH STEPS</dt><dd class="text-ink">~{{ p.training.hatchSteps.toLocaleString() }}</dd></div>
       </dl>
+
+      <div class="mt-6 border-t border-line pt-5">
+        <h3 class="mb-4 font-display text-sm tracking-widest text-dexglow">CATCH CALCULATOR</h3>
+        <CatchCalculator :catch-rate="p.training.catchRate" :types="p.types" />
+      </div>
     </section>
   </div>
 </template>

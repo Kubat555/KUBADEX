@@ -34,6 +34,11 @@ and exactly *where to catch it* on interactive Kanto & Hoenn maps.
 - **Evolution trees** that handle every Gen 3 oddity: branching Eevee & Wurmple, Feebas beauty, Shedinja's empty-slot trick
 - **Compare tool** — up to three Pokémon: stat radar, side-by-side bars, damage-taken table
 - **Team Builder** — six slots, shared-weakness warnings, STAB coverage gaps and per-version availability, saved locally
+- **🏆 Gym & League guide** — every boss of all five games in order, with exact teams, levels and auto-computed "bring these types" hints (Emerald's Juan and double-battle twists included)
+- **Movedex** — all 353 moves with TM/HM numbers per version and reverse lookup: pick a move, see everyone who learns it
+- **EV hotspots** — best grinding spots per stat, ranked by expected EVs per encounter straight from the encounter tables
+- **Catch calculator** — exact Gen 3 capture formula on every page: HP, status, all the ball types
+- **▶ Authentic GBA cries** — every Pokémon plays its original Game Boy Advance cry
 - **Curated event notes** — starters, fossils, gift Pokémon, roamers, Mew, Deoxys, Lugia/Ho-Oh and friends
 
 ## 🎯 Built for Gen 3 — not a generic dex
@@ -74,6 +79,21 @@ Spot shared weaknesses and STAB coverage gaps before the Elite Four does.
 
 <img src=".github/assets/team.png" width="900" alt="Team builder with coverage analysis" />
 
+### Gym & League guide
+All boss battles of your version with auto-computed counter-types — switch the game tab and Wallace becomes Juan.
+
+<img src=".github/assets/bosses.png" width="900" alt="Emerald gym leaders guide" />
+
+### Movedex
+Every move with its Gen 3 TM/HM number — and everyone who learns it, by level, machine, tutor or breeding.
+
+<img src=".github/assets/movedex.png" width="900" alt="Movedex with Thunderbolt learners" />
+
+### EV hotspots
+Ranked grinding spots per stat, computed from the real encounter tables — New Mauville really is the best Speed farm.
+
+<img src=".github/assets/ev.png" width="900" alt="EV training hotspots for Speed in Emerald" />
+
 ## 🚀 Quick start
 
 ```bash
@@ -93,11 +113,13 @@ npm run data     # (optional) regenerate the dataset from PokéAPI
 ## 🛠 How it works
 
 ```
-scripts/build-data.mjs      PokéAPI → optimized static JSON + GBA sprites (cached, rerunnable)
-public/data/                index, per-Pokémon files, moves, abilities, encounters-by-location
+scripts/build-data.mjs      PokéAPI → optimized static JSON + GBA sprites & cries (cached, rerunnable)
+public/data/                index, per-Pokémon files, moves, abilities, encounters, move-learners
 src/data/maps/*.json        hand-authored Town Map grids, slugs match PokéAPI locations
+src/data/bosses.json        curated gym / Elite Four / Champion rosters for all three game variants
 src/data/specialEncounters  curated notes: starters, fossils, gifts, statics, events
 src/lib/typeChart.js        the 17-type Gen 3 effectiveness chart
+src/lib/catchRate.js        the exact Gen 3 capture formula
 src/views + components      Vue 3 SFCs, Tailwind v4 theme, Pinia for team & version prefs
 ```
 

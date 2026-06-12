@@ -119,6 +119,7 @@ async function main() {
     mkdir(CACHE, { recursive: true }),
     mkdir(path.join(DATA, 'pokemon'), { recursive: true }),
     ...['art', 'gen3', 'frlg', 'shiny', 'icons'].map((d) => mkdir(path.join(SPRITES, d), { recursive: true })),
+    mkdir(path.join(ROOT, 'public', 'cries'), { recursive: true }),
   ])
 
   const ids = Array.from({ length: MAX_ID }, (_, i) => i + 1)
@@ -172,9 +173,25 @@ async function main() {
 
   console.log(`Fetching ${moveNames.size} moves…`)
   const moveList = await pool([...moveNames], 10, (n) => getJson(`https://pokeapi.co/api/v2/move/${n}`))
+
+  // TM/HM numbers per version group
+  const machineRefs = []
+  for (const m of moveList)
+    for (const mc of m.machines ?? [])
+      if (VERSION_GROUPS.includes(mc.version_group.name)) machineRefs.push({ move: m.name, vg: mc.version_group.name, url: mc.machine.url })
+  console.log(`Fetching ${machineRefs.length} TM/HM machines…`)
+  const machineData = await pool(machineRefs, 10, (r) => getJson(r.url))
+  const machinesByMove = {} // move -> { vg: 'TM24' }
+  machineRefs.forEach((r, i) => {
+    const item = machineData[i]?.item?.name
+    if (!item) return
+    ;(machinesByMove[r.move] ??= {})[r.vg] = item.toUpperCase() // tm24 -> TM24
+  })
+
   const movesOut = {}
   for (const m of moveList) {
     movesOut[m.name] = {
+      machines: machinesByMove[m.name] ?? undefined,
       label: en(m.names)?.name || cap(m.name),
       type: gen3MoveType(m.type.name),
       class: gen3DamageClass(m),
@@ -222,6 +239,7 @@ async function main() {
   console.log('Assembling JSON…')
   const index = []
   const byLocation = {} // region -> slug -> {label, versions: {v: {pokeId: {methods}}}}
+  const moveLearners = {} // move -> vg -> [[pokemonId, method, level]]
   const statKeys = { hp: 'hp', attack: 'atk', defense: 'def', 'special-attack': 'spa', 'special-defense': 'spd', speed: 'spe' }
 
   for (const { pokemon, species, encounters } of base) {
@@ -316,6 +334,7 @@ async function main() {
             const vg = d.version_group.name
             if (!VERSION_GROUPS.includes(vg)) continue
             ;(learn[vg] ??= []).push([d.move_learn_method.name, d.level_learned_at])
+            ;((moveLearners[m.move.name] ??= {})[vg] ??= []).push([pokemon.id, d.move_learn_method.name, d.level_learned_at])
           }
           return Object.keys(learn).length ? { name: m.move.name, learn } : null
         })
@@ -333,6 +352,7 @@ async function main() {
       genus: detail.genus,
       types: detail.types,
       stats,
+      evYield,
       dex,
       games,
     })
@@ -343,6 +363,7 @@ async function main() {
   await writeFile(path.join(DATA, 'moves.json'), JSON.stringify(movesOut))
   await writeFile(path.join(DATA, 'abilities.json'), JSON.stringify(abilitiesOut))
   await writeFile(path.join(DATA, 'encounters-by-location.json'), JSON.stringify(byLocation))
+  await writeFile(path.join(DATA, 'move-learners.json'), JSON.stringify(moveLearners))
 
   // report: all wild location slugs per region, to reconcile with the hand-made maps
   const report = {}
@@ -366,6 +387,15 @@ async function main() {
       if (await exists(file)) continue
       const buf = await fetchRetry(url, false)
       if (buf) await writeFile(file, buf)
+    }
+    // GBA-era cry (legacy = pre-X/Y audio), used by the ▶ CRY button
+    const cryUrl = pokemon.cries?.legacy ?? pokemon.cries?.latest
+    if (cryUrl) {
+      const cryFile = path.join(ROOT, 'public', 'cries', `${pokemon.id}.ogg`)
+      if (!(await exists(cryFile))) {
+        const buf = await fetchRetry(cryUrl, false)
+        if (buf) await writeFile(cryFile, buf)
+      }
     }
   })
 
