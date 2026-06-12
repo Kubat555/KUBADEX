@@ -87,11 +87,13 @@ const league = computed(() => list.value.filter((b) => !b.title.startsWith('Gym'
             <RouterLink
               v-for="(m, mi) in b.team" :key="mi"
               :to="`/pokemon/${m.id}`"
-              class="flex items-center gap-1.5 rounded-lg border border-line bg-bg/40 py-1 pl-1 pr-2 transition-colors hover:border-line2 hover:bg-panel2"
+              class="group/mon flex items-center gap-2 rounded-lg border border-line bg-bg/40 py-1 pl-1.5 pr-2.5 transition-colors hover:border-line2 hover:bg-panel2"
             >
-              <img :src="spriteUrl(m.id, 'icons')" class="pixelated size-7" :alt="m.name" />
-              <span class="text-xs font-medium text-ink">{{ m.name }}</span>
-              <span class="font-display text-[10px] text-dim">{{ m.level }}</span>
+              <img :src="spriteUrl(m.id, 'gen3')" class="pixelated size-12 object-contain transition-transform duration-200 group-hover/mon:scale-110" :alt="m.name" />
+              <span class="flex flex-col leading-tight">
+                <span class="text-xs font-medium text-ink">{{ m.name }}</span>
+                <span class="font-display text-[10px] text-dim">Lv {{ m.level }}</span>
+              </span>
             </RouterLink>
           </div>
 
