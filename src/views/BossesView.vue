@@ -63,16 +63,25 @@ const league = computed(() => list.value.filter((b) => !b.title.startsWith('Gym'
         >
           <div class="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full opacity-[0.12] blur-2xl" :style="{ background: 'var(--t)' }"></div>
 
-          <div class="flex items-baseline justify-between gap-2">
-            <div class="flex items-baseline gap-2">
-              <span v-if="gi === 0" class="font-display text-lg text-dim">{{ String(i + 1).padStart(2, '0') }}</span>
-              <h3 class="font-display text-xl text-ink">{{ b.name }}</h3>
+          <div class="flex items-start gap-3">
+            <img
+              :src="spriteUrl(b.sprite, 'trainers')"
+              :alt="b.name"
+              class="pixelated size-16 shrink-0 rounded-xl border border-line bg-bg/40 object-contain p-1"
+            />
+            <div class="min-w-0 flex-1">
+              <div class="flex items-baseline justify-between gap-2">
+                <div class="flex items-baseline gap-2">
+                  <span v-if="gi === 0" class="font-display text-lg text-dim">{{ String(i + 1).padStart(2, '0') }}</span>
+                  <h3 class="truncate font-display text-xl text-ink">{{ b.name }}</h3>
+                </div>
+                <TypeBadge :type="b.specialty" size="sm" />
+              </div>
+              <p class="mt-0.5 text-xs text-muted">
+                {{ b.title }} · {{ b.city }}<template v-if="b.badge"> · <span class="text-ink">{{ b.badge }}</span></template>
+              </p>
             </div>
-            <TypeBadge :type="b.specialty" size="sm" />
           </div>
-          <p class="mt-0.5 text-xs text-muted">
-            {{ b.title }} · {{ b.city }}<template v-if="b.badge"> · <span class="text-ink">{{ b.badge }}</span></template>
-          </p>
 
           <div class="mt-3 flex flex-wrap gap-1.5">
             <RouterLink

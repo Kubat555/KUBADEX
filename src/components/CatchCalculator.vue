@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { catchChance, BALLS, STATUSES } from '../lib/catchRate'
+import { spriteUrl } from '../lib/api'
 
 const props = defineProps({
   catchRate: { type: Number, required: true },
@@ -63,7 +64,7 @@ const pct = (p) => (p >= 0.999 ? '100%' : p < 0.001 ? '<0.1%' : (p * 100).toFixe
         class="rounded-lg border border-line bg-bg/40 p-2.5"
       >
         <div class="flex items-center gap-1.5">
-          <span class="size-2.5 shrink-0 rounded-full" :style="{ background: b.color }"></span>
+          <img :src="spriteUrl(b.sprite, 'balls')" :alt="b.label" class="pixelated size-6 shrink-0" />
           <span class="truncate text-xs font-semibold text-ink">{{ b.label }}</span>
         </div>
         <p class="mt-1 font-display text-lg leading-none" :style="{ color: b.p >= 0.5 ? '#7ac74c' : b.p >= 0.15 ? '#e8cf45' : '#e0564b' }">

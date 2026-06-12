@@ -9,13 +9,13 @@ export const STATUSES = [
 ]
 
 export const BALLS = [
-  { id: 'poke', label: 'Poké Ball', mult: () => 1, color: '#e3350d' },
-  { id: 'great', label: 'Great Ball', mult: () => 1.5, color: '#3b6ee0' },
-  { id: 'ultra', label: 'Ultra Ball', mult: () => 2, color: '#f3d23b' },
-  { id: 'net', label: 'Net Ball', mult: (t) => (t.includes('bug') || t.includes('water') ? 3 : 1), color: '#74cec0', note: '×3 vs Bug/Water' },
-  { id: 'repeat', label: 'Repeat Ball', mult: () => 3, color: '#eb9c46', note: '×3 if already in dex' },
-  { id: 'timer', label: 'Timer Ball', mult: () => 4, color: '#9aa3bd', note: '×4 after 30+ turns' },
-  { id: 'dive', label: 'Dive Ball', mult: () => 3.5, color: '#4d90d5', note: '×3.5 underwater only' },
+  { id: 'poke', label: 'Poké Ball', sprite: 'poke-ball', mult: () => 1 },
+  { id: 'great', label: 'Great Ball', sprite: 'great-ball', mult: () => 1.5 },
+  { id: 'ultra', label: 'Ultra Ball', sprite: 'ultra-ball', mult: () => 2 },
+  { id: 'net', label: 'Net Ball', sprite: 'net-ball', mult: (t) => (t.includes('bug') || t.includes('water') ? 3 : 1), note: '×3 vs Bug/Water' },
+  { id: 'repeat', label: 'Repeat Ball', sprite: 'repeat-ball', mult: () => 3, note: '×3 if already in dex' },
+  { id: 'timer', label: 'Timer Ball', sprite: 'timer-ball', mult: () => 4, note: '×4 after 30+ turns' },
+  { id: 'dive', label: 'Dive Ball', sprite: 'dive-ball', mult: () => 3.5, note: '×3.5 underwater only' },
 ]
 
 /**
