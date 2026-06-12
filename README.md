@@ -19,6 +19,10 @@ and exactly *where to catch it* on interactive Kanto & Hoenn maps.
 
 <br/>
 
+### [▶ &nbsp;Open KUBADEX — kubadex.vercel.app](https://kubadex.vercel.app)
+
+<br/>
+
 <img src=".github/assets/home.png" width="900" alt="KUBADEX home — Pokédex grid with filters" />
 
 </div>

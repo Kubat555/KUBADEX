@@ -128,5 +128,11 @@ await new Promise((r) => setTimeout(r, 200))
 await page.screenshot({ path: `${OUT}/movedex.png` })
 console.log('✓ movedex.png')
 
+// 10. Social-share card (og:image, 1200×630)
+await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 1 })
+await open('/')
+await page.screenshot({ path: 'public/og.png' })
+console.log('✓ og.png')
+
 await browser.close()
 console.log('Done.')

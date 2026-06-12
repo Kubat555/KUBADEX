@@ -125,7 +125,7 @@ const panel = computed(() => {
 
     <div class="grid items-start gap-5 lg:grid-cols-[1.4fr_1fr]">
       <!-- table -->
-      <section class="animate-fadeup overflow-hidden rounded-2xl border border-line bg-panel/60" style="animation-delay: 100ms">
+      <section class="animate-fadeup min-w-0 overflow-hidden rounded-2xl border border-line bg-panel/60" style="animation-delay: 100ms">
         <div class="scrollbar-thin max-h-[70vh] overflow-y-auto">
           <table class="w-full text-sm">
             <thead class="sticky top-0 bg-panel">

@@ -7,6 +7,7 @@ const props = defineProps({
   highlights: { type: Object, default: () => ({}) },
   selected: { type: String, default: null },
   interactive: { type: Boolean, default: true },
+  legend: { type: Boolean, default: true },
 })
 const emit = defineEmits(['select'])
 
@@ -36,8 +37,11 @@ function showTip(e, place) {
   const wrap = wrapEl.value.getBoundingClientRect()
   const r = e.currentTarget.getBoundingClientRect()
   const hl = props.highlights[place.slug]
+  // clamp inside the wrapper so edge markers can't widen the page on mobile
+  const half = Math.min(120, wrap.width / 2)
+  const x = Math.min(Math.max(r.left - wrap.left + r.width / 2, half), wrap.width - half)
   tooltip.value = {
-    x: r.left - wrap.left + r.width / 2,
+    x,
     y: r.top - wrap.top,
     label: place.label,
     kind: place.kind,
@@ -45,6 +49,15 @@ function showTip(e, place) {
     color: hl?.color ?? null,
   }
 }
+
+const LEGEND = [
+  { kind: 'city', label: 'City' },
+  { kind: 'route', label: 'Route' },
+  { kind: 'water', label: 'Water' },
+  { kind: 'cave', label: 'Cave' },
+  { kind: 'forest', label: 'Forest' },
+  { kind: 'event', label: 'Event' },
+]
 
 function rectAttrs(p) {
   return {
@@ -126,11 +139,25 @@ function strokeFor(p) {
       </g>
     </svg>
 
+    <!-- legend -->
+    <div v-if="legend" class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 px-1">
+      <span v-for="l in LEGEND" :key="l.kind" class="flex items-center gap-1.5">
+        <svg viewBox="0 0 14 14" class="size-3.5">
+          <rect
+            x="1" y="1" width="12" height="12" :rx="l.kind === 'city' ? 4 : 3"
+            :fill="KIND_STYLE[l.kind].fill" :stroke="KIND_STYLE[l.kind].stroke" stroke-width="1.5"
+            :stroke-dasharray="l.kind === 'event' ? '2.5 2.5' : null"
+          />
+        </svg>
+        <span class="font-display text-[10px] tracking-wider text-dim">{{ l.label.toUpperCase() }}</span>
+      </span>
+    </div>
+
     <!-- tooltip -->
     <Transition name="tip">
       <div
         v-if="tooltip"
-        class="pointer-events-none absolute z-20 w-max max-w-60 -translate-x-1/2 -translate-y-full rounded-lg border border-line2 bg-bg/95 px-3 py-2 shadow-xl shadow-black/50 backdrop-blur"
+        class="pointer-events-none absolute z-20 w-max max-w-[min(15rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-full rounded-lg border border-line2 bg-bg/95 px-3 py-2 shadow-xl shadow-black/50 backdrop-blur"
         :style="{ left: tooltip.x + 'px', top: tooltip.y - 6 + 'px' }"
       >
         <p class="font-display text-sm leading-tight" :style="{ color: tooltip.color ?? 'var(--color-ink)' }">

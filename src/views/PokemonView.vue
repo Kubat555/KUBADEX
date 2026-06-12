@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { usePrefsStore } from '../stores/prefs'
 import { loadPokemon, loadMoves, loadAbilities, spriteUrl, cryUrl } from '../lib/api'
@@ -17,6 +17,7 @@ import RegionMap from '../components/RegionMap.vue'
 import EvolutionTree from '../components/EvolutionTree.vue'
 import MovesTable from '../components/MovesTable.vue'
 import CatchCalculator from '../components/CatchCalculator.vue'
+import PokeballSpinner from '../components/PokeballSpinner.vue'
 
 const route = useRoute()
 const prefs = usePrefsStore()
@@ -104,6 +105,16 @@ const versionsWithData = computed(() =>
 const prevId = computed(() => (p.value && p.value.id > 1 ? p.value.id - 1 : null))
 const nextId = computed(() => (p.value && p.value.id < 386 ? p.value.id + 1 : null))
 
+// ← / → flip between entries (unless typing in a field)
+const router = useRouter()
+function onArrows(e) {
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return
+  if (e.key === 'ArrowLeft' && prevId.value) router.push(`/pokemon/${prevId.value}`)
+  else if (e.key === 'ArrowRight' && nextId.value) router.push(`/pokemon/${nextId.value}`)
+}
+onMounted(() => window.addEventListener('keydown', onArrows))
+onBeforeUnmount(() => window.removeEventListener('keydown', onArrows))
+
 // GBA cry playback
 const crying = ref(false)
 function playCry() {
@@ -116,7 +127,7 @@ function playCry() {
 </script>
 
 <template>
-  <div v-if="!p" class="py-24 text-center font-display text-sm tracking-widest text-dim">OPENING ENTRY…</div>
+  <PokeballSpinner v-if="!p" label="OPENING ENTRY…" />
 
   <div v-else class="space-y-5">
     <!-- prev / next -->
@@ -261,7 +272,7 @@ function playCry() {
       </div>
 
       <div v-else class="mt-5 grid gap-5 lg:grid-cols-[1.4fr_1fr]">
-        <div class="rounded-xl border border-line bg-bg/50 p-3">
+        <div class="min-w-0 rounded-xl border border-line bg-bg/50 p-3">
           <RegionMap :map="mapData" :highlights="highlights" :interactive="false" />
         </div>
 

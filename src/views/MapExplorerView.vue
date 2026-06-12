@@ -85,7 +85,7 @@ function pickOffMap(o) {
     </section>
 
     <div class="grid gap-5 lg:grid-cols-[1.5fr_1fr]">
-      <section class="animate-fadeup rounded-2xl border border-line bg-panel/60 p-4" style="animation-delay: 60ms">
+      <section class="animate-fadeup min-w-0 rounded-2xl border border-line bg-panel/60 p-4" style="animation-delay: 60ms">
         <RegionMap
           :map="maps[region]"
           :selected="selected?.slug"
@@ -104,7 +104,7 @@ function pickOffMap(o) {
         </div>
       </section>
 
-      <section class="animate-fadeup rounded-2xl border border-line bg-panel/60 p-5" style="animation-delay: 100ms">
+      <section class="animate-fadeup min-w-0 rounded-2xl border border-line bg-panel/60 p-5" style="animation-delay: 100ms">
         <div v-if="!selected" class="grid h-full min-h-60 place-items-center text-center">
           <div>
             <p class="font-display text-sm tracking-widest text-dim">SELECT A LOCATION</p>

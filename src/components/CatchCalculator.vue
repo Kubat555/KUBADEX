@@ -62,6 +62,7 @@ const pct = (p) => (p >= 0.999 ? '100%' : p < 0.001 ? '<0.1%' : (p * 100).toFixe
       <div
         v-for="b in rows" :key="b.id"
         class="rounded-lg border border-line bg-bg/40 p-2.5"
+        :title="b.note"
       >
         <div class="flex items-center gap-1.5">
           <img :src="spriteUrl(b.sprite, 'balls')" :alt="b.label" class="pixelated size-6 shrink-0" />
@@ -71,8 +72,10 @@ const pct = (p) => (p >= 0.999 ? '100%' : p < 0.001 ? '<0.1%' : (p * 100).toFixe
           {{ pct(b.p) }}
         </p>
         <p class="mt-0.5 text-[10px] text-dim">
-          {{ b.note ?? (b.throws === Infinity ? '—' : `~${b.throws} throw${b.throws > 1 ? 's' : ''}`) }}
+          <template v-if="b.p > 0">in 5 throws: {{ pct(1 - Math.pow(1 - b.p, 5)) }}</template>
+          <template v-else>—</template>
         </p>
+        <p v-if="b.note" class="text-[10px] text-lens/80">{{ b.note }}</p>
       </div>
     </div>
     <p class="mt-2 text-[11px] text-dim">

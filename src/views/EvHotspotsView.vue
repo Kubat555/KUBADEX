@@ -6,6 +6,7 @@ import { loadIndex, loadByLocation, spriteUrl } from '../lib/api'
 import { GAMES, METHOD_LABELS, METHOD_ICONS } from '../data/games'
 import { STAT_LABELS, STAT_ORDER } from '../lib/utils'
 import GameTabs from '../components/GameTabs.vue'
+import PokeballSpinner from '../components/PokeballSpinner.vue'
 
 const { version } = storeToRefs(usePrefsStore())
 const stat = ref('spe')
@@ -78,8 +79,9 @@ const maxEv = computed(() => hotspots.value[0]?.ev ?? 1)
       >{{ STAT_LABELS[s].toUpperCase() }}</button>
     </div>
 
-    <div v-if="!hotspots.length" class="rounded-2xl border border-dashed border-line py-16 text-center text-sm text-dim">
-      {{ byLoc ? 'No good spots for this stat here — try another version.' : 'Crunching encounter tables…' }}
+    <PokeballSpinner v-if="!byLoc" label="CRUNCHING TABLES…" />
+    <div v-else-if="!hotspots.length" class="rounded-2xl border border-dashed border-line py-16 text-center text-sm text-dim">
+      No good spots for this stat here — try another version.
     </div>
 
     <div class="space-y-2.5">

@@ -5,6 +5,9 @@ import { TYPES } from '../lib/typeChart'
 import { GAMES, GAME_ORDER } from '../data/games'
 import { statTotal } from '../lib/utils'
 import PokemonCard from '../components/PokemonCard.vue'
+import PokeballSpinner from '../components/PokeballSpinner.vue'
+import TypeBadge from '../components/TypeBadge.vue'
+import { spriteUrl, cryUrl } from '../lib/api'
 
 const index = ref([])
 const loaded = ref(false)
@@ -12,6 +15,19 @@ onMounted(async () => {
   index.value = await loadIndex()
   loaded.value = true
 })
+
+// deterministic "featured today" pick
+const now = new Date()
+const featuredId = (now.getFullYear() * 372 + (now.getMonth() + 1) * 31 + now.getDate()) % 386 + 1
+const featured = computed(() => index.value.find((p) => p.id === featuredId))
+const crying = ref(false)
+function playCry() {
+  const audio = new Audio(cryUrl(featuredId))
+  crying.value = true
+  audio.addEventListener('ended', () => (crying.value = false))
+  audio.addEventListener('error', () => (crying.value = false))
+  audio.play().catch(() => (crying.value = false))
+}
 
 const query = ref('')
 const selectedTypes = ref([])
@@ -63,15 +79,50 @@ const hasFilters = computed(() => query.value || selectedTypes.value.length || g
 <template>
   <div>
     <!-- hero -->
-    <section class="animate-fadeup mb-6 rounded-2xl border border-line bg-panel/60 p-6 sm:p-8">
-      <h1 class="font-display text-3xl leading-tight text-ink sm:text-4xl">
-        GEN III <span class="text-dexglow">FIELD GUIDE</span>
-      </h1>
-      <p class="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-        Every Pokémon of FireRed, LeafGreen, Ruby, Sapphire &amp; Emerald — stats, abilities, evolutions,
-        full movesets and exactly <RouterLink to="/map" class="text-lens underline decoration-line2 hover:text-ink">where to find them</RouterLink>
-        in each version.
-      </p>
+    <section class="animate-fadeup relative mb-6 overflow-hidden rounded-2xl border border-line bg-panel/60 p-6 sm:p-8">
+      <div
+        v-if="featured"
+        class="pointer-events-none absolute -right-16 -top-20 size-72 rounded-full opacity-[0.12] blur-3xl"
+        :style="{ background: `var(--color-type-${featured.types[0]})` }"
+      ></div>
+      <div class="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 class="font-display text-3xl leading-tight text-ink sm:text-4xl">
+            GEN III <span class="text-dexglow">FIELD GUIDE</span>
+          </h1>
+          <p class="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
+            Every Pokémon of FireRed, LeafGreen, Ruby, Sapphire &amp; Emerald — stats, abilities, evolutions,
+            full movesets and exactly <RouterLink to="/map" class="text-lens underline decoration-line2 hover:text-ink">where to find them</RouterLink>
+            in each version.
+          </p>
+        </div>
+
+        <!-- featured today -->
+        <div v-if="featured" class="flex shrink-0 items-center gap-4 sm:pr-2">
+          <RouterLink :to="`/pokemon/${featured.id}`" class="group">
+            <img
+              :src="spriteUrl(featured.id, 'art')"
+              :alt="featured.label"
+              class="size-28 object-contain drop-shadow-[0_6px_18px_rgba(0,0,0,0.5)] transition-transform duration-300 group-hover:scale-110 sm:size-32"
+            />
+          </RouterLink>
+          <div>
+            <p class="font-display text-[10px] tracking-[0.2em] text-dim">FEATURED TODAY</p>
+            <RouterLink :to="`/pokemon/${featured.id}`" class="font-display text-xl text-ink transition-colors hover:text-dexglow">
+              {{ featured.label }}
+            </RouterLink>
+            <p class="text-xs text-muted">{{ featured.genus }}</p>
+            <div class="mt-1.5 flex items-center gap-1.5">
+              <TypeBadge v-for="t in featured.types" :key="t" :type="t" size="sm" />
+              <button
+                class="rounded-md border px-2 py-0.5 font-display text-[10px] tracking-wider transition-all"
+                :class="crying ? 'border-dex bg-dex/15 text-dexglow' : 'border-line text-dim hover:border-dex hover:text-dexglow'"
+                @click="playCry"
+              >▶ CRY</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- filters -->
@@ -131,7 +182,7 @@ const hasFilters = computed(() => query.value || selectedTypes.value.length || g
     </section>
 
     <!-- grid -->
-    <div v-if="!loaded" class="py-20 text-center font-display text-sm tracking-widest text-dim">LOADING DEX…</div>
+    <PokeballSpinner v-if="!loaded" label="LOADING DEX…" />
     <div v-else-if="!filtered.length" class="rounded-2xl border border-dashed border-line py-20 text-center text-sm text-dim">
       Nothing matches those filters.
     </div>
