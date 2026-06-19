@@ -58,24 +58,24 @@ const pct = (p) => (p >= 0.999 ? '100%' : p < 0.001 ? '<0.1%' : (p * 100).toFixe
       </div>
     </div>
 
-    <div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+    <div class="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       <div
         v-for="b in rows" :key="b.id"
-        class="rounded-lg border border-line bg-bg/40 p-2.5"
-        :title="b.note"
+        class="flex min-h-24 items-center justify-center gap-2.5 overflow-hidden rounded-xl border border-line bg-bg/40 p-2.5"
       >
-        <div class="flex items-center gap-2">
-          <img :src="spriteUrl(b.sprite, 'balls')" :alt="b.label" class="pixelated size-9 shrink-0" />
-          <span class="truncate text-sm font-semibold text-ink">{{ b.label }}</span>
+        <img :src="spriteUrl(b.sprite, 'balls')" :alt="b.label" class="pixelated size-18 shrink-0" />
+        <!-- name → condition → chance → 5-throw odds, vertically centered as one block -->
+        <div class="min-w-0">
+          <p class="truncate text-sm font-semibold text-ink">{{ b.label }}</p>
+          <p class="truncate text-[11px] text-lens/80">{{ b.note || 'Always available' }}</p>
+          <p class="mt-1 text-xl font-bold leading-none tabular-nums" :style="{ color: b.p >= 0.5 ? '#7ac74c' : b.p >= 0.15 ? '#e8cf45' : '#e0564b' }">
+            {{ pct(b.p) }}
+          </p>
+          <p class="mt-0.5 truncate text-[11px] text-dim tabular-nums">
+            <template v-if="b.p > 0">{{ pct(1 - Math.pow(1 - b.p, 5)) }} in 5 throws</template>
+            <template v-else>can't be caught</template>
+          </p>
         </div>
-        <p class="mt-1 text-2xl font-bold leading-none tabular-nums" :style="{ color: b.p >= 0.5 ? '#7ac74c' : b.p >= 0.15 ? '#e8cf45' : '#e0564b' }">
-          {{ pct(b.p) }}
-        </p>
-        <p class="mt-1 text-[10px] text-dim tabular-nums">
-          <template v-if="b.p > 0">in 5 throws: {{ pct(1 - Math.pow(1 - b.p, 5)) }}</template>
-          <template v-else>—</template>
-        </p>
-        <p v-if="b.note" class="text-[10px] text-lens/80">{{ b.note }}</p>
       </div>
     </div>
     <p class="mt-2 text-[11px] text-dim">
