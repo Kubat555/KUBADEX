@@ -181,15 +181,15 @@ const panel = computed(() => {
           <div class="scrollbar-thin mt-3 max-h-[52vh] space-y-4 overflow-y-auto pr-1">
             <div v-for="g in panel.groups" :key="g.id">
               <p class="sticky top-0 bg-panel py-1 font-display text-[10px] tracking-widest text-dexglow">{{ g.label.toUpperCase() }} · {{ g.mons.length }}</p>
-              <div class="mt-1 grid grid-cols-2 gap-1">
+              <div class="mt-1 grid grid-cols-2 gap-1.5">
                 <RouterLink
                   v-for="p in g.mons" :key="p.id + '-' + g.id"
                   :to="`/pokemon/${p.id}`"
-                  class="flex items-center gap-1.5 rounded-md border border-line bg-bg/40 px-1.5 py-1 transition-colors hover:border-line2 hover:bg-panel2"
+                  class="group/mon flex items-center gap-2 rounded-lg border border-line bg-bg/40 py-1 pl-1.5 pr-2 transition-colors hover:border-line2 hover:bg-panel2"
                 >
-                  <img :src="spriteUrl(p.id, 'icons')" class="pixelated size-6 shrink-0" alt="" />
-                  <span class="truncate text-xs text-ink">{{ p.label }}</span>
-                  <span v-if="g.id === 'level-up'" class="ml-auto shrink-0 font-display text-[9px] text-dim">{{ p.level }}</span>
+                  <img :src="spriteUrl(p.id, 'gen3')" class="pixelated size-11 shrink-0 object-contain transition-transform duration-200 group-hover/mon:scale-110" alt="" />
+                  <span class="min-w-0 flex-1 truncate text-xs font-medium text-ink">{{ p.label }}</span>
+                  <span v-if="g.id === 'level-up'" class="shrink-0 font-display text-[10px] text-dim">Lv {{ p.level }}</span>
                 </RouterLink>
               </div>
             </div>

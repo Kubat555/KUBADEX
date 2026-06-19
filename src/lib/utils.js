@@ -16,4 +16,5 @@ export function statColor(v) {
   return '#4dd3c0'
 }
 
-export const fmtMult = (m) => (m === 0.5 ? '½' : m === 0.25 ? '¼' : String(m))
+// full digits, not ½/¼ precomposed glyphs — those render tiny at any font size
+export const fmtMult = (m) => (m === 0.5 ? '0.5' : m === 0.25 ? '0.25' : String(m))

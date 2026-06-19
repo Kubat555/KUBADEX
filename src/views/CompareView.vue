@@ -141,15 +141,16 @@ const statMax = (s) => Math.max(...mons.value.map((m) => m.stats[s]))
             <thead>
               <tr class="border-b border-line text-left">
                 <th class="py-2 pr-3 font-display text-[11px] tracking-wider text-dim">VS</th>
-                <th v-for="(m, i) in mons" :key="m.id" class="py-2 pr-3 font-display text-xs" :style="{ color: COLORS[i] }">{{ m.label.toUpperCase() }}</th>
+                <th v-for="(m, i) in mons" :key="m.id" class="py-2 pr-3 font-display text-sm" :style="{ color: COLORS[i] }">{{ m.label.toUpperCase() }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="t in TYPES" :key="t" class="border-b border-line/40">
-                <td class="py-1.5 pr-3"><TypeBadge :type="t" size="sm" /></td>
-                <td v-for="(m, i) in mons" :key="m.id" class="py-1.5 pr-3 font-display text-xs tabular-nums">
+                <td class="py-2 pr-3"><TypeBadge :type="t" size="sm" /></td>
+                <td v-for="(m, i) in mons" :key="m.id" class="py-2 pr-3 font-display tabular-nums">
                   <span
-                    :class="profiles[i][t] > 1 ? 'text-[#e0564b]' : profiles[i][t] === 0 ? 'text-lens' : profiles[i][t] < 1 ? 'text-[#7ac74c]' : 'text-dim'"
+                    class="inline-block rounded px-1.5 py-0.5 text-lg"
+                    :class="profiles[i][t] > 1 ? 'bg-[#e0564b]/12 text-[#e0564b]' : profiles[i][t] === 0 ? 'bg-lens/12 text-lens' : profiles[i][t] < 1 ? 'bg-[#7ac74c]/12 text-[#7ac74c]' : 'text-dim'"
                   >×{{ fmtMult(profiles[i][t]) }}</span>
                 </td>
               </tr>

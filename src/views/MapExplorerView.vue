@@ -128,9 +128,9 @@ function pickOffMap(o) {
                 <li v-for="mon in g.mons" :key="mon.id">
                   <RouterLink
                     :to="`/pokemon/${mon.id}`"
-                    class="flex items-center gap-2.5 rounded-lg border border-line bg-bg/40 px-2.5 py-1.5 transition-colors hover:border-line2 hover:bg-panel2"
+                    class="group/mon flex items-center gap-2.5 rounded-lg border border-line bg-bg/40 px-2 py-1.5 transition-colors hover:border-line2 hover:bg-panel2"
                   >
-                    <img :src="spriteUrl(mon.id, 'icons')" class="pixelated size-8 shrink-0 object-contain" alt="" />
+                    <img :src="spriteUrl(mon.id, 'gen3')" class="pixelated size-12 shrink-0 object-contain transition-transform duration-200 group-hover/mon:scale-110" alt="" />
                     <div class="min-w-0">
                       <p class="text-sm font-medium text-ink">
                         <span class="font-display text-[10px] text-dim">{{ dexNo(mon.id) }}</span>

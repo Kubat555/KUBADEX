@@ -141,21 +141,21 @@ const availability = computed(() =>
             <tbody>
               <tr v-for="c in coverage" :key="c.type" class="border-b border-line/40">
                 <td class="py-1.5 pr-3"><TypeBadge :type="c.type" size="sm" /></td>
-                <td class="py-1.5 pr-3">
+                <td class="py-2 pr-3">
                   <span v-if="!c.weak.length" class="text-dim">—</span>
-                  <span v-else class="inline-flex flex-wrap items-center gap-2">
+                  <span v-else class="inline-flex flex-wrap items-center gap-2.5">
                     <span v-for="w in c.weak" :key="w.m.id" class="inline-flex items-center gap-1">
-                      <img :src="spriteUrl(w.m.id, 'icons')" class="pixelated size-6" :title="w.m.label" alt="" />
-                      <span class="font-display text-[10px] text-[#e0564b]">×{{ fmtMult(w.mult) }}</span>
+                      <img :src="spriteUrl(w.m.id, 'gen3')" class="pixelated size-10 object-contain" :title="w.m.label" alt="" />
+                      <span class="font-display text-lg text-[#e0564b]">×{{ fmtMult(w.mult) }}</span>
                     </span>
                   </span>
                 </td>
-                <td class="py-1.5">
+                <td class="py-2">
                   <span v-if="!c.resist.length" class="text-dim">—</span>
-                  <span v-else class="inline-flex flex-wrap items-center gap-2">
+                  <span v-else class="inline-flex flex-wrap items-center gap-2.5">
                     <span v-for="r in c.resist" :key="r.m.id" class="inline-flex items-center gap-1">
-                      <img :src="spriteUrl(r.m.id, 'icons')" class="pixelated size-6" :title="r.m.label" alt="" />
-                      <span class="font-display text-[10px] text-[#7ac74c]">×{{ fmtMult(r.mult) }}</span>
+                      <img :src="spriteUrl(r.m.id, 'gen3')" class="pixelated size-10 object-contain" :title="r.m.label" alt="" />
+                      <span class="font-display text-lg text-[#7ac74c]">×{{ fmtMult(r.mult) }}</span>
                     </span>
                   </span>
                 </td>
@@ -171,15 +171,15 @@ const availability = computed(() =>
         <p class="mt-1 text-xs text-dim">Whether each member appears in that game's dex or wild areas (trades not counted).</p>
         <div class="mt-3 space-y-2">
           <div v-for="a in availability" :key="a.version" class="flex items-center gap-3">
-            <span class="w-24 shrink-0 font-display text-xs tracking-wider" :style="{ color: GAMES[a.version].color }">{{ GAMES[a.version].label }}</span>
+            <span class="w-24 shrink-0 font-display text-sm tracking-wider" :style="{ color: GAMES[a.version].color }">{{ GAMES[a.version].label }}</span>
             <div class="flex gap-2">
               <span
                 v-for="x in a.members" :key="x.m.id"
-                class="grid size-9 place-items-center rounded-lg border"
+                class="grid size-13 place-items-center rounded-lg border"
                 :class="x.ok ? 'border-line bg-panel2' : 'border-line/50 opacity-30 grayscale'"
                 :title="`${x.m.label} — ${x.ok ? 'available' : 'not obtainable here (trade required)'}`"
               >
-                <img :src="spriteUrl(x.m.id, 'icons')" class="pixelated size-7" alt="" />
+                <img :src="spriteUrl(x.m.id, 'gen3')" class="pixelated size-11 object-contain" alt="" />
               </span>
             </div>
           </div>
