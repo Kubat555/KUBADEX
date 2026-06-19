@@ -83,7 +83,7 @@ const statMax = (s) => Math.max(...mons.value.map((m) => m.stats[s]))
           </RouterLink>
           <div class="mt-1.5 flex justify-center gap-1"><TypeBadge v-for="t in m.types" :key="t" :type="t" size="sm" /></div>
           <p class="mt-2 text-xs text-muted">{{ m.abilities.map((a) => abilitydex[a]?.label ?? a).join(' / ') }}</p>
-          <p class="mt-1 font-display text-[11px] text-dim">BST {{ statTotal(m.stats) }} · {{ m.height }} m · {{ m.weight }} kg</p>
+          <p class="mt-1 text-xs font-medium text-dim tabular-nums">BST {{ statTotal(m.stats) }} · {{ m.height }} m · {{ m.weight }} kg</p>
         </section>
       </div>
 
@@ -119,7 +119,7 @@ const statMax = (s) => Math.max(...mons.value.map((m) => m.stats[s]))
               <p class="mb-1 text-xs font-medium text-muted">{{ STAT_LABELS[s] }}</p>
               <div class="space-y-1">
                 <div v-for="(m, i) in mons" :key="m.id" class="flex items-center gap-2">
-                  <span class="w-8 text-right font-display text-xs tabular-nums" :class="m.stats[s] === statMax(s) && mons.length > 1 ? 'text-ink' : 'text-dim'">{{ m.stats[s] }}</span>
+                  <span class="w-8 text-right text-sm font-semibold tabular-nums" :class="m.stats[s] === statMax(s) && mons.length > 1 ? 'text-ink' : 'text-dim'">{{ m.stats[s] }}</span>
                   <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-panel2">
                     <div
                       class="h-full rounded-full transition-[width] duration-700"
@@ -147,9 +147,9 @@ const statMax = (s) => Math.max(...mons.value.map((m) => m.stats[s]))
             <tbody>
               <tr v-for="t in TYPES" :key="t" class="border-b border-line/40">
                 <td class="py-2 pr-3"><TypeBadge :type="t" size="sm" /></td>
-                <td v-for="(m, i) in mons" :key="m.id" class="py-2 pr-3 font-display tabular-nums">
+                <td v-for="(m, i) in mons" :key="m.id" class="py-2 pr-3 tabular-nums">
                   <span
-                    class="inline-block rounded px-1.5 py-0.5 text-lg"
+                    class="inline-block rounded px-1.5 py-0.5 text-base font-bold"
                     :class="profiles[i][t] > 1 ? 'bg-[#e0564b]/12 text-[#e0564b]' : profiles[i][t] === 0 ? 'bg-lens/12 text-lens' : profiles[i][t] < 1 ? 'bg-[#7ac74c]/12 text-[#7ac74c]' : 'text-dim'"
                   >×{{ fmtMult(profiles[i][t]) }}</span>
                 </td>

@@ -38,7 +38,7 @@ const pct = (p) => (p >= 0.999 ? '100%' : p < 0.001 ? '<0.1%' : (p * 100).toFixe
           :disabled="oneHp"
           :class="oneHp ? 'opacity-40' : ''"
         />
-        <span class="w-12 text-right font-display text-sm tabular-nums" :class="oneHp ? 'text-dexglow' : 'text-ink'">
+        <span class="w-12 text-right text-sm font-semibold tabular-nums" :class="oneHp ? 'text-dexglow' : 'text-ink'">
           {{ oneHp ? '1 HP' : hp + '%' }}
         </span>
         <button
@@ -64,14 +64,14 @@ const pct = (p) => (p >= 0.999 ? '100%' : p < 0.001 ? '<0.1%' : (p * 100).toFixe
         class="rounded-lg border border-line bg-bg/40 p-2.5"
         :title="b.note"
       >
-        <div class="flex items-center gap-1.5">
-          <img :src="spriteUrl(b.sprite, 'balls')" :alt="b.label" class="pixelated size-6 shrink-0" />
-          <span class="truncate text-xs font-semibold text-ink">{{ b.label }}</span>
+        <div class="flex items-center gap-2">
+          <img :src="spriteUrl(b.sprite, 'balls')" :alt="b.label" class="pixelated size-9 shrink-0" />
+          <span class="truncate text-sm font-semibold text-ink">{{ b.label }}</span>
         </div>
-        <p class="mt-1 font-display text-lg leading-none" :style="{ color: b.p >= 0.5 ? '#7ac74c' : b.p >= 0.15 ? '#e8cf45' : '#e0564b' }">
+        <p class="mt-1 text-2xl font-bold leading-none tabular-nums" :style="{ color: b.p >= 0.5 ? '#7ac74c' : b.p >= 0.15 ? '#e8cf45' : '#e0564b' }">
           {{ pct(b.p) }}
         </p>
-        <p class="mt-0.5 text-[10px] text-dim">
+        <p class="mt-1 text-[10px] text-dim tabular-nums">
           <template v-if="b.p > 0">in 5 throws: {{ pct(1 - Math.pow(1 - b.p, 5)) }}</template>
           <template v-else>—</template>
         </p>

@@ -146,7 +146,7 @@ const availability = computed(() =>
                   <span v-else class="inline-flex flex-wrap items-center gap-2.5">
                     <span v-for="w in c.weak" :key="w.m.id" class="inline-flex items-center gap-1">
                       <img :src="spriteUrl(w.m.id, 'gen3')" class="pixelated size-10 object-contain" :title="w.m.label" alt="" />
-                      <span class="font-display text-lg text-[#e0564b]">×{{ fmtMult(w.mult) }}</span>
+                      <span class="text-base font-bold tabular-nums text-[#e0564b]">×{{ fmtMult(w.mult) }}</span>
                     </span>
                   </span>
                 </td>
@@ -155,7 +155,7 @@ const availability = computed(() =>
                   <span v-else class="inline-flex flex-wrap items-center gap-2.5">
                     <span v-for="r in c.resist" :key="r.m.id" class="inline-flex items-center gap-1">
                       <img :src="spriteUrl(r.m.id, 'gen3')" class="pixelated size-10 object-contain" :title="r.m.label" alt="" />
-                      <span class="font-display text-lg text-[#7ac74c]">×{{ fmtMult(r.mult) }}</span>
+                      <span class="text-base font-bold tabular-nums text-[#7ac74c]">×{{ fmtMult(r.mult) }}</span>
                     </span>
                   </span>
                 </td>
