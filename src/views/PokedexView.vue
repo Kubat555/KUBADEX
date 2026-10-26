@@ -1,10 +1,13 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { loadIndex } from '../lib/api'
 import { TYPES } from '../lib/typeChart'
 import { GAMES, GAME_ORDER } from '../data/games'
 import { statTotal } from '../lib/utils'
+import { serializeQuery } from '../lib/queryState'
+import { useQueryState } from '../composables/useQueryState'
+import { usePrefsStore } from '../stores/prefs'
 import PokemonCard from '../components/PokemonCard.vue'
 import PokeballSpinner from '../components/PokeballSpinner.vue'
 import TypeBadge from '../components/TypeBadge.vue'
@@ -105,12 +108,6 @@ function playCry() {
   audio.play().catch(() => (crying.value = false))
 }
 
-const query = ref('')
-const selectedTypes = ref([])
-const game = ref(null)
-const dex = ref('national') // national | kanto | hoenn
-const sort = ref('id')
-
 const SORTS = [
   { id: 'id', label: 'Dex №' },
   { id: 'name', label: 'Name' },
@@ -123,33 +120,53 @@ const SORTS = [
   { id: 'spe', label: 'Speed' },
 ]
 
+// Filters live in the URL query (shareable, restored by Back); defaults are left out of it.
+const POKEDEX_SCHEMA = {
+  q: { kind: 'text', max: 40 },
+  type: { kind: 'list', values: TYPES, max: 2, default: [] },
+  game: { kind: 'enum', values: GAME_ORDER, default: null },
+  dex: { kind: 'enum', values: ['national', 'kanto', 'hoenn'], default: 'national' },
+  sort: { kind: 'enum', values: SORTS.map((s) => s.id), default: 'id' },
+}
+const { state: filters, set, reset } = useQueryState(POKEDEX_SCHEMA, { routeName: 'pokedex', sessionKey: 'last-query:pokedex' })
+const prefs = usePrefsStore()
+
+// The field keeps exactly what is typed (spaces included); the trimmed text filters at once and reaches the URL later.
+const searchText = ref(filters.value.q)
+watch(searchText, (text) => { if (text.trim() !== filters.value.q) set({ q: text }) })
+watch(() => filters.value.q, (q) => { if (q !== searchText.value.trim()) searchText.value = q })
+
+// two types at most: picking a third drops the oldest
 function toggleType(t) {
-  const i = selectedTypes.value.indexOf(t)
-  if (i === -1) {
-    selectedTypes.value.push(t)
-    if (selectedTypes.value.length > 2) selectedTypes.value.shift()
-  } else selectedTypes.value.splice(i, 1)
+  const types = filters.value.type
+  set({ type: types.includes(t) ? types.filter((x) => x !== t) : [...types, t].slice(-2) })
+}
+
+// picking a game here also makes it the global game of every other page
+function toggleGame(v) {
+  const game = filters.value.game === v ? null : v
+  set({ game })
+  if (game) prefs.version = game
 }
 
 const filtered = computed(() => {
-  const q = query.value.trim().toLowerCase()
+  const { q: text, type, game, dex, sort } = filters.value
+  const q = text.toLowerCase()
   let list = index.value
-  if (dex.value !== 'national') list = list.filter((p) => p.dex[dex.value])
-  if (game.value) list = list.filter((p) => p.games.includes(game.value))
-  if (selectedTypes.value.length) list = list.filter((p) => selectedTypes.value.every((t) => p.types.includes(t)))
+  if (dex !== 'national') list = list.filter((p) => p.dex[dex])
+  if (game) list = list.filter((p) => p.games.includes(game))
+  if (type.length) list = list.filter((p) => type.every((t) => p.types.includes(t)))
   if (q) list = list.filter((p) => p.name.includes(q) || String(p.id) === q)
 
-  const s = sort.value
   list = [...list]
-  if (s === 'name') list.sort((a, b) => a.name.localeCompare(b.name))
-  else if (s === 'bst') list.sort((a, b) => statTotal(b.stats) - statTotal(a.stats))
-  else if (s !== 'id') list.sort((a, b) => b.stats[s] - a.stats[s])
-  else if (dex.value !== 'national') list.sort((a, b) => a.dex[dex.value] - b.dex[dex.value])
+  if (sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name))
+  else if (sort === 'bst') list.sort((a, b) => statTotal(b.stats) - statTotal(a.stats))
+  else if (sort !== 'id') list.sort((a, b) => b.stats[sort] - a.stats[sort])
+  else if (dex !== 'national') list.sort((a, b) => a.dex[dex] - b.dex[dex])
   return list
 })
 
-const reset = () => { query.value = ''; selectedTypes.value = []; game.value = null; dex.value = 'national'; sort.value = 'id' }
-const hasFilters = computed(() => query.value || selectedTypes.value.length || game.value || dex.value !== 'national' || sort.value !== 'id')
+const hasFilters = computed(() => Object.keys(serializeQuery(filters.value, POKEDEX_SCHEMA)).length > 0)
 </script>
 
 <template>
@@ -244,8 +261,9 @@ const hasFilters = computed(() => query.value || selectedTypes.value.length || g
     <section class="animate-fadeup mb-6 space-y-3 rounded-2xl border border-line bg-panel/60 p-4" style="animation-delay: 60ms">
       <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
         <input
-          v-model="query"
+          v-model="searchText"
           type="search"
+          maxlength="40"
           placeholder="Name or number…"
           class="w-full rounded-lg border border-line bg-panel px-3 py-2 text-sm text-ink outline-none placeholder:text-dim focus:border-dex sm:w-48"
         />
@@ -253,13 +271,14 @@ const hasFilters = computed(() => query.value || selectedTypes.value.length || g
           <button
             v-for="d in ['national', 'kanto', 'hoenn']" :key="d"
             class="flex-1 px-3 py-2 font-display text-xs uppercase tracking-wider transition-colors sm:flex-none"
-            :class="dex === d ? 'bg-panel2 text-ink' : 'text-dim hover:text-muted'"
-            @click="dex = d"
+            :class="filters.dex === d ? 'bg-panel2 text-ink' : 'text-dim hover:text-muted'"
+            @click="set({ dex: d })"
           >{{ d }}</button>
         </div>
         <select
-          v-model="sort"
+          :value="filters.sort"
           class="min-w-0 flex-1 rounded-lg border border-line bg-panel px-2.5 py-2 text-sm text-muted outline-none focus:border-dex sm:flex-none"
+          @change="set({ sort: $event.target.value })"
         >
           <option v-for="s in SORTS" :key="s.id" :value="s.id">Sort: {{ s.label }}</option>
         </select>
@@ -276,9 +295,9 @@ const hasFilters = computed(() => query.value || selectedTypes.value.length || g
         <button
           v-for="v in GAME_ORDER" :key="v"
           class="rounded-lg border px-2.5 py-1 font-display text-xs tracking-wider transition-all"
-          :class="game === v ? 'text-bg' : 'border-line text-muted hover:border-line2 hover:text-ink'"
-          :style="game === v ? { background: GAMES[v].color, borderColor: GAMES[v].color } : null"
-          @click="game = game === v ? null : v"
+          :class="filters.game === v ? 'text-bg' : 'border-line text-muted hover:border-line2 hover:text-ink'"
+          :style="filters.game === v ? { background: GAMES[v].color, borderColor: GAMES[v].color } : null"
+          @click="toggleGame(v)"
         >{{ GAMES[v].label }}</button>
       </div>
 
@@ -288,13 +307,13 @@ const hasFilters = computed(() => query.value || selectedTypes.value.length || g
           class="rounded px-2 py-1 font-display text-[11px] uppercase tracking-wider transition-all"
           :style="{
             color: `var(--color-type-${t})`,
-            background: selectedTypes.includes(t)
+            background: filters.type.includes(t)
               ? `color-mix(in srgb, var(--color-type-${t}) 28%, transparent)`
               : 'transparent',
-            boxShadow: selectedTypes.includes(t)
+            boxShadow: filters.type.includes(t)
               ? `inset 0 0 0 1.5px var(--color-type-${t})`
               : `inset 0 0 0 1px color-mix(in srgb, var(--color-type-${t}) 28%, transparent)`,
-            opacity: selectedTypes.length && !selectedTypes.includes(t) ? 0.5 : 1,
+            opacity: filters.type.length && !filters.type.includes(t) ? 0.5 : 1,
           }"
           @click="toggleType(t)"
         >{{ t }}</button>
@@ -307,7 +326,7 @@ const hasFilters = computed(() => query.value || selectedTypes.value.length || g
       Nothing matches those filters.
     </div>
     <div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-      <PokemonCard v-for="p in filtered" :key="p.id" :pokemon="p" />
+      <PokemonCard v-for="p in filtered" :key="p.id" :pokemon="p" :game="filters.game" />
     </div>
   </div>
 </template>

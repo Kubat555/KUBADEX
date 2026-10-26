@@ -20,8 +20,22 @@ import CatchCalculator from '../components/CatchCalculator.vue'
 import PokeballSpinner from '../components/PokeballSpinner.vue'
 
 const route = useRoute()
+const router = useRouter()
 const prefs = usePrefsStore()
 const { version } = storeToRefs(prefs) // one game version, applied to every section
+
+// ?game= (an entry opened from a game-filtered Pokédex, a shared link) becomes the global game
+watch(() => route.query.game, (raw) => {
+  const game = Array.isArray(raw) ? raw[0] : raw
+  if (route.name === 'pokemon' && Object.hasOwn(GAMES, game)) version.value = game
+}, { immediate: true })
+
+// a game tab puts the game in the URL and makes it the global game
+function pickGame(game) {
+  version.value = game
+  router.replace({ query: { ...route.query, game } })
+}
+
 const p = ref(null)
 const movedex = ref(null)
 const abilitydex = ref(null)
@@ -106,7 +120,6 @@ const prevId = computed(() => (p.value && p.value.id > 1 ? p.value.id - 1 : null
 const nextId = computed(() => (p.value && p.value.id < 386 ? p.value.id + 1 : null))
 
 // ← / → flip between entries (unless typing in a field)
-const router = useRouter()
 function onArrows(e) {
   if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return
   if (e.key === 'ArrowLeft' && prevId.value) router.push(`/pokemon/${prevId.value}`)
@@ -189,7 +202,7 @@ function playCry() {
           <!-- game version: one switch for dex entry, sprite, encounters and moves -->
           <div class="mt-5">
             <p class="mb-1.5 font-display text-[10px] tracking-widest text-dim">GAME VERSION — APPLIES TO THE WHOLE PAGE</p>
-            <GameTabs v-model="version" :active="versionsWithData" />
+            <GameTabs :model-value="version" :active="versionsWithData" @update:model-value="pickGame" />
             <p class="mt-3 max-w-xl border-l-2 pl-4 text-sm leading-relaxed text-muted" :style="{ borderColor: GAMES[flavorVersion]?.color }">
               {{ flavorText }}
               <span v-if="flavorVersion !== version" class="mt-1 block text-[11px] text-dim">

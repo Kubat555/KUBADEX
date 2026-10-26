@@ -1,5 +1,9 @@
 <script setup>
 import AppHeader from './components/AppHeader.vue'
+import { onPageAfterEnter } from './lib/pageTransition'
+
+// heavy lists stay alive for an instant Back; their state itself lives in the URL
+const CACHED_PAGES = ['PokedexView', 'MovedexView', 'MapExplorerView']
 </script>
 
 <template>
@@ -7,8 +11,10 @@ import AppHeader from './components/AppHeader.vue'
     <AppHeader />
     <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
       <RouterView v-slot="{ Component }">
-        <Transition name="page" mode="out-in">
-          <component :is="Component" />
+        <Transition name="page" mode="out-in" @after-enter="onPageAfterEnter">
+          <KeepAlive :include="CACHED_PAGES" :max="3">
+            <component :is="Component" />
+          </KeepAlive>
         </Transition>
       </RouterView>
     </main>
@@ -23,7 +29,7 @@ import AppHeader from './components/AppHeader.vue'
 </template>
 
 <style>
-.page-enter-active, .page-leave-active { transition: opacity 0.15s ease, transform 0.15s ease; }
+.page-enter-active, .page-leave-active { transition: opacity 0.12s ease, transform 0.12s ease; }
 .page-enter-from { opacity: 0; transform: translateY(6px); }
 .page-leave-to { opacity: 0; }
 </style>

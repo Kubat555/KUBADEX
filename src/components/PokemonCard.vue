@@ -4,14 +4,18 @@ import { spriteUrl } from '../lib/api'
 import { dexNo, statTotal } from '../lib/utils'
 import TypeBadge from './TypeBadge.vue'
 
-const props = defineProps({ pokemon: { type: Object, required: true } })
+const props = defineProps({
+  pokemon: { type: Object, required: true },
+  /** game the list is filtered by — the entry opens in that game */
+  game: { type: String, default: null },
+})
 const t0 = computed(() => props.pokemon.types[0])
 const shiny = ref(false) // sparkle on hover ✦
 </script>
 
 <template>
   <RouterLink
-    :to="`/pokemon/${pokemon.id}`"
+    :to="{ name: 'pokemon', params: { id: pokemon.id }, query: game ? { game } : {} }"
     class="group relative block overflow-hidden rounded-xl border border-line bg-panel p-3 transition-all duration-200 hover:-translate-y-1 hover:border-(--t) hover:shadow-lg hover:shadow-black/40"
     :style="{ '--t': `color-mix(in srgb, var(--color-type-${t0}) 55%, var(--color-line))` }"
     @mouseenter="shiny = true"
