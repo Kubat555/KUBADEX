@@ -6,6 +6,7 @@ import { loadMoves, loadLearners, loadIndex, spriteUrl } from '../lib/api'
 import { TYPES } from '../lib/typeChart'
 import { GAMES } from '../data/games'
 import { dexNo } from '../lib/utils'
+import { CLASS_STYLE } from '../lib/moveClass'
 import TypeBadge from '../components/TypeBadge.vue'
 import GameTabs from '../components/GameTabs.vue'
 
@@ -27,12 +28,6 @@ const typeFilter = ref(null)
 const classFilter = ref(null)
 const tmOnly = ref(false)
 const selected = ref(null) // move name
-
-const CLASS_STYLE = {
-  physical: { label: 'PHYS', color: '#e8845a' },
-  special: { label: 'SPEC', color: '#6d96d8' },
-  status: { label: 'STAT', color: '#9aa3bd' },
-}
 
 const rows = computed(() => {
   if (!movedex.value) return []

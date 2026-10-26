@@ -205,7 +205,7 @@ const hasFilters = computed(() => query.value || selectedTypes.value.length || g
               />
               <button type="submit" class="rounded-lg border border-lens/50 px-2.5 font-display text-[10px] tracking-wider text-lens transition-colors hover:bg-lens/10">GO</button>
             </form>
-            <p v-if="guessMsg" class="mt-1 text-[11px] text-[#e0564b]">{{ guessMsg }}</p>
+            <p v-if="guessMsg" class="mt-1 text-[11px] text-bad">{{ guessMsg }}</p>
             <div v-if="misses >= 1" class="mt-1.5 flex items-center gap-1.5">
               <span class="font-display text-[9px] tracking-wider text-dim">HINT</span>
               <TypeBadge v-for="t in featured.types" :key="t" :type="t" size="sm" />
@@ -216,7 +216,7 @@ const hasFilters = computed(() => query.value || selectedTypes.value.length || g
 
           <!-- revealed -->
           <div v-else>
-            <p class="font-display text-[10px] tracking-[0.2em]" :class="solved ? 'text-[#7ac74c]' : 'text-dim'">
+            <p class="font-display text-[10px] tracking-[0.2em]" :class="solved ? 'text-good' : 'text-dim'">
               {{ solved ? "IT'S…" : 'IT WAS…' }}
             </p>
             <RouterLink :to="`/pokemon/${featured.id}`" class="font-display text-xl text-ink transition-colors hover:text-dexglow">

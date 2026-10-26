@@ -9,10 +9,10 @@ export const STAT_ORDER = ['hp', 'atk', 'def', 'spa', 'spd', 'spe']
 
 /** Color a base stat value on the classic 0–180 scale. */
 export function statColor(v) {
-  if (v < 50) return '#e0564b'
+  if (v < 50) return 'var(--color-bad)'
   if (v < 75) return '#eb9c46'
-  if (v < 100) return '#e8cf45'
-  if (v < 125) return '#7ac74c'
+  if (v < 100) return 'var(--color-warn)'
+  if (v < 125) return 'var(--color-good)'
   return '#4dd3c0'
 }
 

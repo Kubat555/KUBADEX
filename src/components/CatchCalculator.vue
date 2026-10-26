@@ -68,7 +68,7 @@ const pct = (p) => (p >= 0.999 ? '100%' : p < 0.001 ? '<0.1%' : (p * 100).toFixe
         <div class="min-w-0">
           <p class="truncate text-sm font-semibold text-ink">{{ b.label }}</p>
           <p class="truncate text-[11px] text-lens/80">{{ b.note || 'Always available' }}</p>
-          <p class="mt-1 text-xl font-bold leading-none tabular-nums" :style="{ color: b.p >= 0.5 ? '#7ac74c' : b.p >= 0.15 ? '#e8cf45' : '#e0564b' }">
+          <p class="mt-1 text-xl font-bold leading-none tabular-nums" :style="{ color: b.p >= 0.5 ? 'var(--color-good)' : b.p >= 0.15 ? 'var(--color-warn)' : 'var(--color-bad)' }">
             {{ pct(b.p) }}
           </p>
           <p class="mt-0.5 truncate text-[11px] text-dim tabular-nums">
