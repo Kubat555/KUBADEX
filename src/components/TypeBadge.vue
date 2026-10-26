@@ -1,8 +1,12 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
+
 defineProps({
   type: { type: String, required: true },
   size: { type: String, default: 'md' }, // sm | md
 })
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -14,5 +18,5 @@ defineProps({
       background: `color-mix(in srgb, var(--color-type-${type}) 16%, transparent)`,
       boxShadow: `inset 0 0 0 1px color-mix(in srgb, var(--color-type-${type}) 45%, transparent)`,
     }"
-  >{{ type }}</span>
+  >{{ t('types.' + type) }}</span>
 </template>
