@@ -10,6 +10,8 @@ it('waits for the page to enter before restoring', async () => {
   await Promise.resolve(); expect(done).toBe(false)
   onPageAfterEnter(); expect(await p).toEqual({ left: 0, top: 3000 })
 })
-it('gives up waiting after 400ms', async () => { vi.useFakeTimers()
-  const p = scrollBehavior({ path: '/', name: 'pokedex' }, { path: '/map', name: 'map' }, { left: 0, top: 10 })
-  vi.advanceTimersByTime(401); expect(await p).toEqual({ left: 0, top: 10 }); vi.useRealTimers() })
+it('gives up waiting after 1000ms', async () => { vi.useFakeTimers()
+  let done = false
+  const p = scrollBehavior({ path: '/', name: 'pokedex' }, { path: '/map', name: 'map' }, { left: 0, top: 10 }).then((v) => { done = true; return v })
+  await vi.advanceTimersByTimeAsync(999); expect(done).toBe(false)
+  await vi.advanceTimersByTimeAsync(2); expect(await p).toEqual({ left: 0, top: 10 }); vi.useRealTimers() })

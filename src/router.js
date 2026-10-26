@@ -2,7 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { pageEntered } from './lib/pageTransition'
 
 // Longest wait for the page transition before a saved scroll position is applied anyway.
-const PAGE_ENTER_TIMEOUT_MS = 400
+// The out-in transition alone takes about 310 ms at 60 fps (leave + enter), and longer on a slow phone,
+// so the cap is generous: after-enter normally comes first, and the cap only matters when no transition runs.
+const PAGE_ENTER_TIMEOUT_MS = 1000
 
 // The "Motion: less" setting (<html data-motion="reduce">), or the OS preference unless the setting says "full".
 function reducedMotion() {
