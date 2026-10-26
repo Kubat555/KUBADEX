@@ -11,7 +11,7 @@
   --color-line2: #2e3f6b;
   --color-ink: #e9eefc;
   --color-muted: #8d99bd;
-  --color-dim: #7d87a7; /* text: >= 4.5:1 on bg and panel2 */
+  --color-dim: #7e88a8; /* text: >= 4.5:1 on bg (5.48) and panel2 (4.55) */
   --color-faint: #5b678c; /* decoration and dividers ONLY, never text */
 
   /* two surface levels instead of panel/60 and panel/70 */
