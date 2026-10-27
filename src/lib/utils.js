@@ -4,7 +4,6 @@ export const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s)
 
 export const statTotal = (stats) => Object.values(stats).reduce((a, b) => a + b, 0)
 
-export const STAT_LABELS = { hp: 'HP', atk: 'Attack', def: 'Defense', spa: 'Sp. Atk', spd: 'Sp. Def', spe: 'Speed' }
 export const STAT_ORDER = ['hp', 'atk', 'def', 'spa', 'spd', 'spe']
 
 /** Color a base stat value on the classic 0–180 scale. */

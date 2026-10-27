@@ -10,25 +10,9 @@ export const GAMES = {
 export const GAME_ORDER = ['ruby', 'sapphire', 'emerald', 'firered', 'leafgreen']
 
 export const VERSION_GROUPS = {
-  'ruby-sapphire': { label: 'Ruby / Sapphire', short: 'R·S', color: '#c84a64' },
-  emerald: { label: 'Emerald', short: 'EM', color: '#2fb86e' },
-  'firered-leafgreen': { label: 'FireRed / LeafGreen', short: 'FR·LG', color: '#ff7327' },
-}
-
-export const VG_ORDER = ['ruby-sapphire', 'emerald', 'firered-leafgreen']
-
-export const METHOD_LABELS = {
-  walk: 'Grass / Cave',
-  surf: 'Surfing',
-  'old-rod': 'Old Rod',
-  'good-rod': 'Good Rod',
-  'super-rod': 'Super Rod',
-  'rock-smash': 'Rock Smash',
-  gift: 'Gift',
-  'gift-egg': 'Gift Egg',
-  'only-one': 'Static',
-  'feebas-tile-fishing': 'Fishing — 6 hidden tiles',
-  'seaweed': 'Seaweed (dive)',
+  'ruby-sapphire': { label: 'Ruby / Sapphire' },
+  emerald: { label: 'Emerald' },
+  'firered-leafgreen': { label: 'FireRed / LeafGreen' },
 }
 
 // Encounter method -> pixel icon name for <Icon :name>. A method without an entry shows no icon.
@@ -44,18 +28,4 @@ export const METHOD_ICON_NAMES = {
   'only-one': 'star',
   'feebas-tile-fishing': 'rod',
   seaweed: 'wave',
-}
-
-export const METHOD_ICONS = {
-  walk: '🌿',
-  surf: '🌊',
-  'old-rod': '🎣',
-  'good-rod': '🎣',
-  'super-rod': '🎣',
-  'rock-smash': '🪨',
-  gift: '🎁',
-  'gift-egg': '🥚',
-  'only-one': '★',
-  'feebas-tile-fishing': '🎣',
-  'seaweed': '🌊',
 }

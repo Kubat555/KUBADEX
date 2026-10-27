@@ -3,14 +3,14 @@
 
 /**
  * Fold a string into a comparison key: lowercase, no diacritics, no punctuation or spaces.
- * Gender signs become letters (Nidoran♀ -> nidoranf) and Russian ё is folded to е.
+ * The gender signs (U+2640 -> f, U+2642 -> m) become letters, so the two Nidoran names stay apart, and Russian ё is folded to е.
  * Only [a-z0-9а-я] survive. Russian й is kept: only marks sitting on Latin letters are stripped.
  */
 export function normalize(s) {
   return String(s ?? '')
     .toLowerCase()
-    .replace(/♀/g, 'f')
-    .replace(/♂/g, 'm')
+    .replace(/\u2640/g, 'f')
+    .replace(/\u2642/g, 'm')
     .normalize('NFD')
     .replace(/([a-z])[̀-ͯ]+/g, '$1')
     .normalize('NFC') // glues й back together; ё comes back as one char and is folded next

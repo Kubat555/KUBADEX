@@ -7,7 +7,7 @@ import { usePrefsStore } from '../stores/prefs'
 import { loadPokemon, loadMoves, loadAbilities, loadIndex, spriteUrl, cryUrl } from '../lib/api'
 import { matchupBuckets } from '../lib/typeChart'
 import { obtainHints, ancestorIds } from '../lib/obtain'
-import { GAMES, GAME_ORDER, METHOD_ICONS } from '../data/games'
+import { GAMES, GAME_ORDER, METHOD_ICON_NAMES } from '../data/games'
 import { SPECIAL_ENCOUNTERS } from '../data/specialEncounters'
 import { dexNo, statTotal, STAT_ORDER, maxDexId } from '../lib/utils'
 import kantoMap from '../data/maps/kanto.json'
@@ -149,7 +149,7 @@ const mapSlugIndex = computed(() => {
 const methodLabel = (m) => (te(`methods.${m}`) ? t(`methods.${m}`) : m)
 const fmtMethod = (m) => {
   const lv = m.max !== m.min ? `${m.min}–${m.max}` : m.min
-  return `${METHOD_ICONS[m.method] ?? '·'} ${methodLabel(m.method)} · ${t('pokemon.where.level', { lv })} · ${percent.value.format(m.chance / 100)}`
+  return `${methodLabel(m.method)} · ${t('pokemon.where.level', { lv })} · ${percent.value.format(m.chance / 100)}`
 }
 
 const highlights = computed(() => {
@@ -159,7 +159,7 @@ const highlights = computed(() => {
     const slug = mapSlugIndex.value.get(e.loc)
     if (!slug) continue
     out[slug] ??= { color: GAMES[version.value].color, lines: [] }
-    out[slug].lines.push(...e.methods.map(fmtMethod))
+    out[slug].lines.push(...e.methods.map((m) => ({ icon: METHOD_ICON_NAMES[m.method], text: fmtMethod(m) })))
   }
   return out
 })
@@ -436,7 +436,10 @@ function playCry() {
                 <span v-if="e.region !== region" class="ml-1 text-xs font-medium text-dim">({{ t(`pokemon.region.${e.region}`) }})</span>
               </p>
               <ul class="mt-1 space-y-0.5">
-                <li v-for="m in e.methods" :key="m.method" class="text-xs text-muted">{{ fmtMethod(m) }}</li>
+                <li v-for="m in e.methods" :key="m.method" class="flex items-center gap-1 text-xs text-muted">
+                  <Icon v-if="METHOD_ICON_NAMES[m.method]" :name="METHOD_ICON_NAMES[m.method]" class="text-dim" />
+                  {{ fmtMethod(m) }}
+                </li>
               </ul>
             </div>
           </div>
@@ -474,11 +477,11 @@ function playCry() {
           </div>
           <div>
             <dt class="eyebrow">{{ t('pokemon.training.gender') }}</dt>
-            <dd class="mt-0.5 text-ink">
+            <dd class="mt-0.5 flex flex-wrap gap-x-3 text-ink">
               <template v-if="p.training.genderFemale === null">{{ t('pokemon.training.genderless') }}</template>
               <template v-else>
-                <span class="text-spec">♂ <span class="num">{{ percent.format((100 - p.training.genderFemale) / 100) }}</span></span> ·
-                <span class="text-type-psychic">♀ <span class="num">{{ percent.format(p.training.genderFemale / 100) }}</span></span>
+                <span class="text-spec">{{ t('pokemon.training.male') }} <span class="num">{{ percent.format((100 - p.training.genderFemale) / 100) }}</span></span>
+                <span class="text-type-psychic">{{ t('pokemon.training.female') }} <span class="num">{{ percent.format(p.training.genderFemale / 100) }}</span></span>
               </template>
             </dd>
           </div>

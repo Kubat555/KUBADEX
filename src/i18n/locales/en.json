@@ -192,6 +192,8 @@
       "happiness": "Base happiness",
       "evYield": "EV yield",
       "gender": "Gender",
+      "male": "Male",
+      "female": "Female",
       "genderless": "Genderless",
       "eggGroups": "Egg groups",
       "hatchSteps": "Hatch steps"

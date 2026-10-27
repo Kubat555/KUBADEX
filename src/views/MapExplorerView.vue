@@ -106,7 +106,7 @@ const groups = computed(() => {
     .map((v) => ({ version: v, mons: [...versions[v].values()].sort((a, b) => a.id - b.id) }))
 })
 
-// methods outside the label list (roaming, in-game trade…) show their data slug
+// a method without a `methods.*` label shows its data slug
 const methodLabel = (method) => (te(`methods.${method}`) ? t(`methods.${method}`) : method)
 const levels = (m) => (m.max !== m.min ? `${m.min}–${m.max}` : String(m.min))
 </script>

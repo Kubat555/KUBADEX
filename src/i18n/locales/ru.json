@@ -192,6 +192,8 @@
       "happiness": "Базовое счастье",
       "evYield": "Даёт EV",
       "gender": "Пол",
+      "male": "Самец",
+      "female": "Самка",
       "genderless": "Бесполый",
       "eggGroups": "Группы яиц",
       "hatchSteps": "Шагов до вылупления"
