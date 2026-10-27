@@ -14,7 +14,14 @@
     "ev": "EV",
     "compare": "Сравнение",
     "team": "Команда",
-    "settings": "Настройки"
+    "settings": "Настройки",
+    "more": "Ещё",
+    "main": "Главное меню",
+    "skip": "К содержимому",
+    "short": {
+      "pokedex": "Декс",
+      "compare": "Сравн."
+    }
   },
   "types": {
     "normal": "Обычный",
@@ -80,7 +87,27 @@
   "compare": {},
   "team": {},
   "catch": {},
-  "settings": {},
-  "footer": {},
-  "errors": {}
+  "settings": {
+    "saved": "Сохраняются в этом браузере.",
+    "language": "Язык",
+    "motion": "Движение",
+    "motionHint": "Анимации и переходы между страницами. «Системное» — как в настройках устройства.",
+    "motionSystem": "Системное",
+    "motionReduce": "Меньше",
+    "motionFull": "Полное"
+  },
+  "footer": {
+    "text": "KUBADEX — полевой справочник по Pokémon FireRed · LeafGreen · Ruby · Sapphire · Emerald. Данные — {source}. Pokémon © Nintendo / Creatures Inc. / GAME FREAK — фанатский проект, не связан с правообладателями."
+  },
+  "errors": {},
+  "search": {
+    "button": "Поиск…",
+    "label": "Поиск покемона",
+    "placeholder": "Имя или номер",
+    "hint": "Введите имя или номер в Покедексе: pika, #025, 25",
+    "results": "Найденные покемоны",
+    "count": "{n} результат | {n} результата | {n} результатов",
+    "empty": "Ничего не найдено по запросу «{q}»",
+    "failed": "Не удалось загрузить список покемонов"
+  }
 }

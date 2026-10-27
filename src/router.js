@@ -36,18 +36,21 @@ export function scrollBehavior(to, from, saved) {
   return { top: 0 }
 }
 
+// `meta.titleKey`: i18n key of the page title; App.vue sets "<title> — KUBADEX" once the page has entered.
 const router = createRouter({
   history: createWebHistory(),
   scrollBehavior,
   routes: [
-    { path: '/', name: 'pokedex', component: () => import('./views/PokedexView.vue') },
+    { path: '/', name: 'pokedex', component: () => import('./views/PokedexView.vue'), meta: { titleKey: 'nav.pokedex' } },
+    // no titleKey: the entry page sets "<Name> — KUBADEX" itself
     { path: '/pokemon/:id(\\d+)', name: 'pokemon', component: () => import('./views/PokemonView.vue') },
-    { path: '/map', name: 'map', component: () => import('./views/MapExplorerView.vue') },
-    { path: '/moves', name: 'moves', component: () => import('./views/MovedexView.vue') },
-    { path: '/bosses', name: 'bosses', component: () => import('./views/BossesView.vue') },
-    { path: '/ev-training', name: 'ev', component: () => import('./views/EvHotspotsView.vue') },
-    { path: '/compare', name: 'compare', component: () => import('./views/CompareView.vue') },
-    { path: '/team', name: 'team', component: () => import('./views/TeamView.vue') },
+    { path: '/map', name: 'map', component: () => import('./views/MapExplorerView.vue'), meta: { titleKey: 'nav.map' } },
+    { path: '/moves', name: 'moves', component: () => import('./views/MovedexView.vue'), meta: { titleKey: 'nav.moves' } },
+    { path: '/bosses', name: 'bosses', component: () => import('./views/BossesView.vue'), meta: { titleKey: 'nav.bosses' } },
+    { path: '/ev-training', name: 'ev', component: () => import('./views/EvHotspotsView.vue'), meta: { titleKey: 'nav.ev' } },
+    { path: '/compare', name: 'compare', component: () => import('./views/CompareView.vue'), meta: { titleKey: 'nav.compare' } },
+    { path: '/team', name: 'team', component: () => import('./views/TeamView.vue'), meta: { titleKey: 'nav.team' } },
+    { path: '/settings', name: 'settings', component: () => import('./views/SettingsView.vue'), meta: { titleKey: 'nav.settings' } },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 })

@@ -14,7 +14,14 @@
     "ev": "EV",
     "compare": "Compare",
     "team": "Team",
-    "settings": "Settings"
+    "settings": "Settings",
+    "more": "More",
+    "main": "Main menu",
+    "skip": "Skip to content",
+    "short": {
+      "pokedex": "Dex",
+      "compare": "Compare"
+    }
   },
   "types": {
     "normal": "Normal",
@@ -80,7 +87,27 @@
   "compare": {},
   "team": {},
   "catch": {},
-  "settings": {},
-  "footer": {},
-  "errors": {}
+  "settings": {
+    "saved": "Saved in this browser.",
+    "language": "Language",
+    "motion": "Motion",
+    "motionHint": "Animations and page transitions. “System” follows your device setting.",
+    "motionSystem": "System",
+    "motionReduce": "Less",
+    "motionFull": "Full"
+  },
+  "footer": {
+    "text": "KUBADEX — a field guide for Pokémon FireRed · LeafGreen · Ruby · Sapphire · Emerald. Data from {source}. Pokémon © Nintendo / Creatures Inc. / GAME FREAK — fan project, not affiliated."
+  },
+  "errors": {},
+  "search": {
+    "button": "Search…",
+    "label": "Search Pokémon",
+    "placeholder": "Name or number",
+    "hint": "Type a name or a dex number: pika, #025, 25",
+    "results": "Pokémon found",
+    "count": "{n} result | {n} results",
+    "empty": "Nothing found for “{q}”",
+    "failed": "Could not load the Pokémon list"
+  }
 }
