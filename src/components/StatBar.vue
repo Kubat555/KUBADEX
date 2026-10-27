@@ -19,7 +19,7 @@ onMounted(() => requestAnimationFrame(() => (width.value = Math.min(100, (props.
     <div class="h-2 flex-1 overflow-hidden rounded-full bg-panel2">
       <div
         class="h-full rounded-full transition-[width] duration-700 ease-out"
-        :style="{ width: width + '%', background: statColor(value), boxShadow: `0 0 8px ${statColor(value)}66` }"
+        :style="{ width: width + '%', background: statColor(value), boxShadow: `0 0 8px color-mix(in srgb, ${statColor(value)} 40%, transparent)` }"
       ></div>
     </div>
   </div>

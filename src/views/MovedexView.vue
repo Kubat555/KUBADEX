@@ -7,6 +7,7 @@ import { TYPES } from '../lib/typeChart'
 import { GAMES } from '../data/games'
 import { dexNo } from '../lib/utils'
 import { useQueryState } from '../composables/useQueryState'
+import { CLASS_STYLE } from '../lib/moveClass'
 import TypeBadge from '../components/TypeBadge.vue'
 import GameTabs from '../components/GameTabs.vue'
 
@@ -43,12 +44,6 @@ const toggleMove = (name) => set({ move: filters.value.move === name ? '' : name
 
 // the selected move only when it is a real one: the URL is not trusted
 const selected = computed(() => (movedex.value && Object.hasOwn(movedex.value, filters.value.move) ? filters.value.move : null))
-
-const CLASS_STYLE = {
-  physical: { label: 'PHYS', color: '#e8845a' },
-  special: { label: 'SPEC', color: '#6d96d8' },
-  status: { label: 'STAT', color: '#9aa3bd' },
-}
 
 const rows = computed(() => {
   if (!movedex.value) return []

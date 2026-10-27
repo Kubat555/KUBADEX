@@ -43,7 +43,7 @@ const setIds = (list) => router.replace({ query: list.length ? { p: list.join(',
 const add = (id) => !ids.value.includes(id) && setIds([...ids.value, id])
 const remove = (id) => setIds(ids.value.filter((x) => x !== id))
 
-const COLORS = ['#ff7327', '#58c7f3', '#7ac74c']
+const COLORS = ['#ff7327', '#58c7f3', 'var(--color-good)']
 
 // --- radar chart ---
 const R = 80
@@ -107,8 +107,7 @@ const statMax = (s) => Math.max(...mons.value.map((m) => m.stats[s]))
             <polygon
               v-for="(m, i) in mons" :key="m.id"
               :points="monPoints(m)"
-              :fill="COLORS[i] + '2a'"
-              :stroke="COLORS[i]"
+              :style="{ fill: `color-mix(in srgb, ${COLORS[i]} 16%, transparent)`, stroke: COLORS[i] }"
               stroke-width="1.8"
               stroke-linejoin="round"
             />
@@ -160,7 +159,7 @@ const statMax = (s) => Math.max(...mons.value.map((m) => m.stats[s]))
                 <td v-for="(m, i) in mons" :key="m.id" class="py-2 pr-3 tabular-nums">
                   <span
                     class="inline-block rounded px-1.5 py-0.5 text-base font-bold"
-                    :class="profiles[i][t] > 1 ? 'bg-[#e0564b]/12 text-[#e0564b]' : profiles[i][t] === 0 ? 'bg-lens/12 text-lens' : profiles[i][t] < 1 ? 'bg-[#7ac74c]/12 text-[#7ac74c]' : 'text-dim'"
+                    :class="profiles[i][t] > 1 ? 'bg-bad/12 text-bad' : profiles[i][t] === 0 ? 'bg-lens/12 text-lens' : profiles[i][t] < 1 ? 'bg-good/12 text-good' : 'text-dim'"
                   >×{{ fmtMult(profiles[i][t]) }}</span>
                 </td>
               </tr>

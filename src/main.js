@@ -5,6 +5,8 @@ import router from './router'
 import { migrateLegacy } from './lib/storage'
 import { usePrefsStore } from './stores/prefs'
 import { i18n, setLocale } from './i18n'
+import '@fontsource-variable/onest'
+import '@fontsource-variable/pixelify-sans'
 import './styles/main.css'
 
 migrateLegacy() // move pre-v2 `dex3-*` keys before any store reads storage

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { VERSION_GROUPS, VG_ORDER } from '../data/games'
+import { CLASS_STYLE } from '../lib/moveClass'
 import TypeBadge from './TypeBadge.vue'
 
 const props = defineProps({
@@ -25,12 +26,6 @@ const METHODS = [
   { id: 'tutor', label: 'Tutor' },
   { id: 'egg', label: 'Egg' },
 ]
-
-const CLASS_STYLE = {
-  physical: { label: 'PHYS', color: '#e8845a' },
-  special: { label: 'SPEC', color: '#6d96d8' },
-  status: { label: 'STAT', color: '#9aa3bd' },
-}
 
 const availableMethods = computed(() =>
   METHODS.filter((m) =>

@@ -246,7 +246,7 @@ function playCry() {
           <div class="mt-4 space-y-2.5">
             <div v-for="row in bucketRows" :key="row.m" class="flex items-start gap-3">
               <span class="w-20 shrink-0 pt-0.5 text-right font-display text-[10px] tracking-wider"
-                :class="row.m >= 2 ? 'text-[#e0564b]' : row.m === 0 ? 'text-lens' : 'text-[#7ac74c]'"
+                :class="row.m >= 2 ? 'text-bad' : row.m === 0 ? 'text-lens' : 'text-good'"
               >{{ row.label }}</span>
               <div class="flex flex-wrap gap-1">
                 <TypeBadge v-for="t in row.types" :key="t" :type="t" size="sm" />
@@ -347,8 +347,8 @@ function playCry() {
           <dd class="text-ink">
             <template v-if="p.training.genderFemale === null">Genderless</template>
             <template v-else>
-              <span class="text-[#6d96d8]">♂ {{ 100 - p.training.genderFemale }}%</span> ·
-              <span class="text-[#f97176]">♀ {{ p.training.genderFemale }}%</span>
+              <span class="text-spec">♂ {{ 100 - p.training.genderFemale }}%</span> ·
+              <span class="text-type-psychic">♀ {{ p.training.genderFemale }}%</span>
             </template>
           </dd>
         </div>
