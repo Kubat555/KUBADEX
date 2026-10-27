@@ -1,9 +1,11 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { loadIndex, spriteUrl } from '../lib/api'
 import { dexNo } from '../lib/utils'
+import { readJSON } from '../lib/storage'
 
+const route = useRoute()
 const router = useRouter()
 const query = ref('')
 const index = ref([])
@@ -48,22 +50,39 @@ function onKey(e) {
 
 const closeSoon = () => setTimeout(() => (open.value = false), 150)
 
-const links = [
-  { to: '/', label: 'POKÉDEX' },
+// The last query of a page in this tab, kept in sessionStorage by that page (only an object can be a query).
+function lastQuery(key) {
+  const saved = readJSON(key, {}, 'session')
+  return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {}
+}
+
+// Pokédex (menu and logo) and Compare return to the last view of this tab. Storage is not reactive,
+// so the stored queries are read again after every navigation (a filter change is a navigation too).
+// On the page itself its URL is that view: the page may store it only after this watcher has run
+// (Back to an older query, a first visit that mounts the page after the transition).
+const pokedexTo = ref('/')
+const compareTo = ref('/compare')
+watch(() => route.fullPath, () => {
+  pokedexTo.value = { path: '/', query: route.name === 'pokedex' ? route.query : lastQuery('last-query:pokedex') }
+  compareTo.value = { path: '/compare', query: route.name === 'compare' ? route.query : lastQuery('last-query:compare') }
+}, { immediate: true })
+
+const links = computed(() => [
+  { to: pokedexTo.value, label: 'POKÉDEX' },
   { to: '/map', label: 'MAP' },
   { to: '/moves', label: 'MOVES' },
   { to: '/bosses', label: 'BOSSES' },
   { to: '/ev-training', label: 'EV' },
-  { to: '/compare', label: 'COMPARE' },
+  { to: compareTo.value, label: 'COMPARE' },
   { to: '/team', label: 'TEAM' },
-]
+])
 </script>
 
 <template>
   <header class="sticky top-0 z-40 border-b border-line bg-bg/85 backdrop-blur-md">
     <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2.5 sm:gap-x-5">
       <!-- Pokéball logo + LEDs -->
-      <RouterLink to="/" class="group flex shrink-0 items-center gap-2.5">
+      <RouterLink :to="pokedexTo" class="group flex shrink-0 items-center gap-2.5">
         <img
           src="/favicon.svg"
           alt=""
@@ -83,7 +102,7 @@ const links = [
       <!-- nav: scrollable full-width row on mobile, inline on sm+ -->
       <nav class="scrollbar-thin order-3 -mb-1 flex w-full items-center gap-0.5 overflow-x-auto whitespace-nowrap border-t border-line/60 pt-1.5 sm:order-none sm:ml-auto sm:w-auto sm:gap-1 sm:border-t-0 sm:pt-0">
         <RouterLink
-          v-for="l in links" :key="l.to" :to="l.to"
+          v-for="l in links" :key="l.label" :to="l.to"
           class="rounded-md px-2 py-1.5 font-display text-[13px] tracking-wider text-muted transition-colors hover:text-ink sm:px-3 sm:text-sm"
           exact-active-class="!text-dexglow"
         >{{ l.label }}</RouterLink>

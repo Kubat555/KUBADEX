@@ -3,6 +3,8 @@ import { ref, computed, onMounted } from 'vue'
 import { loadByLocation, spriteUrl } from '../lib/api'
 import { GAMES, GAME_ORDER, METHOD_LABELS, METHOD_ICONS } from '../data/games'
 import { dexNo } from '../lib/utils'
+import { useQueryState } from '../composables/useQueryState'
+import { usePrefsStore } from '../stores/prefs'
 import kantoMap from '../data/maps/kanto.json'
 import hoennMap from '../data/maps/hoenn.json'
 import RegionMap from '../components/RegionMap.vue'
@@ -10,16 +12,56 @@ import RegionMap from '../components/RegionMap.vue'
 const byLoc = ref(null)
 onMounted(async () => (byLoc.value = await loadByLocation()))
 
-const region = ref('hoenn')
+const REGIONS = ['hoenn', 'kanto']
 const maps = { kanto: kantoMap, hoenn: hoennMap }
-const selected = ref(null) // place object
+const prefs = usePrefsStore()
+
+// The region and the selected place live in the URL query (shareable, restored by Back).
+// No region in the URL means the region of the global game (FireRed -> Kanto). The default is read at every parse,
+// so this page, kept alive by KeepAlive, follows a game picked on another page.
+const MAP_SCHEMA = {
+  region: { kind: 'enum', values: REGIONS, get default() { return GAMES[prefs.version].region } },
+  place: { kind: 'text', max: 60 }, // slug of the selected place
+}
+const { state: filters, set } = useQueryState(MAP_SCHEMA, { routeName: 'map' })
+
+// Every place belongs to one region, so a place in the URL opens its own region whatever the global game
+// (a link from a player of another game, Back after a game was picked on a Pokémon page).
+const regionOf = (slug) =>
+  REGIONS.find((r) => maps[r].places.some((pl) => pl.slug === slug) || Object.hasOwn(byLoc.value?.[r] ?? {}, slug))
+const region = computed(() => (filters.value.place && regionOf(filters.value.place)) || filters.value.region)
 
 const regionGames = computed(() => GAME_ORDER.filter((g) => GAMES[g].region === region.value))
 
 function pickRegion(r) {
-  region.value = r
-  selected.value = null
+  set({ region: r, place: '' })
 }
+
+// a click, not typing: the place goes to the URL at once, so Back from one of its Pokémon finds it selected
+const pickPlace = (slug) => set({ place: slug }, { immediate: true })
+
+/** locations with data that aren't placed on the map (roaming etc.) */
+const offMap = computed(() => {
+  if (!byLoc.value) return []
+  const placed = new Set()
+  for (const pl of maps[region.value].places) {
+    placed.add(pl.slug)
+    for (const a of pl.areas ?? []) placed.add(a)
+  }
+  return Object.entries(byLoc.value[region.value] ?? {})
+    .filter(([slug]) => !placed.has(slug))
+    .map(([slug, e]) => ({ slug, label: e.label }))
+})
+
+/** the place named in the URL: drawn on the region's map or listed off-map; anything else selects nothing */
+const selected = computed(() => {
+  const slug = filters.value.place
+  if (!slug) return null
+  const placed = maps[region.value].places.find((pl) => pl.slug === slug)
+  if (placed) return placed
+  const off = offMap.value.find((o) => o.slug === slug)
+  return off ? { ...off, areas: [] } : null
+})
 
 /** all slugs (incl. collapsed areas) belonging to the selected place */
 const selectedSlugs = computed(() => (selected.value ? [selected.value.slug, ...(selected.value.areas ?? [])] : []))
@@ -48,23 +90,6 @@ const panel = computed(() => {
 
 const fmtMethod = (m) =>
   `${METHOD_ICONS[m.method] ?? '·'} ${METHOD_LABELS[m.method] ?? m.method} · Lv ${m.min}${m.max !== m.min ? '–' + m.max : ''} · ${m.chance}%`
-
-/** locations with data that aren't placed on the map (roaming etc.) */
-const offMap = computed(() => {
-  if (!byLoc.value) return []
-  const placed = new Set()
-  for (const pl of maps[region.value].places) {
-    placed.add(pl.slug)
-    for (const a of pl.areas ?? []) placed.add(a)
-  }
-  return Object.entries(byLoc.value[region.value] ?? {})
-    .filter(([slug]) => !placed.has(slug))
-    .map(([slug, e]) => ({ slug, label: e.label }))
-})
-
-function pickOffMap(o) {
-  selected.value = { slug: o.slug, label: o.label, areas: [] }
-}
 </script>
 
 <template>
@@ -76,7 +101,7 @@ function pickOffMap(o) {
       </div>
       <div class="flex overflow-hidden rounded-lg border border-line">
         <button
-          v-for="r in ['hoenn', 'kanto']" :key="r"
+          v-for="r in REGIONS" :key="r"
           class="px-4 py-2 font-display text-sm uppercase tracking-wider transition-colors"
           :class="region === r ? 'bg-panel2 text-dexglow' : 'text-dim hover:text-muted'"
           @click="pickRegion(r)"
@@ -89,7 +114,7 @@ function pickOffMap(o) {
         <RegionMap
           :map="maps[region]"
           :selected="selected?.slug"
-          @select="selected = $event"
+          @select="pickPlace($event.slug)"
         />
         <div v-if="offMap.length" class="mt-3 border-t border-line pt-3">
           <p class="font-display text-[10px] tracking-wider text-dim">OFF-MAP AREAS</p>
@@ -98,7 +123,7 @@ function pickOffMap(o) {
               v-for="o in offMap" :key="o.slug"
               class="rounded-md border px-2 py-1 text-xs transition-colors"
               :class="selected?.slug === o.slug ? 'border-dexglow text-dexglow' : 'border-line text-muted hover:border-line2 hover:text-ink'"
-              @click="pickOffMap(o)"
+              @click="pickPlace(o.slug)"
             >{{ o.label }}</button>
           </div>
         </div>

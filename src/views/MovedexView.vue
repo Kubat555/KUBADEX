@@ -1,11 +1,12 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { usePrefsStore } from '../stores/prefs'
 import { loadMoves, loadLearners, loadIndex, spriteUrl } from '../lib/api'
 import { TYPES } from '../lib/typeChart'
 import { GAMES } from '../data/games'
 import { dexNo } from '../lib/utils'
+import { useQueryState } from '../composables/useQueryState'
 import TypeBadge from '../components/TypeBadge.vue'
 import GameTabs from '../components/GameTabs.vue'
 
@@ -22,11 +23,26 @@ onMounted(async () => {
   indexById.value = Object.fromEntries(idx.map((p) => [p.id, p]))
 })
 
-const query = ref('')
-const typeFilter = ref(null)
-const classFilter = ref(null)
-const tmOnly = ref(false)
-const selected = ref(null) // move name
+// Filters and the selected move live in the URL query (shareable, restored by Back); defaults are left out of it.
+const MOVEDEX_SCHEMA = {
+  q: { kind: 'text', max: 40 },
+  type: { kind: 'enum', values: TYPES, default: null },
+  class: { kind: 'enum', values: ['physical', 'special', 'status'], default: null },
+  tm: { kind: 'bool' },
+  move: { kind: 'text', max: 40 }, // the selected move
+}
+const { state: filters, set } = useQueryState(MOVEDEX_SCHEMA, { routeName: 'moves' })
+
+// The field keeps exactly what is typed (spaces included); the trimmed text filters at once and reaches the URL later.
+const searchText = ref(filters.value.q)
+watch(searchText, (text) => { if (text.trim() !== filters.value.q) set({ q: text }) })
+watch(() => filters.value.q, (q) => { if (q !== searchText.value.trim()) searchText.value = q })
+
+// a click, not typing: the move goes to the URL at once, so Back from one of its learners finds it selected
+const toggleMove = (name) => set({ move: filters.value.move === name ? '' : name }, { immediate: true })
+
+// the selected move only when it is a real one: the URL is not trusted
+const selected = computed(() => (movedex.value && Object.hasOwn(movedex.value, filters.value.move) ? filters.value.move : null))
 
 const CLASS_STYLE = {
   physical: { label: 'PHYS', color: '#e8845a' },
@@ -36,16 +52,17 @@ const CLASS_STYLE = {
 
 const rows = computed(() => {
   if (!movedex.value) return []
-  const q = query.value.trim().toLowerCase()
+  const { q: text, type, class: moveClass, tm: tmOnly } = filters.value
+  const q = text.toLowerCase()
   return Object.entries(movedex.value)
     .map(([name, m]) => ({ name, ...m, tm: m.machines?.[vg.value] }))
     .filter((m) =>
       (!q || m.name.includes(q) || m.label.toLowerCase().includes(q)) &&
-      (!typeFilter.value || m.type === typeFilter.value) &&
-      (!classFilter.value || m.class === classFilter.value) &&
-      (!tmOnly.value || m.tm),
+      (!type || m.type === type) &&
+      (!moveClass || m.class === moveClass) &&
+      (!tmOnly || m.tm),
     )
-    .sort((a, b) => (tmOnly.value ? (a.tm > b.tm ? 1 : -1) : a.label.localeCompare(b.label)))
+    .sort((a, b) => (tmOnly ? (a.tm > b.tm ? 1 : -1) : a.label.localeCompare(b.label)))
 })
 
 const METHOD_ORDER = [
@@ -85,8 +102,9 @@ const panel = computed(() => {
     <section class="animate-fadeup mb-5 space-y-3 rounded-2xl border border-line bg-panel/60 p-4" style="animation-delay: 60ms">
       <div class="flex flex-wrap items-center gap-2.5">
         <input
-          v-model="query"
+          v-model="searchText"
           type="search"
+          maxlength="40"
           placeholder="Move name…"
           class="w-full rounded-lg border border-line bg-panel px-3 py-2 text-sm text-ink outline-none placeholder:text-dim focus:border-dex sm:w-52"
         />
@@ -94,15 +112,15 @@ const panel = computed(() => {
           <button
             v-for="(c, id) in CLASS_STYLE" :key="id"
             class="rounded-md border px-2 py-1.5 font-display text-[10px] tracking-wider transition-colors"
-            :class="classFilter === id ? 'border-line2 bg-panel2' : 'border-line text-dim hover:text-muted'"
-            :style="classFilter === id ? { color: c.color } : null"
-            @click="classFilter = classFilter === id ? null : id"
+            :class="filters.class === id ? 'border-line2 bg-panel2' : 'border-line text-dim hover:text-muted'"
+            :style="filters.class === id ? { color: c.color } : null"
+            @click="set({ class: filters.class === id ? null : id })"
           >{{ c.label }}</button>
         </div>
         <button
           class="rounded-md border px-2 py-1.5 font-display text-[10px] tracking-wider transition-colors"
-          :class="tmOnly ? 'border-dex bg-dex/10 text-dexglow' : 'border-line text-dim hover:text-muted'"
-          @click="tmOnly = !tmOnly"
+          :class="filters.tm ? 'border-dex bg-dex/10 text-dexglow' : 'border-line text-dim hover:text-muted'"
+          @click="set({ tm: !filters.tm })"
         >TM / HM ONLY</button>
         <span class="ml-auto font-display text-xs text-dim">{{ rows.length }} MOVES</span>
       </div>
@@ -112,13 +130,13 @@ const panel = computed(() => {
           class="rounded px-2 py-1 font-display text-[11px] uppercase tracking-wider transition-all"
           :style="{
             color: `var(--color-type-${t})`,
-            background: typeFilter === t ? `color-mix(in srgb, var(--color-type-${t}) 28%, transparent)` : 'transparent',
-            boxShadow: typeFilter === t
+            background: filters.type === t ? `color-mix(in srgb, var(--color-type-${t}) 28%, transparent)` : 'transparent',
+            boxShadow: filters.type === t
               ? `inset 0 0 0 1.5px var(--color-type-${t})`
               : `inset 0 0 0 1px color-mix(in srgb, var(--color-type-${t}) 28%, transparent)`,
-            opacity: typeFilter && typeFilter !== t ? 0.5 : 1,
+            opacity: filters.type && filters.type !== t ? 0.5 : 1,
           }"
-          @click="typeFilter = typeFilter === t ? null : t"
+          @click="set({ type: filters.type === t ? null : t })"
         >{{ t }}</button>
       </div>
     </section>
@@ -143,7 +161,7 @@ const panel = computed(() => {
                 v-for="m in rows" :key="m.name"
                 class="cursor-pointer border-b border-line/40 transition-colors"
                 :class="selected === m.name ? 'bg-panel2' : 'hover:bg-panel2/50'"
-                @click="selected = selected === m.name ? null : m.name"
+                @click="toggleMove(m.name)"
               >
                 <td class="py-2 pl-4 pr-3 font-medium text-ink">{{ m.label }}</td>
                 <td class="py-2 pr-3"><TypeBadge :type="m.type" size="sm" /></td>

@@ -3,11 +3,11 @@ import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { usePrefsStore } from '../stores/prefs'
-import { loadPokemon, loadMoves, loadAbilities, spriteUrl, cryUrl } from '../lib/api'
+import { loadPokemon, loadMoves, loadAbilities, loadIndex, spriteUrl, cryUrl } from '../lib/api'
 import { matchupBuckets } from '../lib/typeChart'
 import { GAMES, GAME_ORDER, METHOD_LABELS, METHOD_ICONS } from '../data/games'
 import { SPECIAL_ENCOUNTERS } from '../data/specialEncounters'
-import { dexNo, statTotal, STAT_LABELS, STAT_ORDER, fmtMult } from '../lib/utils'
+import { dexNo, statTotal, STAT_LABELS, STAT_ORDER, fmtMult, maxDexId } from '../lib/utils'
 import kantoMap from '../data/maps/kanto.json'
 import hoennMap from '../data/maps/hoenn.json'
 import TypeBadge from '../components/TypeBadge.vue'
@@ -116,8 +116,12 @@ const versionsWithData = computed(() =>
   p.value ? GAME_ORDER.filter((v) => p.value.encounters[v]?.length || specialFor(p.value.id, v).length) : [],
 )
 
+// the last entry comes from the loaded index, not from a fixed dex size
+const maxId = ref(0)
+onMounted(async () => (maxId.value = maxDexId(await loadIndex())))
+
 const prevId = computed(() => (p.value && p.value.id > 1 ? p.value.id - 1 : null))
-const nextId = computed(() => (p.value && p.value.id < 386 ? p.value.id + 1 : null))
+const nextId = computed(() => (p.value && p.value.id < maxId.value ? p.value.id + 1 : null))
 
 // ← / → flip between entries (unless typing in a field)
 function onArrows(e) {

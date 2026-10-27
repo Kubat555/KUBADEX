@@ -1,11 +1,13 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 import { loadIndex } from '../lib/api'
 import { TYPES } from '../lib/typeChart'
 import { GAMES, GAME_ORDER } from '../data/games'
 import { statTotal } from '../lib/utils'
 import { serializeQuery } from '../lib/queryState'
+import { readJSON, writeJSON } from '../lib/storage'
+import { normalize, isGuessCorrect } from '../lib/search'
 import { useQueryState } from '../composables/useQueryState'
 import { usePrefsStore } from '../stores/prefs'
 import PokemonCard from '../components/PokemonCard.vue'
@@ -20,88 +22,140 @@ onMounted(async () => {
   loaded.value = true
 })
 
-const router = useRouter()
-const goRandom = () => router.push(`/pokemon/${Math.floor(Math.random() * 386) + 1}`)
-
-// ---- Who's that Pokémon? — daily pick first, then endless random rounds ----
-const now = new Date()
-const featuredId = (now.getFullYear() * 372 + (now.getMonth() + 1) * 31 + now.getDate()) % 386 + 1
-const currentId = ref(featuredId)
-const round = ref(0) // 0 = the daily one (persisted), 1+ = bonus rounds
-const featured = computed(() => index.value.find((p) => p.id === currentId.value))
-
-const streak = ref(Number(localStorage.getItem('dex3-streak')) || 0)
-const saveStreak = () => localStorage.setItem('dex3-streak', String(streak.value))
-
-const WTP_KEY = 'dex3-wtp'
-const dateKey = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
-const solved = ref(false)
-const gaveUp = ref(false)
-const misses = ref(0)
-try {
-  const saved = JSON.parse(localStorage.getItem(WTP_KEY))
-  if (saved?.date === dateKey) {
-    solved.value = !!saved.solved
-    gaveUp.value = !!saved.gaveUp
-    misses.value = saved.misses ?? 0
-  }
-} catch { /* fresh day */ }
-const saveWtp = () => {
-  if (round.value > 0) return // bonus rounds aren't persisted, only the daily one
-  localStorage.setItem(WTP_KEY, JSON.stringify({ date: dateKey, solved: solved.value, gaveUp: gaveUp.value, misses: misses.value }))
+// a random entry of the loaded index other than `except` (ids come from the data, not from a fixed dex size)
+function randomId(except) {
+  const pool = index.value.filter((p) => p.id !== except)
+  return pool.length ? pool[Math.floor(Math.random() * pool.length)].id : null
 }
+
+const router = useRouter()
+function goRandom() {
+  const id = randomId()
+  if (id) router.push(`/pokemon/${id}`)
+}
+
+// ---- Who's that Pokémon? — the daily pick first, then endless bonus rounds ----
+// Today's result is saved per day (localStorage `wtp-daily`), the streak across days (`wtp-streak`), and the bonus
+// round for the tab session (sessionStorage `wtp-bonus`): leaving an unfinished round and coming back continues it,
+// so walking away from a hard one is no way around the streak.
+const count = (v) => (Number.isInteger(v) && v > 0 ? v : 0)
+const dayKey = (d) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
+
+function readDaily(date) {
+  const saved = readJSON('wtp-daily', null)
+  if (saved?.date !== date) return { solved: false, gaveUp: false, misses: 0 }
+  return { solved: saved.solved === true, gaveUp: saved.gaveUp === true, misses: count(saved.misses) }
+}
+
+function readBonus() {
+  const b = readJSON('wtp-bonus', null, 'session')
+  if (!count(b?.id) || !count(b?.round)) return null
+  return { id: b.id, round: b.round, misses: count(b.misses), solved: b.solved === true, gaveUp: b.gaveUp === true }
+}
+
+const today = ref(new Date())
+const dateKey = computed(() => dayKey(today.value))
+const daily = ref(readDaily(dateKey.value)) // { solved, gaveUp, misses } of today's pick
+const bonus = ref(readBonus()) // { id, round, misses, solved, gaveUp } or null
+const streak = ref(count(readJSON('wtp-streak', 0)))
+
+// the same pick for everyone on a given day
+const dailyId = computed(() => {
+  const n = index.value.length
+  const d = today.value
+  return n ? index.value[(d.getFullYear() * 372 + (d.getMonth() + 1) * 31 + d.getDate()) % n].id : null
+})
+
+function saveBonus(b) {
+  bonus.value = b
+  writeJSON('wtp-bonus', b, 'session')
+}
+
+// A bonus round only follows a revealed daily pick. One left from an earlier day gives way to the new day's pick.
+function dropStaleBonus() {
+  if (bonus.value && !daily.value.solved && !daily.value.gaveUp) saveBonus(null)
+}
+dropStaleBonus()
+
+// a bonus round restored from the session must name a real entry, or the quiz would stay hidden
+watch(index, (list) => {
+  if (bonus.value && !list.some((p) => p.id === bonus.value.id)) saveBonus(null)
+})
 
 const guess = ref('')
 const wrongShake = ref(0) // increments to retrigger the shake animation
 const guessMsg = ref('')
-const revealed = computed(() => solved.value || gaveUp.value)
 
-const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '')
-
-function submitGuess() {
-  const q = normalize(guess.value)
-  if (!q || !featured.value) return
-  if (q === normalize(featured.value.name) || q === normalize(featured.value.label)) {
-    solved.value = true
-    guessMsg.value = ''
-    streak.value++
-    saveStreak()
-    saveWtp()
-    playCry()
-    return
-  }
-  const known = index.value.some((p) => normalize(p.name) === q || normalize(p.label) === q)
-  guessMsg.value = known ? 'Nope, that’s not it!' : 'No such Pokémon in this dex…'
-  misses.value++
-  wrongShake.value++
-  guess.value = ''
-  saveWtp()
-}
-
-function giveUp() {
-  gaveUp.value = true
-  guessMsg.value = ''
-  streak.value = 0
-  saveStreak()
-  saveWtp()
-}
-
-function playAgain() {
-  round.value++
-  let next = currentId.value
-  while (next === currentId.value) next = Math.floor(Math.random() * 386) + 1
-  currentId.value = next
-  solved.value = false
-  gaveUp.value = false
-  misses.value = 0
+function clearGuess() {
   guess.value = ''
   guessMsg.value = ''
   wrongShake.value = 0
 }
 
+// KeepAlive keeps this page: shown again on a later day, it moves on to that day's pick
+onActivated(() => {
+  const now = new Date()
+  if (dayKey(now) === dateKey.value) return
+  today.value = now
+  daily.value = readDaily(dateKey.value)
+  dropStaleBonus()
+  clearGuess()
+})
+
+// the round on screen: the bonus round when there is one, else today's pick
+const puzzle = computed(() => bonus.value ?? { id: dailyId.value, ...daily.value })
+const featured = computed(() => index.value.find((p) => p.id === puzzle.value.id))
+const solved = computed(() => puzzle.value.solved)
+const gaveUp = computed(() => puzzle.value.gaveUp)
+const misses = computed(() => puzzle.value.misses)
+const revealed = computed(() => solved.value || gaveUp.value)
+
+function updatePuzzle(patch) {
+  if (bonus.value) {
+    saveBonus({ ...bonus.value, ...patch })
+  } else {
+    daily.value = { ...daily.value, ...patch }
+    writeJSON('wtp-daily', { date: dateKey.value, ...daily.value })
+  }
+}
+
+function setStreak(n) {
+  streak.value = n
+  writeJSON('wtp-streak', n)
+}
+
+function submitGuess() {
+  if (!normalize(guess.value) || !featured.value) return
+  if (isGuessCorrect(guess.value, featured.value)) {
+    guessMsg.value = ''
+    updatePuzzle({ solved: true })
+    setStreak(streak.value + 1)
+    playCry()
+    return
+  }
+  const known = index.value.some((p) => isGuessCorrect(guess.value, p))
+  guessMsg.value = known ? 'Nope, that’s not it!' : 'No such Pokémon in this dex…'
+  updatePuzzle({ misses: misses.value + 1 })
+  wrongShake.value++
+  guess.value = ''
+}
+
+function giveUp() {
+  guessMsg.value = ''
+  updatePuzzle({ gaveUp: true })
+  setStreak(0)
+}
+
+function playAgain() {
+  const id = randomId(puzzle.value.id)
+  if (!id) return
+  saveBonus({ id, round: (bonus.value?.round ?? 0) + 1, misses: 0, solved: false, gaveUp: false })
+  clearGuess()
+}
+
 const crying = ref(false)
 function playCry() {
-  const audio = new Audio(cryUrl(currentId.value))
+  const audio = new Audio(cryUrl(featured.value.id))
   crying.value = true
   audio.addEventListener('ended', () => (crying.value = false))
   audio.addEventListener('error', () => (crying.value = false))

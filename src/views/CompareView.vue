@@ -1,9 +1,10 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { loadPokemon, loadAbilities, spriteUrl } from '../lib/api'
+import { loadPokemon, loadAbilities, loadIndex, spriteUrl } from '../lib/api'
 import { TYPES, defenseProfile } from '../lib/typeChart'
-import { dexNo, statTotal, STAT_LABELS, STAT_ORDER, fmtMult } from '../lib/utils'
+import { dexNo, statTotal, STAT_LABELS, STAT_ORDER, fmtMult, maxDexId } from '../lib/utils'
+import { writeJSON } from '../lib/storage'
 import TypeBadge from '../components/TypeBadge.vue'
 import PokemonPicker from '../components/PokemonPicker.vue'
 
@@ -12,13 +13,22 @@ const router = useRouter()
 const mons = ref([])
 const abilitydex = ref({})
 
+// the highest valid id comes from the loaded index, not from a fixed dex size
+const maxId = ref(0)
+onMounted(async () => (maxId.value = maxDexId(await loadIndex())))
+
 const ids = computed(() =>
   String(route.query.p ?? '')
     .split(',')
     .map(Number)
-    .filter((n) => n >= 1 && n <= 386)
+    .filter((n) => n >= 1 && n <= maxId.value)
     .slice(0, 3),
 )
+
+// the menu's COMPARE link reopens the last comparison of this tab (not while leaving: the route has changed by then)
+watch(ids, (list) => {
+  if (route.name === 'compare') writeJSON('last-query:compare', list.length ? { p: list.join(',') } : {}, 'session')
+})
 
 watch(
   ids,

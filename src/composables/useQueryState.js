@@ -7,7 +7,8 @@ const sameQuery = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 
 // Filter state of a list screen, kept in its URL query (see lib/queryState.js for the schema).
 // - `state` is the single source the screen renders from; it changes at once, the URL follows via router.replace
-//   (filter clicks must not pile up history entries). Text-only changes reach the URL after `textDebounceMs`.
+//   (filter clicks must not pile up history entries). Text-only changes reach the URL after `textDebounceMs`,
+//   unless `set(patch, { immediate: true })`: a text field picked by a click (a move, a place) is not typing.
 // - `set` merges into the local state, not into route.query, so several calls in one tick all survive.
 // - Back/forward and pasted links flow URL -> state, but only while `routeName` is the current route: under KeepAlive
 //   a cached screen keeps its watchers while another page is shown, and must not react to that page's query.
@@ -33,11 +34,11 @@ export function useQueryState(schema, { routeName, textDebounceMs = 200, session
     if (route.name === routeName) router.replace({ query })
   }
 
-  function set(patch) {
+  function set(patch, { immediate = false } = {}) {
     // the round trip through the schema keeps the state exactly what the URL would give back
     state.value = parseQuery(serializeQuery({ ...state.value, ...patch }, schema), schema)
     const textOnly = Object.keys(patch).every((key) => schema[key]?.kind === 'text')
-    if (textOnly && textDebounceMs > 0) {
+    if (textOnly && !immediate && textDebounceMs > 0) {
       cancelPendingWrite()
       timer = setTimeout(writeUrl, textDebounceMs)
     } else writeUrl()

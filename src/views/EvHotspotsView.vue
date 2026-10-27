@@ -5,11 +5,16 @@ import { usePrefsStore } from '../stores/prefs'
 import { loadIndex, loadByLocation, spriteUrl } from '../lib/api'
 import { GAMES, METHOD_LABELS, METHOD_ICONS } from '../data/games'
 import { STAT_LABELS, STAT_ORDER } from '../lib/utils'
+import { useQueryState } from '../composables/useQueryState'
 import GameTabs from '../components/GameTabs.vue'
 import PokeballSpinner from '../components/PokeballSpinner.vue'
 
 const { version } = storeToRefs(usePrefsStore())
-const stat = ref('spe')
+
+// the chosen stat lives in the URL query (shareable, restored by Back); Speed, the default, is left out of it
+const EV_SCHEMA = { stat: { kind: 'enum', values: STAT_ORDER, default: 'spe' } }
+const { state: filters, set } = useQueryState(EV_SCHEMA, { routeName: 'ev' })
+const stat = computed(() => filters.value.stat)
 
 const indexById = ref(null)
 const byLoc = ref(null)
@@ -75,7 +80,7 @@ const maxEv = computed(() => hotspots.value[0]?.ev ?? 1)
         v-for="s in STAT_ORDER" :key="s"
         class="rounded-lg border px-3 py-1.5 font-display text-xs tracking-wider transition-all"
         :class="stat === s ? 'border-dex bg-dex/15 text-dexglow' : 'border-line text-muted hover:border-line2 hover:text-ink'"
-        @click="stat = s"
+        @click="set({ stat: s })"
       >{{ STAT_LABELS[s].toUpperCase() }}</button>
     </div>
 
