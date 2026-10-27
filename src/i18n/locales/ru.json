@@ -1,0 +1,86 @@
+{
+  "common": {
+    "loading": "Загрузка…",
+    "retry": "Повторить",
+    "close": "Закрыть",
+    "search": "Поиск",
+    "reset": "Сбросить"
+  },
+  "nav": {
+    "pokedex": "Покедекс",
+    "map": "Карта",
+    "moves": "Мувы",
+    "bosses": "Боссы",
+    "ev": "EV",
+    "compare": "Сравнение",
+    "team": "Команда",
+    "settings": "Настройки"
+  },
+  "types": {
+    "normal": "Обычный",
+    "fire": "Огонь",
+    "water": "Вода",
+    "electric": "Электро",
+    "grass": "Трава",
+    "ice": "Лёд",
+    "fighting": "Боевой",
+    "poison": "Яд",
+    "ground": "Земля",
+    "flying": "Летающий",
+    "psychic": "Психо",
+    "bug": "Насекомое",
+    "rock": "Камень",
+    "ghost": "Привидение",
+    "dragon": "Дракон",
+    "dark": "Тёмный",
+    "steel": "Сталь",
+    "fairy": "Фея"
+  },
+  "stats": {
+    "hp": "HP",
+    "atk": "Атака",
+    "def": "Защита",
+    "spa": "Сп. атака",
+    "spd": "Сп. защита",
+    "spe": "Скорость",
+    "total": "Сумма характеристик",
+    "bst": "BST"
+  },
+  "methods": {
+    "level-up": "По уровню",
+    "machine": "TM / HM",
+    "tutor": "Учитель",
+    "egg": "Яйцо",
+    "walk": "Трава / Пещера",
+    "surf": "Серфинг",
+    "old-rod": "Старая удочка",
+    "good-rod": "Хорошая удочка",
+    "super-rod": "Супер-удочка",
+    "rock-smash": "Rock Smash",
+    "gift": "Подарок",
+    "gift-egg": "Подарочное яйцо",
+    "only-one": "Фиксированная",
+    "feebas-tile-fishing": "Рыбалка — 6 скрытых клеток",
+    "seaweed": "Водоросли (Dive)"
+  },
+  "classes": {
+    "physical": "ФИЗ",
+    "special": "СПЕЦ",
+    "status": "СТАТ"
+  },
+  "pokedex": {
+    "found": "0 покемонов | {n} покемон | {n} покемона | {n} покемонов"
+  },
+  "wtp": {},
+  "pokemon": {},
+  "moves": {},
+  "map": {},
+  "bosses": {},
+  "ev": {},
+  "compare": {},
+  "team": {},
+  "catch": {},
+  "settings": {},
+  "footer": {},
+  "errors": {}
+}

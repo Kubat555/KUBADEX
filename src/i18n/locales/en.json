@@ -1,0 +1,86 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "retry": "Try again",
+    "close": "Close",
+    "search": "Search",
+    "reset": "Reset"
+  },
+  "nav": {
+    "pokedex": "Pokédex",
+    "map": "Map",
+    "moves": "Moves",
+    "bosses": "Bosses",
+    "ev": "EV",
+    "compare": "Compare",
+    "team": "Team",
+    "settings": "Settings"
+  },
+  "types": {
+    "normal": "Normal",
+    "fire": "Fire",
+    "water": "Water",
+    "electric": "Electric",
+    "grass": "Grass",
+    "ice": "Ice",
+    "fighting": "Fighting",
+    "poison": "Poison",
+    "ground": "Ground",
+    "flying": "Flying",
+    "psychic": "Psychic",
+    "bug": "Bug",
+    "rock": "Rock",
+    "ghost": "Ghost",
+    "dragon": "Dragon",
+    "dark": "Dark",
+    "steel": "Steel",
+    "fairy": "Fairy"
+  },
+  "stats": {
+    "hp": "HP",
+    "atk": "Attack",
+    "def": "Defense",
+    "spa": "Sp. Atk",
+    "spd": "Sp. Def",
+    "spe": "Speed",
+    "total": "Total stats",
+    "bst": "BST"
+  },
+  "methods": {
+    "level-up": "Level Up",
+    "machine": "TM / HM",
+    "tutor": "Tutor",
+    "egg": "Egg",
+    "walk": "Grass / Cave",
+    "surf": "Surfing",
+    "old-rod": "Old Rod",
+    "good-rod": "Good Rod",
+    "super-rod": "Super Rod",
+    "rock-smash": "Rock Smash",
+    "gift": "Gift",
+    "gift-egg": "Gift Egg",
+    "only-one": "Static",
+    "feebas-tile-fishing": "Fishing — 6 hidden tiles",
+    "seaweed": "Seaweed (dive)"
+  },
+  "classes": {
+    "physical": "PHYS",
+    "special": "SPEC",
+    "status": "STAT"
+  },
+  "pokedex": {
+    "found": "none found | {n} found | {n} found"
+  },
+  "wtp": {},
+  "pokemon": {},
+  "moves": {},
+  "map": {},
+  "bosses": {},
+  "ev": {},
+  "compare": {},
+  "team": {},
+  "catch": {},
+  "settings": {},
+  "footer": {},
+  "errors": {}
+}
