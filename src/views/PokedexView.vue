@@ -1,19 +1,28 @@
 <script setup>
 import { ref, computed, watch, onMounted, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
-import { loadIndex } from '../lib/api'
+import { useI18n } from 'vue-i18n'
+import { loadIndex, spriteUrl, cryUrl } from '../lib/api'
 import { TYPES } from '../lib/typeChart'
 import { GAMES, GAME_ORDER } from '../data/games'
 import { statTotal } from '../lib/utils'
 import { serializeQuery } from '../lib/queryState'
 import { readJSON, writeJSON } from '../lib/storage'
-import { normalize, isGuessCorrect } from '../lib/search'
+import { normalize, isGuessCorrect, searchPokemon } from '../lib/search'
 import { useQueryState } from '../composables/useQueryState'
 import { usePrefsStore } from '../stores/prefs'
 import PokemonCard from '../components/PokemonCard.vue'
 import PokeballSpinner from '../components/PokeballSpinner.vue'
 import TypeBadge from '../components/TypeBadge.vue'
-import { spriteUrl, cryUrl } from '../lib/api'
+import Chip from '../components/ui/Chip.vue'
+import EmptyState from '../components/ui/EmptyState.vue'
+import Icon from '../components/ui/Icon.vue'
+import PageHeader from '../components/ui/PageHeader.vue'
+import Segmented from '../components/ui/Segmented.vue'
+import Sheet from '../components/ui/Sheet.vue'
+import Skeleton from '../components/ui/Skeleton.vue'
+
+const { t } = useI18n()
 
 const index = ref([])
 const loaded = ref(false)
@@ -84,7 +93,7 @@ watch(index, (list) => {
 
 const guess = ref('')
 const wrongShake = ref(0) // increments to retrigger the shake animation
-const guessMsg = ref('')
+const guessMsg = ref('') // i18n key of the answer to the last wrong guess, so it follows a language switch
 
 function clearGuess() {
   guess.value = ''
@@ -134,7 +143,7 @@ function submitGuess() {
     return
   }
   const known = index.value.some((p) => isGuessCorrect(guess.value, p))
-  guessMsg.value = known ? 'Nope, that’s not it!' : 'No such Pokémon in this dex…'
+  guessMsg.value = known ? 'wtp.wrong' : 'wtp.unknown'
   updatePuzzle({ misses: misses.value + 1 })
   wrongShake.value++
   guess.value = ''
@@ -162,28 +171,26 @@ function playCry() {
   audio.play().catch(() => (crying.value = false))
 }
 
-const SORTS = [
-  { id: 'id', label: 'Dex №' },
-  { id: 'name', label: 'Name' },
-  { id: 'bst', label: 'Total stats' },
-  { id: 'hp', label: 'HP' },
-  { id: 'atk', label: 'Attack' },
-  { id: 'def', label: 'Defense' },
-  { id: 'spa', label: 'Sp. Atk' },
-  { id: 'spd', label: 'Sp. Def' },
-  { id: 'spe', label: 'Speed' },
-]
+// ---- filters ----
+const SORTS = ['id', 'name', 'bst', 'hp', 'atk', 'def', 'spa', 'spd', 'spe']
+const DEXES = ['national', 'kanto', 'hoenn']
 
 // Filters live in the URL query (shareable, restored by Back); defaults are left out of it.
 const POKEDEX_SCHEMA = {
   q: { kind: 'text', max: 40 },
   type: { kind: 'list', values: TYPES, max: 2, default: [] },
   game: { kind: 'enum', values: GAME_ORDER, default: null },
-  dex: { kind: 'enum', values: ['national', 'kanto', 'hoenn'], default: 'national' },
-  sort: { kind: 'enum', values: SORTS.map((s) => s.id), default: 'id' },
+  dex: { kind: 'enum', values: DEXES, default: 'national' },
+  sort: { kind: 'enum', values: SORTS, default: 'id' },
 }
 const { state: filters, set, reset } = useQueryState(POKEDEX_SCHEMA, { routeName: 'pokedex', sessionKey: 'last-query:pokedex' })
 const prefs = usePrefsStore()
+
+const SORT_KEYS = { id: 'pokedex.sortId', name: 'pokedex.sortName', bst: 'stats.total' } // the base stats use `stats.<id>`
+const sortLabel = (s) => t(SORT_KEYS[s] ?? `stats.${s}`)
+const dexOptions = computed(() => DEXES.map((d) => ({ value: d, label: t(`pokedex.dexes.${d}`) })))
+// type names as text: the `-ink` variant where the type colour itself is under 4.5:1 on the dark panel
+const typeInk = (type) => `var(--color-type-${type}-ink, var(--color-type-${type}))`
 
 // The field keeps exactly what is typed (spaces included); the trimmed text filters at once and reaches the URL later.
 const searchText = ref(filters.value.q)
@@ -191,9 +198,9 @@ watch(searchText, (text) => { if (text.trim() !== filters.value.q) set({ q: text
 watch(() => filters.value.q, (q) => { if (q !== searchText.value.trim()) searchText.value = q })
 
 // two types at most: picking a third drops the oldest
-function toggleType(t) {
+function toggleType(type) {
   const types = filters.value.type
-  set({ type: types.includes(t) ? types.filter((x) => x !== t) : [...types, t].slice(-2) })
+  set({ type: types.includes(type) ? types.filter((x) => x !== type) : [...types, type].slice(-2) })
 }
 
 // picking a game here also makes it the global game of every other page
@@ -203,16 +210,15 @@ function toggleGame(v) {
   if (game) prefs.version = game
 }
 
+// A typed query ranks the matches (best first, typos allowed) and the chosen sort waits until the field is empty;
+// the dex, game and type filters narrow either list.
 const filtered = computed(() => {
-  const { q: text, type, game, dex, sort } = filters.value
-  const q = text.toLowerCase()
-  let list = index.value
-  if (dex !== 'national') list = list.filter((p) => p.dex[dex])
-  if (game) list = list.filter((p) => p.games.includes(game))
-  if (type.length) list = list.filter((p) => type.every((t) => p.types.includes(t)))
-  if (q) list = list.filter((p) => p.name.includes(q) || String(p.id) === q)
+  const { q, type, game, dex, sort } = filters.value
+  const keep = (p) =>
+    (dex === 'national' || p.dex[dex]) && (!game || p.games.includes(game)) && type.every((x) => p.types.includes(x))
+  if (normalize(q)) return searchPokemon(index.value, q, { limit: Infinity }).filter(keep)
 
-  list = [...list]
+  const list = index.value.filter(keep)
   if (sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name))
   else if (sort === 'bst') list.sort((a, b) => statTotal(b.stats) - statTotal(a.stats))
   else if (sort !== 'id') list.sort((a, b) => b.stats[sort] - a.stats[sort])
@@ -221,165 +227,275 @@ const filtered = computed(() => {
 })
 
 const hasFilters = computed(() => Object.keys(serializeQuery(filters.value, POKEDEX_SCHEMA)).length > 0)
+
+// Everything set in the filter sheet (the search field stays in view), as removable chips under the search row
+// on a phone; their number is on the button that opens the sheet.
+const activeFilters = computed(() => {
+  const { type, game, dex, sort } = filters.value
+  const accent = 'var(--color-dexglow)'
+  const list = type.map((x) => ({ key: `type-${x}`, label: t(`types.${x}`), color: `var(--color-type-${x})`, remove: () => toggleType(x) }))
+  if (game) list.push({ key: 'game', label: GAMES[game].label, color: GAMES[game].color, remove: () => toggleGame(game) })
+  if (dex !== POKEDEX_SCHEMA.dex.default) {
+    list.push({ key: 'dex', label: t(`pokedex.dexes.${dex}`), color: accent, remove: () => set({ dex: POKEDEX_SCHEMA.dex.default }) })
+  }
+  if (sort !== POKEDEX_SCHEMA.sort.default) {
+    const label = t('pokedex.sortChip', { name: sortLabel(sort) })
+    list.push({ key: 'sort', label, color: accent, remove: () => set({ sort: POKEDEX_SCHEMA.sort.default }) })
+  }
+  return list
+})
+
+const sheetOpen = ref(false) // the filter sheet on a phone; wider screens show the filters in place
 </script>
 
 <template>
   <div>
-    <!-- hero -->
-    <section class="animate-fadeup relative mb-6 overflow-hidden rounded-2xl border border-line bg-panel/60 p-6 sm:p-8">
-      <div
-        v-if="featured"
-        class="pointer-events-none absolute -right-16 -top-20 size-72 rounded-full opacity-[0.12] blur-3xl"
-        :style="{ background: `var(--color-type-${featured.types[0]})` }"
-      ></div>
-      <div class="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 class="font-display text-3xl leading-tight text-ink sm:text-4xl">
-            GEN III <span class="text-dexglow">FIELD GUIDE</span>
-          </h1>
-          <p class="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-            Every Pokémon of FireRed, LeafGreen, Ruby, Sapphire &amp; Emerald — stats, abilities, evolutions,
-            full movesets and exactly <RouterLink to="/map" class="text-lens underline decoration-line2 hover:text-ink">where to find them</RouterLink>
-            in each version.
-          </p>
-        </div>
+    <!-- hero: one-line title and the Who's that Pokémon? screen: a compact full-width card under the title on a phone,
+         under the intro at 640–767px, to the right of it (the intro narrows) from 768px -->
+    <PageHeader
+      :title="t('pokedex.title')"
+      :accent="t('pokedex.accent')"
+      class="max-sm:flex-col max-sm:flex-nowrap max-sm:items-stretch sm:items-center md:flex-nowrap"
+    >
+      <i18n-t keypath="pokedex.intro" tag="span" scope="global" class="hidden max-w-md text-pretty sm:block">
+        <template #where>
+          <RouterLink to="/map" class="text-lens underline decoration-line2 hover:text-ink">{{ t('pokedex.introWhere') }}</RouterLink>
+        </template>
+      </i18n-t>
 
-        <!-- Who's that Pokémon? -->
-        <div v-if="featured" class="flex shrink-0 items-center gap-4 sm:pr-2">
+      <template #actions>
+        <div class="relative flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-line bg-bg p-3 shadow-[inset_0_2px_12px_rgb(0_0_0/0.55)] sm:gap-4">
+          <!-- the streak sits in the screen's corner like a game HUD, so the caption next to the art stays one line -->
+          <p
+            v-if="streak >= 2"
+            class="absolute top-2 left-2 z-10 inline-flex items-center gap-0.5 rounded bg-bg/85 px-1 text-type-electric"
+            :title="t('wtp.streak', { n: streak })"
+          >
+            <Icon name="flame" />
+            <span class="num text-xs" aria-hidden="true">×{{ streak }}</span>
+            <span class="sr-only">{{ t('wtp.streak', { n: streak }) }}</span>
+          </p>
           <component
-            :is="revealed ? 'router-link' : 'div'"
-            :to="revealed ? `/pokemon/${featured.id}` : undefined"
-            class="group relative"
+            :is="featured && revealed ? 'router-link' : 'div'"
+            :to="featured && revealed ? `/pokemon/${featured.id}` : undefined"
+            :tabindex="featured && revealed ? -1 : undefined"
+            class="group grid size-20 shrink-0 place-items-center sm:size-28"
           >
             <img
+              v-if="featured"
               :src="spriteUrl(featured.id, 'art')"
               :alt="revealed ? featured.label : '???'"
-              class="size-28 object-contain drop-shadow-[0_6px_18px_rgba(0,0,0,0.5)] transition-all duration-500 sm:size-32"
+              class="size-full object-contain drop-shadow-[0_6px_18px_rgba(0,0,0,0.5)] transition-[scale,filter] duration-(--dur-4)"
               :class="revealed ? 'group-hover:scale-110' : 'brightness-0 invert'"
               draggable="false"
             />
+            <Skeleton v-else :w="56" :h="56" rounded="50%" />
           </component>
 
-          <!-- unsolved: the quiz -->
-          <div v-if="!revealed" class="w-52">
-            <p class="font-display text-[10px] tracking-[0.2em] text-lens">
-              WHO'S THAT POKÉMON?
-              <span v-if="streak >= 2" class="ml-1 text-type-electric">×{{ streak }}🔥</span>
-            </p>
-            <form class="mt-1.5 flex gap-1.5" :key="wrongShake" :class="wrongShake ? 'shake' : ''" @submit.prevent="submitGuess">
-              <input
-                v-model="guess"
-                type="text"
-                placeholder="Your guess…"
-                autocomplete="off"
-                class="w-full min-w-0 rounded-lg border border-line bg-panel px-2.5 py-1.5 text-sm text-ink outline-none placeholder:text-dim focus:border-lens"
-              />
-              <button type="submit" class="rounded-lg border border-lens/50 px-2.5 font-display text-[10px] tracking-wider text-lens transition-colors hover:bg-lens/10">GO</button>
-            </form>
-            <p v-if="guessMsg" class="mt-1 text-[11px] text-bad">{{ guessMsg }}</p>
-            <div v-if="misses >= 1" class="mt-1.5 flex items-center gap-1.5">
-              <span class="font-display text-[9px] tracking-wider text-dim">HINT</span>
-              <TypeBadge v-for="t in featured.types" :key="t" :type="t" size="sm" />
-              <span v-if="misses >= 2" class="text-[11px] text-muted">{{ featured.genus }}</span>
-            </div>
-            <button v-if="misses >= 3" class="mt-1.5 text-[11px] text-dim underline hover:text-muted" @click="giveUp">I give up, show me</button>
-          </div>
+          <!-- Fixed sizes keep the card from jumping between loading, quiz and answer: a phone gives the column
+               the answer's height (88px, sprite 80px), wider screens a fixed width next to the 112px art. -->
+          <div class="flex min-h-22 min-w-0 flex-1 flex-col justify-center sm:min-h-0 sm:w-56 sm:flex-none">
+            <p
+              class="font-display text-sm leading-5 uppercase tracking-wide"
+              :class="!revealed ? 'text-lens' : solved ? 'text-good' : 'text-dim'"
+            >{{ !revealed ? t('wtp.title') : solved ? t('wtp.solved') : t('wtp.gaveUp') }}</p>
 
-          <!-- revealed -->
-          <div v-else>
-            <p class="font-display text-[10px] tracking-[0.2em]" :class="solved ? 'text-good' : 'text-dim'">
-              {{ solved ? "IT'S…" : 'IT WAS…' }}
-            </p>
-            <RouterLink :to="`/pokemon/${featured.id}`" class="font-display text-xl text-ink transition-colors hover:text-dexglow">
-              {{ featured.label }}<span v-if="solved">!</span>
-            </RouterLink>
-            <p class="text-xs text-muted">{{ featured.genus }}</p>
-            <div class="mt-1.5 flex items-center gap-1.5">
-              <TypeBadge v-for="t in featured.types" :key="t" :type="t" size="sm" />
+            <!-- the index is still loading -->
+            <Skeleton v-if="!featured" :h="40" :rounded="8" class="mt-1.5" />
+
+            <!-- unsolved: the quiz -->
+            <template v-else-if="!revealed">
+              <form :key="wrongShake" class="mt-1.5 flex gap-1.5" :class="wrongShake ? 'shake' : ''" @submit.prevent="submitGuess">
+                <input
+                  v-model="guess"
+                  type="text"
+                  autocomplete="off"
+                  :aria-label="t('wtp.guessLabel')"
+                  :placeholder="t('wtp.placeholder')"
+                  class="h-10 w-full min-w-0 rounded-lg border border-line-strong bg-surface-1 px-2.5 text-base text-ink placeholder:text-dim focus:border-lens sm:text-sm"
+                />
+                <button
+                  type="submit"
+                  class="h-10 shrink-0 rounded-lg border border-lens/50 px-3 font-display text-sm uppercase tracking-wider text-lens transition-colors duration-(--dur-1) hover:bg-lens/10 active:translate-y-px"
+                >{{ t('wtp.submit') }}</button>
+              </form>
+              <p v-if="guessMsg" :key="`msg-${wrongShake}`" role="alert" class="mt-1 text-xs text-bad">{{ t(guessMsg) }}</p>
+              <div v-if="misses >= 1" class="mt-1.5 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1">
+                <span class="eyebrow">{{ t('wtp.hint') }}</span>
+                <TypeBadge v-for="type in featured.types" :key="type" :type="type" size="sm" />
+                <span v-if="misses >= 2" class="truncate text-xs text-muted">{{ featured.genus }}</span>
+              </div>
               <button
-                class="rounded-md border px-2 py-0.5 font-display text-[10px] tracking-wider transition-all"
-                :class="crying ? 'border-dex bg-dex/15 text-dexglow' : 'border-line text-dim hover:border-dex hover:text-dexglow'"
-                @click="playCry"
-              >▶ CRY</button>
-            </div>
-            <button
-              class="mt-2 rounded-lg border border-lens/50 px-2.5 py-1 font-display text-[10px] tracking-wider text-lens transition-all hover:bg-lens/10"
-              @click="playAgain"
-            >🎲 PLAY AGAIN<template v-if="streak >= 2"> · STREAK ×{{ streak }}</template></button>
+                v-if="misses >= 3"
+                type="button"
+                class="mt-1.5 self-start text-xs text-muted underline decoration-line2 hover:text-ink"
+                @click="giveUp"
+              >{{ t('wtp.giveUp') }}</button>
+            </template>
+
+            <!-- revealed -->
+            <template v-else>
+              <RouterLink
+                :to="`/pokemon/${featured.id}`"
+                class="block truncate font-display text-xl leading-7 text-ink transition-colors duration-(--dur-1) hover:text-dexglow"
+              >{{ featured.label }}<span v-if="solved">!</span></RouterLink>
+              <div class="mt-1 hidden min-w-0 items-center gap-1.5 sm:flex">
+                <TypeBadge v-for="type in featured.types" :key="type" :type="type" size="sm" />
+                <span class="truncate text-xs text-muted">{{ featured.genus }}</span>
+              </div>
+              <!-- a phone shows the cry button as the speaker icon alone, so both buttons fit one row from 360px -->
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                <button
+                  type="button"
+                  class="inline-flex size-8 shrink-0 items-center justify-center gap-1.5 rounded-lg border font-display text-sm uppercase tracking-wide transition-colors duration-(--dur-1) active:translate-y-px sm:w-auto sm:px-2.5"
+                  :class="crying ? 'border-dex bg-dex/15 text-dexglow' : 'border-line-strong text-muted hover:border-dexglow hover:text-ink'"
+                  @click="playCry"
+                >
+                  <Icon name="sound" /><span class="sr-only sm:not-sr-only">{{ t('wtp.cry') }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="inline-flex h-8 items-center gap-1.5 rounded-lg border border-lens/50 px-2.5 font-display text-sm uppercase tracking-wide whitespace-nowrap text-lens transition-colors duration-(--dur-1) hover:bg-lens/10 active:translate-y-px"
+                  @click="playAgain"
+                >
+                  <Icon name="dice" />{{ t('wtp.playAgain') }}
+                </button>
+              </div>
+            </template>
           </div>
         </div>
-      </div>
-    </section>
+      </template>
+    </PageHeader>
 
-    <!-- filters -->
-    <section class="animate-fadeup mb-6 space-y-3 rounded-2xl border border-line bg-panel/60 p-4" style="animation-delay: 60ms">
-      <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
-        <input
-          v-model="searchText"
-          type="search"
-          maxlength="40"
-          placeholder="Name or number…"
-          class="w-full rounded-lg border border-line bg-panel px-3 py-2 text-sm text-ink outline-none placeholder:text-dim focus:border-dex sm:w-48"
-        />
-        <div class="flex w-full overflow-hidden rounded-lg border border-line sm:w-auto">
+    <!-- filters: a panel on wider screens; on a phone the search row, a sheet with the rest and the active filters -->
+    <section
+      :aria-label="t('pokedex.filters')"
+      class="animate-fadeup mb-4 sm:mb-6 sm:rounded-2xl sm:border sm:border-line sm:bg-surface-1 sm:p-4"
+      style="animation-delay: 60ms"
+    >
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-2 sm:gap-y-3">
+        <div class="flex w-full gap-2 sm:contents">
+          <input
+            v-model="searchText"
+            type="search"
+            maxlength="40"
+            :aria-label="t('pokedex.search')"
+            :placeholder="t('pokedex.searchPlaceholder')"
+            class="h-10 min-w-0 flex-1 rounded-lg border border-line-strong bg-surface-1 px-3 text-base text-ink placeholder:text-dim focus:border-lens sm:w-56 sm:flex-none sm:text-sm"
+          />
           <button
-            v-for="d in ['national', 'kanto', 'hoenn']" :key="d"
-            class="flex-1 px-3 py-2 font-display text-xs uppercase tracking-wider transition-colors sm:flex-none"
-            :class="filters.dex === d ? 'bg-panel2 text-ink' : 'text-dim hover:text-muted'"
-            @click="set({ dex: d })"
-          >{{ d }}</button>
+            type="button"
+            :title="t('pokedex.randomHint')"
+            class="inline-flex h-10 min-w-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-line-strong font-display text-sm uppercase tracking-wider text-muted transition-colors duration-(--dur-1) hover:border-dexglow hover:text-ink active:translate-y-px sm:px-3"
+            @click="goRandom"
+          >
+            <Icon name="dice" /><span class="sr-only sm:not-sr-only">{{ t('pokedex.random') }}</span>
+          </button>
+          <button
+            type="button"
+            aria-haspopup="dialog"
+            :aria-expanded="sheetOpen"
+            class="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-line-strong px-3 font-display text-sm uppercase tracking-wider text-ink transition-colors duration-(--dur-1) active:translate-y-px sm:hidden"
+            @click="sheetOpen = true"
+          >
+            <Icon name="filter" />{{ t('pokedex.filters') }}
+            <span v-if="activeFilters.length" class="num grid h-5 min-w-5 place-items-center rounded bg-dexglow px-1 text-xs text-bg">{{ activeFilters.length }}</span>
+          </button>
         </div>
-        <select
-          :value="filters.sort"
-          class="min-w-0 flex-1 rounded-lg border border-line bg-panel px-2.5 py-2 text-sm text-muted outline-none focus:border-dex sm:flex-none"
-          @change="set({ sort: $event.target.value })"
-        >
-          <option v-for="s in SORTS" :key="s.id" :value="s.id">Sort: {{ s.label }}</option>
-        </select>
-        <button
-          class="rounded-lg border border-line px-2.5 py-2 font-display text-xs tracking-wider text-muted transition-all hover:border-dex hover:text-dexglow"
-          title="Open a random Pokémon"
-          @click="goRandom"
-        >🎲 RANDOM</button>
-        <button v-if="hasFilters" class="text-xs text-dim underline hover:text-muted" @click="reset">reset</button>
-        <span class="ml-auto font-display text-xs text-dim">{{ filtered.length }} FOUND</span>
-      </div>
 
-      <div class="flex flex-wrap gap-1.5">
-        <button
-          v-for="v in GAME_ORDER" :key="v"
-          class="rounded-lg border px-2.5 py-1 font-display text-xs tracking-wider transition-all"
-          :class="filters.game === v ? 'text-bg' : 'border-line text-muted hover:border-line2 hover:text-ink'"
-          :style="filters.game === v ? { background: GAMES[v].color, borderColor: GAMES[v].color } : null"
-          @click="toggleGame(v)"
-        >{{ GAMES[v].label }}</button>
-      </div>
+        <!-- wider screens: `contents` lays the controls into this row and the chip rows under it -->
+        <Sheet :open="sheetOpen" :title="t('pokedex.filters')" :close-label="t('common.close')" class="contents" @close="sheetOpen = false">
+          <div class="flex flex-col gap-5 pb-2 sm:contents">
+            <div class="flex flex-col gap-2">
+              <span aria-hidden="true" class="eyebrow sm:hidden">{{ t('pokedex.dex') }}</span>
+              <Segmented
+                :model-value="filters.dex"
+                :options="dexOptions"
+                :label="t('pokedex.dex')"
+                class="w-full sm:w-auto"
+                @update:model-value="(dex) => set({ dex })"
+              />
+            </div>
 
-      <div class="flex flex-wrap gap-1">
-        <button
-          v-for="t in TYPES" :key="t"
-          class="rounded px-2 py-1 font-display text-[11px] uppercase tracking-wider transition-all"
-          :style="{
-            color: `var(--color-type-${t})`,
-            background: filters.type.includes(t)
-              ? `color-mix(in srgb, var(--color-type-${t}) 28%, transparent)`
-              : 'transparent',
-            boxShadow: filters.type.includes(t)
-              ? `inset 0 0 0 1.5px var(--color-type-${t})`
-              : `inset 0 0 0 1px color-mix(in srgb, var(--color-type-${t}) 28%, transparent)`,
-            opacity: filters.type.length && !filters.type.includes(t) ? 0.5 : 1,
-          }"
-          @click="toggleType(t)"
-        >{{ t }}</button>
+            <label class="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <span class="eyebrow">{{ t('pokedex.sort') }}</span>
+              <span class="relative">
+                <select
+                  :value="filters.sort"
+                  class="h-10 w-full appearance-none rounded-lg border border-line-strong bg-surface-1 pr-9 pl-3 text-base text-ink focus:border-lens sm:w-auto sm:text-sm"
+                  @change="set({ sort: $event.target.value })"
+                >
+                  <option v-for="s in SORTS" :key="s" :value="s">{{ sortLabel(s) }}</option>
+                </select>
+                <Icon name="chevron-down" class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted" />
+              </span>
+            </label>
+
+            <fieldset class="min-w-0 sm:order-1 sm:basis-full">
+              <legend class="eyebrow mb-2 sm:sr-only">{{ t('pokedex.game') }}</legend>
+              <div class="flex flex-wrap gap-1.5">
+                <Chip
+                  v-for="v in GAME_ORDER"
+                  :key="v"
+                  :pressed="filters.game === v"
+                  :color="GAMES[v].color"
+                  @click="toggleGame(v)"
+                >{{ GAMES[v].label }}</Chip>
+              </div>
+            </fieldset>
+
+            <fieldset class="min-w-0 sm:order-2 sm:basis-full">
+              <legend class="eyebrow mb-2 sm:sr-only">{{ t('pokedex.type') }}</legend>
+              <div class="flex flex-wrap gap-1.5">
+                <!-- pressed: the label turns `ink`, the type colours are under 4.5:1 on their own 24% tint -->
+                <Chip
+                  v-for="type in TYPES"
+                  :key="type"
+                  :pressed="filters.type.includes(type)"
+                  :color="`var(--color-type-${type})`"
+                  :style="filters.type.includes(type) ? null : { color: typeInk(type) }"
+                  @click="toggleType(type)"
+                >{{ t(`types.${type}`) }}</Chip>
+              </div>
+            </fieldset>
+          </div>
+        </Sheet>
+
+        <div class="flex w-full flex-wrap items-center gap-2 sm:ml-auto sm:w-auto sm:gap-3">
+          <button
+            v-for="f in activeFilters"
+            :key="f.key"
+            type="button"
+            :aria-label="t('pokedex.removeFilter', { name: f.label })"
+            class="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-(--chip) bg-[color-mix(in_srgb,var(--chip)_24%,transparent)] pr-1.5 pl-2.5 font-display text-sm leading-none uppercase tracking-wider whitespace-nowrap text-ink active:translate-y-px sm:hidden"
+            :style="{ '--chip': f.color }"
+            @click="f.remove()"
+          >
+            {{ f.label }}<Icon name="close" />
+          </button>
+          <button
+            v-if="hasFilters"
+            type="button"
+            class="h-8 text-sm text-muted underline decoration-line2 transition-colors duration-(--dur-1) hover:text-ink"
+            @click="reset"
+          >{{ t('common.reset') }}</button>
+          <span role="status" class="num ml-auto text-xs text-muted">{{ loaded ? t('pokedex.found', filtered.length) : '' }}</span>
+        </div>
       </div>
     </section>
 
     <!-- grid -->
-    <PokeballSpinner v-if="!loaded" label="LOADING DEX…" />
-    <div v-else-if="!filtered.length" class="rounded-2xl border border-dashed border-line py-20 text-center text-sm text-dim">
-      Nothing matches those filters.
-    </div>
-    <div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+    <PokeballSpinner v-if="!loaded" />
+    <EmptyState v-else-if="!filtered.length" :title="t('pokedex.empty')" :hint="t('pokedex.emptyHint')">
+      <template #actions>
+        <button
+          type="button"
+          class="h-10 rounded-lg border border-line-strong px-4 font-display text-sm uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px"
+          @click="reset"
+        >{{ t('pokedex.resetFilters') }}</button>
+      </template>
+    </EmptyState>
+    <div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
       <PokemonCard v-for="p in filtered" :key="p.id" :pokemon="p" :game="filters.game" />
     </div>
   </div>
