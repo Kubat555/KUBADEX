@@ -1,20 +1,29 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 import { usePrefsStore } from '../stores/prefs'
 import { loadIndex, loadByLocation, spriteUrl } from '../lib/api'
-import { GAMES, METHOD_LABELS, METHOD_ICONS } from '../data/games'
-import { STAT_LABELS, STAT_ORDER } from '../lib/utils'
+import { GAMES, METHOD_ICON_NAMES } from '../data/games'
+import { STAT_ORDER } from '../lib/utils'
+import { rankHotspots } from '../lib/evHotspots'
 import { useQueryState } from '../composables/useQueryState'
 import GameTabs from '../components/GameTabs.vue'
-import PokeballSpinner from '../components/PokeballSpinner.vue'
+import PageHeader from '../components/ui/PageHeader.vue'
+import Segmented from '../components/ui/Segmented.vue'
+import Skeleton from '../components/ui/Skeleton.vue'
+import EmptyState from '../components/ui/EmptyState.vue'
+import SpriteImg from '../components/ui/SpriteImg.vue'
+import Icon from '../components/ui/Icon.vue'
 
+const { t, te } = useI18n()
 const { version } = storeToRefs(usePrefsStore())
 
 // the chosen stat lives in the URL query (shareable, restored by Back); Speed, the default, is left out of it
 const EV_SCHEMA = { stat: { kind: 'enum', values: STAT_ORDER, default: 'spe' } }
 const { state: filters, set } = useQueryState(EV_SCHEMA, { routeName: 'ev' })
 const stat = computed(() => filters.value.stat)
+const statOptions = computed(() => STAT_ORDER.map((s) => ({ value: s, label: t(`stats.${s}`) })))
 
 const indexById = ref(null)
 const byLoc = ref(null)
@@ -26,104 +35,78 @@ onMounted(async () => {
 
 const region = computed(() => GAMES[version.value].region)
 
-/**
- * For each location: per encounter method, expected EVs of the chosen stat per encounter
- * = Σ over slots (chance/100 × EV yield). The best method wins the ranking.
- */
-const hotspots = computed(() => {
-  if (!byLoc.value || !indexById.value) return []
-  const out = []
-  for (const [slug, loc] of Object.entries(byLoc.value[region.value] ?? {})) {
-    const mons = loc.versions[version.value]
-    if (!mons) continue
-    const perMethod = {} // method -> { ev, mons: Map }
-    for (const mon of mons) {
-      const yieldVal = indexById.value[mon.id]?.evYield?.[stat.value] ?? 0
-      if (!yieldVal) continue
-      for (const m of mon.methods) {
-        const agg = (perMethod[m.method] ??= { ev: 0, mons: new Map() })
-        agg.ev += (m.chance / 100) * yieldVal
-        const cur = agg.mons.get(mon.id)
-        if (!cur || cur.chance < m.chance) agg.mons.set(mon.id, { id: mon.id, name: mon.name, chance: m.chance, yield: yieldVal })
-      }
-    }
-    const best = Object.entries(perMethod).sort((a, b) => b[1].ev - a[1].ev)[0]
-    if (!best || best[1].ev < 0.1) continue
-    out.push({
-      slug,
-      label: loc.label,
-      method: best[0],
-      ev: best[1].ev,
-      mons: [...best[1].mons.values()].sort((a, b) => b.chance * b.yield - a.chance * a.yield),
-    })
-  }
-  return out.sort((a, b) => b.ev - a.ev).slice(0, 12)
-})
+const hotspots = computed(() =>
+  byLoc.value && indexById.value
+    ? rankHotspots({ byLoc: byLoc.value, indexById: indexById.value, region: region.value, version: version.value, stat: stat.value })
+    : [],
+)
 
 const maxEv = computed(() => hotspots.value[0]?.ev ?? 1)
+
+// a method outside the label list shows its data slug
+const methodLabel = (method) => (te(`methods.${method}`) ? t(`methods.${method}`) : method)
 </script>
 
 <template>
   <div>
-    <section class="animate-fadeup mb-5 flex flex-wrap items-end justify-between gap-4 rounded-2xl border border-line bg-panel/60 p-5">
-      <div>
-        <h1 class="font-display text-2xl text-ink">EV <span class="text-dexglow">HOTSPOTS</span></h1>
-        <p class="mt-1 text-sm text-muted">
-          Best places to grind effort values — ranked by expected EVs per wild encounter, computed from real encounter tables.
-        </p>
-      </div>
-      <GameTabs v-model="version" />
-    </section>
+    <PageHeader :title="t('ev.title')" :accent="t('ev.accent')">
+      {{ t('ev.subtitle') }}
+      <template #actions><GameTabs v-model="version" /></template>
+    </PageHeader>
 
-    <div class="animate-fadeup mb-5 flex flex-wrap gap-1.5" style="animation-delay: 60ms">
-      <button
-        v-for="s in STAT_ORDER" :key="s"
-        class="rounded-lg border px-3 py-1.5 font-display text-xs tracking-wider transition-all"
-        :class="stat === s ? 'border-dex bg-dex/15 text-dexglow' : 'border-line text-muted hover:border-line2 hover:text-ink'"
-        @click="set({ stat: s })"
-      >{{ STAT_LABELS[s].toUpperCase() }}</button>
+    <!-- phone: the six stats scroll sideways (the padding keeps the focus outline inside the scroll box) -->
+    <div class="scrollbar-thin animate-fadeup mb-5 max-sm:-mx-4 max-sm:overflow-x-auto max-sm:px-4 max-sm:py-1" style="animation-delay: 60ms">
+      <Segmented :model-value="stat" :options="statOptions" :label="t('ev.stat')" @update:model-value="set({ stat: $event })" />
     </div>
 
-    <PokeballSpinner v-if="!byLoc" label="CRUNCHING TABLES…" />
-    <div v-else-if="!hotspots.length" class="rounded-2xl border border-dashed border-line py-16 text-center text-sm text-dim">
-      No good spots for this stat here — try another version.
+    <div v-if="!byLoc || !indexById" aria-busy="true" class="space-y-2.5">
+      <p class="sr-only">{{ t('common.loading') }}</p>
+      <Skeleton v-for="i in 4" :key="i" :h="128" :rounded="16" />
     </div>
 
-    <div class="space-y-2.5">
-      <section
-        v-for="(h, i) in hotspots" :key="h.slug"
-        class="animate-fadeup rounded-2xl border border-line bg-panel/70 p-4"
-        :style="{ animationDelay: i * 35 + 'ms' }"
-      >
-        <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <span class="w-7 font-display text-lg" :class="i === 0 ? 'text-dexglow' : 'text-dim'">{{ i + 1 }}</span>
-          <h2 class="font-display text-base text-ink">{{ h.label }}</h2>
-          <span class="text-xs text-muted">{{ METHOD_ICONS[h.method] ?? '·' }} {{ METHOD_LABELS[h.method] ?? h.method }}</span>
-          <div class="ml-auto flex items-center gap-3">
-            <div class="hidden h-1.5 w-36 overflow-hidden rounded-full bg-panel2 sm:block">
-              <div class="h-full rounded-full bg-gradient-to-r from-dex to-dexglow" :style="{ width: (h.ev / maxEv) * 100 + '%' }"></div>
-            </div>
-            <span class="font-display text-sm text-dexglow">{{ h.ev.toFixed(2) }} <span class="text-[10px] text-dim">{{ STAT_LABELS[stat] }} EV / encounter</span></span>
-          </div>
-        </div>
-        <div class="mt-2.5 flex flex-wrap gap-1.5 pl-11">
-          <RouterLink
-            v-for="m in h.mons" :key="m.id"
-            :to="`/pokemon/${m.id}`"
-            class="group/mon flex items-center gap-2 rounded-lg border border-line bg-bg/40 py-1 pl-1.5 pr-2.5 transition-colors hover:border-line2 hover:bg-panel2"
-          >
-            <img :src="spriteUrl(m.id, 'gen3')" class="pixelated size-12 object-contain transition-transform duration-200 group-hover/mon:scale-110" :alt="m.name" />
-            <span class="flex flex-col leading-tight">
-              <span class="text-xs font-medium text-ink">{{ m.name }}</span>
-              <span class="font-display text-[10px] text-dim">+{{ m.yield }} EV · {{ m.chance }}%</span>
+    <EmptyState v-else-if="!hotspots.length" :title="t('ev.empty')" :hint="t('ev.emptyHint')" />
+
+    <template v-else>
+      <ol class="space-y-2.5">
+        <li
+          v-for="(h, i) in hotspots" :key="h.slug"
+          class="animate-fadeup rounded-2xl border border-line bg-surface-1 p-4"
+          :style="{ animationDelay: i * 35 + 'ms' }"
+        >
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span class="num w-7 text-lg" :class="i === 0 ? 'text-dexglow' : 'text-dim'">{{ i + 1 }}</span>
+            <h2 class="font-display text-base text-ink">{{ h.label }}</h2>
+            <span class="flex items-center gap-1.5 text-sm text-muted">
+              <Icon v-if="METHOD_ICON_NAMES[h.method]" :name="METHOD_ICON_NAMES[h.method]" class="text-dim" />
+              {{ methodLabel(h.method) }}
             </span>
-          </RouterLink>
-        </div>
-      </section>
-    </div>
+            <div class="ml-auto flex items-center gap-3">
+              <div aria-hidden="true" class="hidden h-1.5 w-36 overflow-hidden rounded-full bg-surface-2 sm:block">
+                <div class="h-full rounded-full bg-gradient-to-r from-dex to-dexglow" :style="{ width: (h.ev / maxEv) * 100 + '%' }"></div>
+              </div>
+              <p class="text-sm">
+                <span class="num text-dexglow">{{ h.ev.toFixed(2) }}</span>
+                <span class="ml-1 text-xs text-dim">{{ t('ev.perEncounter', { stat: t(`stats.${stat}`) }) }}</span>
+              </p>
+            </div>
+          </div>
+          <div class="mt-2.5 flex flex-wrap gap-1.5 sm:pl-11">
+            <RouterLink
+              v-for="m in h.mons" :key="m.id"
+              :to="`/pokemon/${m.id}`"
+              class="flex items-center gap-1 rounded-lg border border-line bg-bg/40 pr-2.5 transition-colors hover:border-line2 hover:bg-surface-2"
+            >
+              <SpriteImg :src="spriteUrl(m.id, 'gen3')" alt="" />
+              <span class="flex flex-col leading-tight">
+                <span class="text-sm font-medium text-ink">{{ m.name }}</span>
+                <span class="num text-xs text-dim">{{ t('ev.yield', { ev: m.yield, chance: m.chance }) }}</span>
+              </span>
+            </RouterLink>
+          </div>
+        </li>
+      </ol>
 
-    <p v-if="hotspots.length" class="mt-4 text-[11px] text-dim">
-      Expected EVs assume one knock-out per encounter at the listed method. Macho Brace doubles the gain; Pokérus doubles it again.
-    </p>
+      <p class="mt-4 text-xs text-dim text-pretty">{{ t('ev.footnote') }}</p>
+    </template>
   </div>
 </template>

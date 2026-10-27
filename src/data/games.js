@@ -31,6 +31,21 @@ export const METHOD_LABELS = {
   'seaweed': 'Seaweed (dive)',
 }
 
+// Encounter method -> pixel icon name for <Icon :name>. A method without an entry shows no icon.
+export const METHOD_ICON_NAMES = {
+  walk: 'grass',
+  surf: 'wave',
+  'old-rod': 'rod',
+  'good-rod': 'rod',
+  'super-rod': 'rod',
+  'rock-smash': 'rock',
+  gift: 'gift',
+  'gift-egg': 'egg',
+  'only-one': 'star',
+  'feebas-tile-fishing': 'rod',
+  seaweed: 'wave',
+}
+
 export const METHOD_ICONS = {
   walk: '🌿',
   surf: '🌊',

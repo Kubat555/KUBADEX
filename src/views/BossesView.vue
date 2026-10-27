@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 import { usePrefsStore } from '../stores/prefs'
 import { loadIndex, spriteUrl } from '../lib/api'
 import { defenseProfile } from '../lib/typeChart'
@@ -8,7 +9,10 @@ import { GAMES } from '../data/games'
 import bosses from '../data/bosses.json'
 import TypeBadge from '../components/TypeBadge.vue'
 import GameTabs from '../components/GameTabs.vue'
+import PageHeader from '../components/ui/PageHeader.vue'
+import SpriteImg from '../components/ui/SpriteImg.vue'
 
+const { t } = useI18n()
 const { version } = storeToRefs(usePrefsStore())
 const vg = computed(() => GAMES[version.value].vg)
 
@@ -36,6 +40,10 @@ function bringTypes(team) {
     .map(([t]) => t)
 }
 
+// the boss's role as written in bosses.json -> its label key; an unknown role is shown as written
+const ROLE_KEYS = { 'Gym Leader': 'gymLeader', 'Gym Leaders': 'gymLeaders', 'Elite Four': 'eliteFour', Champion: 'champion' }
+const roleLabel = (title) => (ROLE_KEYS[title] ? t(`bosses.role.${ROLE_KEYS[title]}`) : title)
+
 const list = computed(() => (bosses[vg.value] ?? []).map((b) => ({ ...b, bring: bringTypes(b.team) })))
 const gyms = computed(() => list.value.filter((b) => b.title.startsWith('Gym')))
 const league = computed(() => list.value.filter((b) => !b.title.startsWith('Gym')))
@@ -43,42 +51,39 @@ const league = computed(() => list.value.filter((b) => !b.title.startsWith('Gym'
 
 <template>
   <div>
-    <section class="animate-fadeup mb-5 flex flex-wrap items-end justify-between gap-4 rounded-2xl border border-line bg-panel/60 p-5">
-      <div>
-        <h1 class="font-display text-2xl text-ink">GYMS <span class="text-dexglow">&amp; LEAGUE</span></h1>
-        <p class="mt-1 text-sm text-muted">Every boss battle of {{ GAMES[version].label }} in order — teams, levels and what to bring.</p>
-      </div>
-      <GameTabs v-model="version" />
-    </section>
+    <PageHeader :title="t('bosses.title')" :accent="t('bosses.accent')">
+      {{ t('bosses.subtitle', { game: GAMES[version].label }) }}
+      <template #actions><GameTabs v-model="version" /></template>
+    </PageHeader>
 
     <template v-for="(group, gi) in [gyms, league]" :key="gi">
-      <h2 class="animate-fadeup mb-3 mt-6 font-display text-sm tracking-widest text-dexglow">
-        {{ gi === 0 ? 'GYM LEADERS' : 'ELITE FOUR & CHAMPION' }}
+      <h2 class="eyebrow animate-fadeup mb-3" :class="gi === 0 ? 'mt-0' : 'mt-8'">
+        {{ gi === 0 ? t('bosses.gyms') : t('bosses.league') }}
       </h2>
       <div class="grid gap-4 md:grid-cols-2">
         <section
           v-for="(b, i) in group" :key="b.name"
-          class="animate-fadeup relative overflow-hidden rounded-2xl border border-line bg-panel/70 p-4"
+          class="animate-fadeup relative overflow-hidden rounded-2xl border border-line bg-surface-1 p-4 pt-5"
           :style="{ animationDelay: i * 50 + 'ms', '--t': `var(--color-type-${b.specialty})` }"
         >
-          <div class="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full opacity-[0.12] blur-2xl" :style="{ background: 'var(--t)' }"></div>
+          <!-- a stripe of the specialty type's colour (no blurred glow) -->
+          <span aria-hidden="true" class="absolute inset-x-0 top-0 h-1 bg-(--t)" />
 
           <div class="flex items-start gap-3">
-            <img
-              :src="spriteUrl(b.sprite, 'trainers')"
-              :alt="b.name"
-              class="pixelated size-16 shrink-0 rounded-xl border border-line bg-bg/40 object-contain p-1"
-            />
+            <!-- the frame is outside the sprite: a border on the image itself would shrink it to a fractional size -->
+            <div class="shrink-0 overflow-hidden rounded-xl border border-line bg-bg/40">
+              <SpriteImg :src="spriteUrl(b.sprite, 'trainers')" alt="" :w="80" />
+            </div>
             <div class="min-w-0 flex-1">
-              <div class="flex items-baseline justify-between gap-2">
-                <div class="flex items-baseline gap-2">
-                  <span v-if="gi === 0" class="font-display text-lg text-dim">{{ String(i + 1).padStart(2, '0') }}</span>
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex min-w-0 items-baseline gap-2">
+                  <span v-if="gi === 0" class="num text-lg text-dim">{{ String(i + 1).padStart(2, '0') }}</span>
                   <h3 class="truncate font-display text-xl text-ink">{{ b.name }}</h3>
                 </div>
-                <TypeBadge :type="b.specialty" size="sm" />
+                <TypeBadge :type="b.specialty" size="sm" class="mt-1.5 shrink-0" />
               </div>
-              <p class="mt-0.5 text-xs text-muted">
-                {{ b.title }} · {{ b.city }}<template v-if="b.badge"> · <span class="text-ink">{{ b.badge }}</span></template>
+              <p class="mt-0.5 text-sm text-muted">
+                {{ roleLabel(b.title) }} · {{ b.city }}<template v-if="b.badge"> · <span class="text-ink">{{ b.badge }}</span></template>
               </p>
             </div>
           </div>
@@ -87,21 +92,21 @@ const league = computed(() => list.value.filter((b) => !b.title.startsWith('Gym'
             <RouterLink
               v-for="(m, mi) in b.team" :key="mi"
               :to="`/pokemon/${m.id}`"
-              class="group/mon flex items-center gap-2 rounded-lg border border-line bg-bg/40 py-1 pl-1.5 pr-2.5 transition-colors hover:border-line2 hover:bg-panel2"
+              class="flex items-center gap-1 rounded-lg border border-line bg-bg/40 pr-2.5 transition-colors hover:border-line2 hover:bg-surface-2"
             >
-              <img :src="spriteUrl(m.id, 'gen3')" class="pixelated size-12 object-contain transition-transform duration-200 group-hover/mon:scale-110" :alt="m.name" />
+              <SpriteImg :src="spriteUrl(m.id, 'gen3')" alt="" />
               <span class="flex flex-col leading-tight">
-                <span class="text-xs font-medium text-ink">{{ m.name }}</span>
-                <span class="font-display text-[10px] text-dim">Lv {{ m.level }}</span>
+                <span class="text-sm font-medium text-ink">{{ m.name }}</span>
+                <span class="num text-xs text-dim">{{ t('bosses.lv', { n: m.level }) }}</span>
               </span>
             </RouterLink>
           </div>
 
-          <div v-if="b.bring.length" class="mt-3 flex items-center gap-2">
-            <span class="font-display text-[10px] tracking-widest text-dim">BRING</span>
-            <TypeBadge v-for="t in b.bring" :key="t" :type="t" size="sm" />
+          <div v-if="b.bring.length" class="mt-3 flex flex-wrap items-center gap-2">
+            <span class="eyebrow">{{ t('bosses.bring') }}</span>
+            <TypeBadge v-for="ty in b.bring" :key="ty" :type="ty" size="sm" />
           </div>
-          <p v-if="b.note" class="mt-2 border-l-2 border-lens/50 pl-2 text-[11px] leading-relaxed text-muted">{{ b.note }}</p>
+          <p v-if="b.note" class="mt-2 border-l-2 border-lens/50 pl-2 text-xs leading-relaxed text-muted">{{ b.note }}</p>
         </section>
       </div>
     </template>
