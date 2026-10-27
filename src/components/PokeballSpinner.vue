@@ -1,16 +1,21 @@
 <script setup>
-defineProps({ label: { type: String, default: 'LOADING…' } })
+import { useI18n } from 'vue-i18n'
+
+// `label` is shown under the ball; without one it says the localized "Loading…".
+defineProps({ label: { type: String, default: null } })
+
+const { t } = useI18n()
 </script>
 
 <template>
-  <div class="flex flex-col items-center gap-3 py-20">
-    <svg viewBox="0 0 32 32" class="size-10 animate-spin" style="animation-duration: 0.9s">
-      <circle cx="16" cy="16" r="14" fill="#e3350d" />
-      <path d="M2 16a14 14 0 0 0 28 0Z" fill="#f4f6fb" />
-      <rect x="2" y="14.5" width="28" height="3" fill="#0a0e1a" />
-      <circle cx="16" cy="16" r="5" fill="#0a0e1a" />
-      <circle cx="16" cy="16" r="3" fill="#f4f6fb" />
+  <div role="status" class="flex flex-col items-center gap-3 py-20">
+    <svg aria-hidden="true" viewBox="0 0 32 32" class="size-10 animate-spin" style="animation-duration: 0.9s">
+      <circle cx="16" cy="16" r="14" class="fill-dex" />
+      <path d="M2 16a14 14 0 0 0 28 0Z" class="fill-ink" />
+      <rect x="2" y="14.5" width="28" height="3" class="fill-bg" />
+      <circle cx="16" cy="16" r="5" class="fill-bg" />
+      <circle cx="16" cy="16" r="3" class="fill-ink" />
     </svg>
-    <p class="font-display text-sm tracking-widest text-dim">{{ label }}</p>
+    <p class="font-display text-sm uppercase tracking-widest text-dim">{{ label ?? t('common.loading') }}</p>
   </div>
 </template>
