@@ -27,11 +27,24 @@ const statOptions = computed(() => STAT_ORDER.map((s) => ({ value: s, label: t(`
 
 const indexById = ref(null)
 const byLoc = ref(null)
-onMounted(async () => {
-  const [idx, locs] = await Promise.all([loadIndex(), loadByLocation()])
-  indexById.value = Object.fromEntries(idx.map((p) => [p.id, p]))
-  byLoc.value = locs
-})
+const loading = ref(false)
+const failed = ref(false) // the data could not be loaded: an error screen with a retry, not an endless skeleton
+
+// a retry keeps the error screen (its button busy) until the answer comes; api.js never caches a failed request
+async function load() {
+  loading.value = true
+  try {
+    const [idx, locs] = await Promise.all([loadIndex(), loadByLocation()])
+    indexById.value = Object.fromEntries(idx.map((p) => [p.id, p]))
+    byLoc.value = locs
+    failed.value = false
+  } catch {
+    failed.value = true
+  } finally {
+    loading.value = false
+  }
+}
+onMounted(load)
 
 const region = computed(() => GAMES[version.value].region)
 
@@ -59,7 +72,19 @@ const methodLabel = (method) => (te(`methods.${method}`) ? t(`methods.${method}`
       <Segmented :model-value="stat" :options="statOptions" :label="t('ev.stat')" @update:model-value="set({ stat: $event })" />
     </div>
 
-    <div v-if="!byLoc || !indexById" aria-busy="true" class="space-y-2.5">
+    <EmptyState v-if="failed" :title="t('errors.loadFailed')" :hint="t('errors.loadFailedHint')">
+      <template #actions>
+        <button
+          type="button"
+          :disabled="loading"
+          :aria-busy="loading"
+          class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-sm uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
+          @click="load"
+        >{{ t('common.retry') }}</button>
+      </template>
+    </EmptyState>
+
+    <div v-else-if="!byLoc || !indexById" aria-busy="true" class="space-y-2.5">
       <p class="sr-only">{{ t('common.loading') }}</p>
       <Skeleton v-for="i in 4" :key="i" :h="128" :rounded="16" />
     </div>

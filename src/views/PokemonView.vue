@@ -330,7 +330,7 @@ function playCry() {
       <!-- STATS + MATCHUPS + ABILITIES -->
       <div class="grid gap-5 lg:grid-cols-2">
         <section class="animate-fadeup rounded-2xl border border-line bg-surface-1 p-5" style="animation-delay: 60ms">
-          <h2 class="font-display text-sm uppercase tracking-widest text-dexglow">{{ t('pokemon.sections.stats') }}</h2>
+          <h2 class="eyebrow">{{ t('pokemon.sections.stats') }}</h2>
           <div class="mt-4 space-y-2.5">
             <StatBar v-for="s in STAT_ORDER" :key="s" :label="t(`stats.${s}`)" :value="p.stats[s]" />
             <div class="flex items-center gap-3 border-t border-line pt-2.5">
@@ -342,7 +342,7 @@ function playCry() {
 
         <div class="space-y-5">
           <section class="animate-fadeup rounded-2xl border border-line bg-surface-1 p-5" style="animation-delay: 100ms">
-            <h2 class="font-display text-sm uppercase tracking-widest text-dexglow">{{ t('pokemon.sections.matchups') }}</h2>
+            <h2 class="eyebrow">{{ t('pokemon.sections.matchups') }}</h2>
             <div v-if="bucketRows.length" class="mt-4 grid grid-cols-[max-content_1fr] items-start gap-x-3 gap-y-2.5">
               <template v-for="row in bucketRows" :key="row.m">
                 <span class="pt-0.5 text-right text-xs font-semibold uppercase tracking-wider" :class="MATCHUP_COLOR[row.kind]">
@@ -357,7 +357,7 @@ function playCry() {
           </section>
 
           <section class="animate-fadeup rounded-2xl border border-line bg-surface-1 p-5" style="animation-delay: 140ms">
-            <h2 class="font-display text-sm uppercase tracking-widest text-dexglow">{{ t('pokemon.abilities', p.abilities.length) }}</h2>
+            <h2 class="eyebrow">{{ t('pokemon.abilities', p.abilities.length) }}</h2>
             <ul class="mt-3 space-y-2.5">
               <li v-for="a in p.abilities" :key="a" class="text-sm">
                 <span class="font-semibold text-ink">{{ abilitydex[a]?.label ?? a }}</span>
@@ -370,7 +370,7 @@ function playCry() {
 
       <!-- EVOLUTION -->
       <section v-if="p.evolution && (p.evolution.evolvesTo.length || p.evolution.id !== p.id)" class="animate-fadeup rounded-2xl border border-line bg-surface-1 p-5" style="animation-delay: 160ms">
-        <h2 class="font-display text-sm uppercase tracking-widest text-dexglow">{{ t('pokemon.sections.evolution') }}</h2>
+        <h2 class="eyebrow">{{ t('pokemon.sections.evolution') }}</h2>
         <div class="scrollbar-thin mt-4 overflow-x-auto pb-1">
           <EvolutionTree :node="p.evolution" :current-id="p.id" />
         </div>
@@ -379,7 +379,7 @@ function playCry() {
       <!-- ENCOUNTERS -->
       <section class="animate-fadeup rounded-2xl border border-line bg-surface-1 p-5" style="animation-delay: 200ms">
         <div class="flex flex-wrap items-center justify-between gap-3">
-          <h2 class="font-display text-sm uppercase tracking-widest text-dexglow">{{ t('pokemon.sections.where') }}</h2>
+          <h2 class="eyebrow">{{ t('pokemon.sections.where') }}</h2>
           <span class="inline-flex items-center gap-2 font-display text-sm uppercase tracking-wider text-ink">
             <span aria-hidden="true" class="size-2" :style="{ background: GAMES[version].color }"></span>{{ GAMES[version].label }}
           </span>
@@ -452,7 +452,7 @@ function playCry() {
       <!-- MOVES -->
       <section class="animate-fadeup rounded-2xl border border-line bg-surface-1 p-5" style="animation-delay: 240ms">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h2 class="font-display text-sm uppercase tracking-widest text-dexglow">{{ t('pokemon.sections.moves') }}</h2>
+          <h2 class="eyebrow">{{ t('pokemon.sections.moves') }}</h2>
           <span class="inline-flex items-center gap-2 font-display text-sm uppercase tracking-wider text-ink">
             <span aria-hidden="true" class="size-2" :style="{ background: GAMES[version].color }"></span>{{ GAMES[version].label }}
           </span>
@@ -462,7 +462,7 @@ function playCry() {
 
       <!-- TRAINING / BREEDING -->
       <section class="animate-fadeup rounded-2xl border border-line bg-surface-1 p-5" style="animation-delay: 280ms">
-        <h2 class="font-display text-sm uppercase tracking-widest text-dexglow">{{ t('pokemon.sections.training') }}</h2>
+        <h2 class="eyebrow">{{ t('pokemon.sections.training') }}</h2>
         <dl class="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3 lg:grid-cols-4">
           <div>
             <dt class="eyebrow">{{ t('pokemon.training.catchRate') }}</dt>
@@ -490,7 +490,7 @@ function playCry() {
         </dl>
 
         <div class="mt-6 border-t border-line pt-5">
-          <h3 class="mb-4 font-display text-sm uppercase tracking-widest text-dexglow">{{ t('pokemon.sections.catch') }}</h3>
+          <h3 class="mb-4 text-sm font-semibold text-ink">{{ t('pokemon.sections.catch') }}</h3>
           <CatchCalculator :catch-rate="p.training.catchRate" :types="p.types" />
         </div>
       </section>

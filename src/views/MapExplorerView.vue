@@ -21,7 +21,22 @@ import Icon from '../components/ui/Icon.vue'
 const { t, te } = useI18n()
 
 const byLoc = ref(null)
-onMounted(async () => (byLoc.value = await loadByLocation()))
+const loading = ref(false)
+const failed = ref(false) // the encounters could not be loaded: the place panel shows an error with a retry, not an endless skeleton
+
+// a retry keeps the error screen (its button busy) until the answer comes; api.js never caches a failed request
+async function load() {
+  loading.value = true
+  try {
+    byLoc.value = await loadByLocation()
+    failed.value = false
+  } catch {
+    failed.value = true
+  } finally {
+    loading.value = false
+  }
+}
+onMounted(load)
 
 const REGIONS = ['hoenn', 'kanto']
 const REGION_OPTIONS = REGIONS.map((r) => ({ value: r, label: cap(r) })) // place names stay English in this stage
@@ -158,7 +173,19 @@ const levels = (m) => (m.max !== m.min ? `${m.min}–${m.max}` : String(m.min))
           <!-- on a phone the sheet's own header carries the name -->
           <h2 class="mb-4 font-display text-xl text-ink max-sm:hidden">{{ selected.label }}</h2>
 
-          <div v-if="!groups" aria-busy="true" class="space-y-2">
+          <EmptyState v-if="failed" :title="t('errors.loadFailed')" :hint="t('errors.loadFailedHint')">
+            <template #actions>
+              <button
+                type="button"
+                :disabled="loading"
+                :aria-busy="loading"
+                class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-sm uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
+                @click="load"
+              >{{ t('common.retry') }}</button>
+            </template>
+          </EmptyState>
+
+          <div v-else-if="!groups" aria-busy="true" class="space-y-2">
             <p class="sr-only">{{ t('common.loading') }}</p>
             <Skeleton w="40%" :h="14" />
             <Skeleton v-for="i in 4" :key="i" :h="66" :rounded="8" />

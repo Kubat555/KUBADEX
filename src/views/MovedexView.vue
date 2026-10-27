@@ -24,12 +24,25 @@ const vg = computed(() => GAMES[version.value].vg)
 const movedex = ref(null)
 const learners = ref(null)
 const indexById = ref({})
-onMounted(async () => {
-  const [m, l, idx] = await Promise.all([loadMoves(), loadLearners(), loadIndex()])
-  movedex.value = m
-  learners.value = l
-  indexById.value = Object.fromEntries(idx.map((p) => [p.id, p]))
-})
+const loading = ref(false)
+const failed = ref(false) // the data could not be loaded: an error screen with a retry, not an endless skeleton
+
+// a retry keeps the error screen (its button busy) until the answer comes; api.js never caches a failed request
+async function load() {
+  loading.value = true
+  try {
+    const [m, l, idx] = await Promise.all([loadMoves(), loadLearners(), loadIndex()])
+    movedex.value = m
+    learners.value = l
+    indexById.value = Object.fromEntries(idx.map((p) => [p.id, p]))
+    failed.value = false
+  } catch {
+    failed.value = true
+  } finally {
+    loading.value = false
+  }
+}
+onMounted(load)
 
 // Filters and the selected move live in the URL query (shareable, restored by Back); defaults are left out of it.
 const MOVEDEX_SCHEMA = {
@@ -159,7 +172,19 @@ watch(selected, () => {
     <div class="grid items-start gap-5 sm:grid-cols-[minmax(0,1fr)_15rem] md:grid-cols-[minmax(0,1fr)_18rem] lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
       <!-- table: the page scrolls it (a scroll box of its own would lose its position under KeepAlive) -->
       <div class="min-w-0">
-        <EmptyState v-if="movedex && !rows.length" :title="t('moves.empty')" :hint="t('moves.emptyHint')">
+        <EmptyState v-if="failed" :title="t('errors.loadFailed')" :hint="t('errors.loadFailedHint')">
+          <template #actions>
+            <button
+              type="button"
+              :disabled="loading"
+              :aria-busy="loading"
+              class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-sm uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
+              @click="load"
+            >{{ t('common.retry') }}</button>
+          </template>
+        </EmptyState>
+
+        <EmptyState v-else-if="movedex && !rows.length" :title="t('moves.empty')" :hint="t('moves.emptyHint')">
           <template #actions>
             <button
               type="button"

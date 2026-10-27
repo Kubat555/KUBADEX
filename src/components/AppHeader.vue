@@ -10,7 +10,8 @@ import LocaleSwitch from './LocaleSwitch.vue'
 const emit = defineEmits(['search'])
 
 const MENU = ['pokedex', 'map', 'moves', 'bosses', 'ev', 'compare', 'team']
-const SHORT = { pokedex: 'nav.short.pokedex', compare: 'nav.short.compare' } // labels for 640–1023px
+// labels for 640–1023px; no aria-label: the hidden label is display:none, so the accessible name is the one on screen
+const SHORT = { pokedex: 'nav.short.pokedex', compare: 'nav.short.compare' }
 
 const { t } = useI18n()
 const { to, section } = useNavLinks()
@@ -44,7 +45,6 @@ const shortcut = isApple ? '⌘K' : 'Ctrl K'
           <li v-for="name in MENU" :key="name">
             <RouterLink
               :to="to[name]"
-              :aria-label="SHORT[name] ? t(`nav.${name}`) : undefined"
               class="relative flex h-9 items-center rounded-md px-1.5 font-display text-sm uppercase tracking-wide whitespace-nowrap transition-colors duration-(--dur-1) lg:px-2.5"
               :class="section === name ? 'text-ink' : 'text-muted hover:text-ink'"
             >

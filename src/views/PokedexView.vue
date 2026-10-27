@@ -26,10 +26,23 @@ const { t } = useI18n()
 
 const index = ref([])
 const loaded = ref(false)
-onMounted(async () => {
-  index.value = await loadIndex()
-  loaded.value = true
-})
+const loading = ref(false)
+const failed = ref(false) // the index could not be loaded: an error screen with a retry, not an endless spinner
+
+// a retry keeps the error screen (its button busy) until the answer comes; api.js never caches a failed request
+async function load() {
+  loading.value = true
+  try {
+    index.value = await loadIndex()
+    loaded.value = true
+    failed.value = false
+  } catch {
+    failed.value = true
+  } finally {
+    loading.value = false
+  }
+}
+onMounted(load)
 
 // a random entry of the loaded index other than `except` (ids come from the data, not from a fixed dex size)
 function randomId(except) {
@@ -485,7 +498,18 @@ const sheetOpen = ref(false) // the filter sheet on a phone; wider screens show 
     </section>
 
     <!-- grid -->
-    <PokeballSpinner v-if="!loaded" />
+    <EmptyState v-if="failed" :title="t('errors.loadFailed')" :hint="t('errors.loadFailedHint')">
+      <template #actions>
+        <button
+          type="button"
+          :disabled="loading"
+          :aria-busy="loading"
+          class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-sm uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
+          @click="load"
+        >{{ t('common.retry') }}</button>
+      </template>
+    </EmptyState>
+    <PokeballSpinner v-else-if="!loaded" />
     <EmptyState v-else-if="!filtered.length" :title="t('pokedex.empty')" :hint="t('pokedex.emptyHint')">
       <template #actions>
         <button
