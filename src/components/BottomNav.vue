@@ -1,7 +1,8 @@
 <script setup>
 // Phone (< 640px) menu: a tab bar fixed to the bottom edge, above the home indicator (safe-area inset).
 // Search opens the palette; "More" opens a bottom sheet with the rest of the menu and Settings.
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useNavLinks } from '../composables/useNavLinks'
 import Icon from './ui/Icon.vue'
@@ -15,6 +16,10 @@ const { t } = useI18n()
 const { to, section } = useNavLinks()
 const moreOpen = ref(false)
 const inMore = computed(() => MORE.includes(section.value))
+
+// leaving the page another way (Back, a link elsewhere) closes "More" too, as it does the search palette
+const route = useRoute()
+watch(() => route.fullPath, () => (moreOpen.value = false))
 
 const tab = 'relative flex h-14 w-full flex-col items-center justify-center gap-1 text-xs font-medium transition-colors duration-(--dur-1)'
 const tone = (on) => (on ? 'text-ink' : 'text-muted hover:text-ink')

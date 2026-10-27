@@ -1,7 +1,16 @@
+<script>
+// One page scroll lock shared by all sheets (one can open over another, e.g. "More" over a page's sheet that Back
+// brought back): the first lock saves the page's own overflow, the last release puts it back, in any close order.
+let locks = 0
+let pageOverflow = ''
+</script>
+
 <script setup>
 // Phone (<640px): a bottom sheet. A modal <dialog> sits in the top layer (no z-index fights, background inert);
 // Tab is kept inside, Esc / the Android back gesture / a tap on the scrim / the close button emit `close`,
 // and page scroll is locked while it is open. The parent owns `open` and flips it on `close`.
+// In a kept-alive view the sheet stays open while the view is cached (its URL still holds the selection): Back shows
+// it again with its list where it was left, unless `contentKey` (what it shows) has changed meanwhile.
 // Wider screens: no dialog and `open` is ignored — the slot renders in place inside a plain <div> that receives
 // the attributes given to <Sheet> (class, style), so the parent styles its desktop panel through them.
 import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, useId, watch } from 'vue'
@@ -13,6 +22,7 @@ const props = defineProps({
   open: { type: Boolean, default: false },
   title: { type: String, required: true },
   closeLabel: { type: String, default: 'Close' }, // accessible name of the close button (pass the localized word)
+  contentKey: { type: String, default: null }, // what the sheet shows (the selected move, place); another one starts at the top
 })
 const emit = defineEmits(['close'])
 
@@ -23,20 +33,34 @@ const shown = computed(() => isPhone.value && props.open)
 const titleId = useId()
 const dialog = ref(null)
 const panel = ref(null)
+const box = ref(null) // the panel's scrolling body
 const visible = ref(false) // scrim and panel are rendered; toggling it runs the enter/leave transitions
 let returnFocus = null
-let savedOverflow = null // the page's own overflow value while the sheet locks scrolling
+let locked = false // this sheet holds one of the page scroll locks
 let deactivated = false // a kept-alive view holding the sheet is cached: its DOM is detached from the document
+// The body's scroll offset, put back when a cached view is shown again: a hidden or detached element loses it,
+// so it is tracked while scrolling (not read on the way out). A new panel or another `contentKey` starts at 0.
+let boxScroll = 0
+const onBoxScroll = (e) => {
+  if (!deactivated) boxScroll = e.target.scrollTop
+}
+watch(() => props.contentKey, () => {
+  boxScroll = 0
+  if (box.value && shown.value) box.value.scrollTop = 0 // not while closing: the leaving panel would jump
+})
 
 function lockScroll() {
-  if (savedOverflow !== null) return
-  savedOverflow = document.documentElement.style.overflow
-  document.documentElement.style.overflow = 'hidden'
+  if (locked) return
+  locked = true
+  if (locks++ === 0) {
+    pageOverflow = document.documentElement.style.overflow
+    document.documentElement.style.overflow = 'hidden'
+  }
 }
 function unlockScroll() {
-  if (savedOverflow === null) return
-  document.documentElement.style.overflow = savedOverflow
-  savedOverflow = null
+  if (!locked) return
+  locked = false
+  if (--locks === 0) document.documentElement.style.overflow = pageOverflow
 }
 
 async function show() {
@@ -50,8 +74,10 @@ async function show() {
     d.showModal?.()
   }
   lockScroll()
+  if (!visible.value) boxScroll = 0 // a new panel; a kept one (Back) is shown again as it was
   visible.value = true
   await nextTick()
+  if (box.value) box.value.scrollTop = boxScroll
   panel.value?.focus({ preventScroll: true })
 }
 
@@ -68,7 +94,7 @@ function onAfterLeave() {
   if (!shown.value) release() // unless it was reopened meanwhile
 }
 
-// no transition: unmount, deactivation, growing past the breakpoint
+// no transition: unmount, growing past the breakpoint
 function teardown() {
   visible.value = false
   release()
@@ -93,14 +119,14 @@ onBeforeUnmount(() => {
   mql?.removeEventListener('change', onMedia)
   teardown()
 })
-// a kept-alive view left with the sheet open (e.g. a link inside it was followed): close for real,
-// otherwise the scroll lock would outlive the page
+// a kept-alive view left with the sheet open (e.g. a link inside it was followed): the dialog closes and the page
+// scroll is released, so neither outlives the page, but the sheet stays open for the parent and keeps its panel:
+// the view's URL still holds the selection, and Back shows the same panel again
 onDeactivated(() => {
   deactivated = true
-  if (shown.value) emit('close')
-  teardown()
+  release()
 })
-// the view is shown again (e.g. Back): reopen the sheet if its selection came back meanwhile
+// the view is shown again (e.g. Back): reopen the sheet if it is (still or again) open
 onActivated(() => {
   if (!deactivated) return // the first activation comes right after mount, which has shown it already
   deactivated = false
@@ -132,9 +158,10 @@ function onKeydown(e) {
   }
 }
 
-// the browser closed the dialog on its own (Chrome closes it on a repeated back/Esc it no longer lets us cancel)
+// the browser closed the dialog on its own (Chrome closes it on a repeated back/Esc it no longer lets us cancel);
+// not the close of a cached view, which keeps its panel
 function onNativeClose() {
-  if (!visible.value) return
+  if (!visible.value || deactivated) return
   visible.value = false
   unlockScroll()
   emit('close')
@@ -187,7 +214,11 @@ function onNativeClose() {
             <Icon name="close" />
           </button>
         </header>
-        <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <div
+          ref="box"
+          class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))]"
+          @scroll.passive="onBoxScroll"
+        >
           <slot />
         </div>
       </section>

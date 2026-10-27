@@ -183,7 +183,7 @@ const availability = computed(() =>
                   <span v-if="!c.weak.length" class="text-dim">—</span>
                   <span v-else class="inline-flex flex-wrap items-center gap-x-2.5">
                     <span v-for="w in c.weak" :key="w.m.id" class="inline-flex items-center">
-                      <SpriteImg :src="spriteUrl(w.m.id, 'icons')" :alt="w.m.label" :title="w.m.label" :w="68" :h="56" centred class="-my-2 -mr-2" />
+                      <SpriteImg :src="spriteUrl(w.m.id, 'icons')" :alt="w.m.label" :title="w.m.label" :w="68" :h="56" centred class="-my-2" />
                       <span class="num text-base text-bad">×{{ fmtMult(w.mult) }}</span>
                     </span>
                   </span>
@@ -192,7 +192,7 @@ const availability = computed(() =>
                   <span v-if="!c.resist.length" class="text-dim">—</span>
                   <span v-else class="inline-flex flex-wrap items-center gap-x-2.5">
                     <span v-for="r in c.resist" :key="r.m.id" class="inline-flex items-center">
-                      <SpriteImg :src="spriteUrl(r.m.id, 'icons')" :alt="r.m.label" :title="r.m.label" :w="68" :h="56" centred class="-my-2 -mr-2" />
+                      <SpriteImg :src="spriteUrl(r.m.id, 'icons')" :alt="r.m.label" :title="r.m.label" :w="68" :h="56" centred class="-my-2" />
                       <span class="num text-base text-good">×{{ fmtMult(r.mult) }}</span>
                     </span>
                   </span>
