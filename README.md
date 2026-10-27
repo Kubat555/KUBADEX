@@ -32,6 +32,7 @@ and exactly *where to catch it* on interactive Kanto & Hoenn maps.
 ## ✨ What's inside
 
 - **All 386 Pokémon** of Generation III with search, type / game / regional-dex filters and stat sorting
+- **Русский и English** — the whole interface in Russian and English, switchable at any time
 - **🗺 Interactive Town Maps** of Kanto *(+ Sevii Islands)* and Hoenn — locations glow where a Pokémon spawns, with levels, encounter rate and method (grass, surf, rods, Rock Smash…)
 - **One game-version switch** that re-themes the whole entry: dex text, game sprite, encounters and moveset follow your game — and the choice is remembered
 - **Map Explorer** — reverse lookup: click any route, cave or city and see every wild Pokémon there, per version
@@ -94,7 +95,7 @@ Every move with its Gen 3 TM/HM number — and everyone who learns it, by level,
 <img src=".github/assets/movedex.png" width="900" alt="Movedex with Thunderbolt learners" />
 
 ### EV hotspots
-Ranked grinding spots per stat, computed from the real encounter tables — New Mauville really is the best Speed farm.
+Ranked grinding spots per stat, computed from the real encounter tables — in Emerald, surfing in Meteor Falls tops the Speed list.
 
 <img src=".github/assets/ev.png" width="900" alt="EV training hotspots for Speed in Emerald" />
 
@@ -111,6 +112,7 @@ The full dataset and all sprites ship with the repo — **no API keys, no backen
 
 ```bash
 npm run build    # production build → dist/
+npm test         # unit tests (Vitest)
 npm run data     # (optional) regenerate the dataset from PokéAPI
 ```
 
