@@ -24,7 +24,7 @@ const availableMethods = computed(() =>
 // another game or another entry may lack the open tab (e.g. no egg moves): fall back to the first one it has
 watch(availableMethods, (list) => {
   if (!list.includes(method.value)) method.value = list[0] ?? 'level-up'
-})
+}, { immediate: true })
 
 const byLevel = computed(() => method.value === 'level-up')
 
