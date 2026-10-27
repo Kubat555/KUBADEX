@@ -16,7 +16,7 @@ const emit = defineEmits(['update:modelValue'])
       v-for="v in versions" :key="v"
       type="button"
       :aria-pressed="modelValue === v"
-      class="h-8 rounded-lg border px-3 font-display text-sm leading-none tracking-wider transition-colors duration-(--dur-1) active:translate-y-px"
+      class="h-8 rounded-lg border px-3 font-display text-base leading-none tracking-wider transition-colors duration-(--dur-1) active:translate-y-px"
       :class="modelValue === v
         ? 'text-bg'
         : active && !active.includes(v)

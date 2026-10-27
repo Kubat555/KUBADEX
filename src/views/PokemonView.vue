@@ -243,7 +243,7 @@ function playCry() {
           type="button"
           :disabled="loading"
           :aria-busy="loading"
-          class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-sm uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
+          class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-base uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
           @click="retry"
         >{{ t('common.retry') }}</button>
       </template>
@@ -265,7 +265,7 @@ function playCry() {
         <!-- the dex number as a graphic: big pixel digits in the type colour with a hard pixel shadow -->
         <div
           aria-hidden="true"
-          class="pointer-events-none absolute top-5 right-5 hidden select-none font-display text-6xl leading-none sm:block lg:top-7 lg:right-8 lg:text-8xl"
+          class="pointer-events-none absolute top-5 right-5 hidden select-none font-display text-[64px] leading-none sm:block lg:top-7 lg:right-8 lg:text-8xl"
           :style="{ color: 'color-mix(in srgb, var(--t) 30%, transparent)', textShadow: '4px 4px 0 color-mix(in srgb, var(--t) 12%, transparent)' }"
         >{{ dexNo(p.id) }}</div>
 
@@ -282,7 +282,7 @@ function playCry() {
             </div>
             <button
               type="button"
-              class="mt-2 inline-flex h-8 items-center gap-2 rounded-lg border px-3 font-display text-sm uppercase tracking-wider transition-colors duration-(--dur-1) active:translate-y-px"
+              class="mt-2 inline-flex h-8 items-center gap-2 rounded-lg border px-3 font-display text-base uppercase tracking-wider transition-colors duration-(--dur-1) active:translate-y-px"
               :class="crying ? 'border-dex bg-dex/15 text-dexglow' : 'border-line-strong text-muted hover:border-dexglow hover:text-ink'"
               @click="playCry"
             ><Icon name="sound" />{{ t('pokemon.cry') }}</button>
@@ -291,7 +291,7 @@ function playCry() {
           <!-- identity + flavor -->
           <div class="min-w-0">
             <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h1 class="font-display text-4xl text-balance text-ink">{{ p.label }}</h1>
+              <h1 class="font-display text-[40px] leading-10 text-balance text-ink">{{ p.label }}</h1>
               <span class="text-sm text-muted">{{ p.genus }}</span>
             </div>
             <div class="mt-2 flex flex-wrap items-center gap-2">
@@ -380,7 +380,7 @@ function playCry() {
       <section class="animate-fadeup rounded-2xl border border-line bg-surface-1 p-5" style="animation-delay: 200ms">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <h2 class="eyebrow">{{ t('pokemon.sections.where') }}</h2>
-          <span class="inline-flex items-center gap-2 font-display text-sm uppercase tracking-wider text-ink">
+          <span class="inline-flex items-center gap-2 font-display text-base uppercase tracking-wider text-ink">
             <span aria-hidden="true" class="size-2" :style="{ background: GAMES[version].color }"></span>{{ GAMES[version].label }}
           </span>
         </div>
@@ -404,7 +404,7 @@ function playCry() {
                 <button
                   v-for="v in h.versions" :key="v"
                   type="button"
-                  class="inline-flex h-8 items-center gap-2 rounded-lg border border-line-strong px-3 font-display text-sm tracking-wider text-muted transition-colors duration-(--dur-1) hover:text-ink active:translate-y-px"
+                  class="inline-flex h-8 items-center gap-2 rounded-lg border border-line-strong px-3 font-display text-base tracking-wider text-muted transition-colors duration-(--dur-1) hover:text-ink active:translate-y-px"
                   @click="pickGame(v)"
                 ><span aria-hidden="true" class="size-2" :style="{ background: GAMES[v].color }"></span>{{ GAMES[v].label }}</button>
               </div>
@@ -453,7 +453,7 @@ function playCry() {
       <section class="animate-fadeup rounded-2xl border border-line bg-surface-1 p-5" style="animation-delay: 240ms">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 class="eyebrow">{{ t('pokemon.sections.moves') }}</h2>
-          <span class="inline-flex items-center gap-2 font-display text-sm uppercase tracking-wider text-ink">
+          <span class="inline-flex items-center gap-2 font-display text-base uppercase tracking-wider text-ink">
             <span aria-hidden="true" class="size-2" :style="{ background: GAMES[version].color }"></span>{{ GAMES[version].label }}
           </span>
         </div>

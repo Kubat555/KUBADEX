@@ -178,7 +178,7 @@ watch(selected, () => {
               type="button"
               :disabled="loading"
               :aria-busy="loading"
-              class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-sm uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
+              class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-base uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
               @click="load"
             >{{ t('common.retry') }}</button>
           </template>
@@ -188,7 +188,7 @@ watch(selected, () => {
           <template #actions>
             <button
               type="button"
-              class="h-10 rounded-lg border border-line-strong px-4 font-display text-sm uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px"
+              class="h-10 rounded-lg border border-line-strong px-4 font-display text-base uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px"
               @click="resetFilters"
             >{{ t('moves.resetFilters') }}</button>
           </template>
@@ -268,7 +268,7 @@ watch(selected, () => {
           <div class="shrink-0">
             <div class="flex flex-wrap items-center gap-2">
               <!-- on a phone the sheet's own header carries the name -->
-              <h2 class="font-display text-xl text-ink max-sm:hidden">{{ panel.move.label }}</h2>
+              <h2 class="font-display text-2xl text-ink max-sm:hidden">{{ panel.move.label }}</h2>
               <TypeBadge :type="panel.move.type" size="sm" />
               <span v-if="panel.move.machines?.[vg]" class="num text-xs text-lens">{{ panel.move.machines[vg] }}</span>
             </div>

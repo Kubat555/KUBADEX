@@ -78,7 +78,7 @@ const league = computed(() => list.value.filter((b) => !b.title.startsWith('Gym'
               <div class="flex items-start justify-between gap-2">
                 <div class="flex min-w-0 items-baseline gap-2">
                   <span v-if="gi === 0" class="num text-lg text-dim">{{ String(i + 1).padStart(2, '0') }}</span>
-                  <h3 class="truncate font-display text-xl text-ink">{{ b.name }}</h3>
+                  <h3 class="truncate font-display text-2xl text-ink">{{ b.name }}</h3>
                 </div>
                 <TypeBadge :type="b.specialty" size="sm" class="mt-1.5 shrink-0" />
               </div>

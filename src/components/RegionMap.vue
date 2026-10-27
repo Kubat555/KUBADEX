@@ -187,7 +187,7 @@ function strokeFor(p) {
         class="pointer-events-none absolute z-20 w-max max-w-[min(15rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-full rounded-lg border border-line2 bg-bg/95 px-3 py-2 shadow-xl shadow-black/50 backdrop-blur"
         :style="{ left: tooltip.x + 'px', top: tooltip.y - 6 + 'px' }"
       >
-        <p class="font-display text-sm leading-tight" :style="{ color: tooltip.color ?? 'var(--color-ink)' }">
+        <p class="font-display text-base leading-tight" :style="{ color: tooltip.color ?? 'var(--color-ink)' }">
           {{ tooltip.label }}
         </p>
         <p v-for="(line, i) in tooltip.lines" :key="i" class="mt-0.5 flex items-center gap-1.5 text-xs text-muted">

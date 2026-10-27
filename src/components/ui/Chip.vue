@@ -12,7 +12,7 @@ defineProps({
   <button
     type="button"
     :aria-pressed="pressed"
-    class="inline-flex h-8 shrink-0 items-center gap-2 rounded-lg border px-2.5 font-display text-sm uppercase leading-none tracking-wider whitespace-nowrap text-ink transition-[background-color,border-color] duration-(--dur-2) ease-out active:translate-y-px"
+    class="inline-flex h-8 shrink-0 items-center gap-2 rounded-lg border px-2.5 font-display text-base uppercase leading-none tracking-wide whitespace-nowrap text-ink transition-[background-color,border-color] duration-(--dur-2) ease-out active:translate-y-px"
     :class="pressed
       ? 'border-(--chip) bg-[color-mix(in_srgb,var(--chip)_24%,transparent)]'
       : 'border-line-strong hover:border-[color-mix(in_srgb,var(--chip)_60%,var(--color-line-strong))] hover:bg-[color-mix(in_srgb,var(--chip)_8%,transparent)]'"

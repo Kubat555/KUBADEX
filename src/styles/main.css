@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme static {
-  --font-display: "Pixelify Sans Variable", ui-monospace, monospace;
+  --font-display: "Tiny5", ui-monospace, monospace;
   --font-body: "Onest Variable", ui-sans-serif, system-ui, sans-serif;
 
   --color-bg: #0a0e1a;
@@ -135,6 +135,11 @@ body::before {
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: var(--color-muted);
+}
+
+/* the pixel display font has one weight (400): never let the browser fake a bold of it */
+@utility font-display {
+  font-synthesis: none;
 }
 
 /* every number: Onest, tabular */

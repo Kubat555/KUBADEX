@@ -83,7 +83,7 @@ const availability = computed(() =>
       <template v-if="filled.length" #actions>
         <button
           type="button"
-          class="h-10 rounded-lg border border-line-strong px-3 font-display text-sm uppercase tracking-wider text-muted transition-colors duration-(--dur-1) hover:border-dexglow hover:text-ink active:translate-y-px"
+          class="h-10 rounded-lg border border-line-strong px-3 font-display text-base uppercase tracking-wider text-muted transition-colors duration-(--dur-1) hover:border-dexglow hover:text-ink active:translate-y-px"
           @click="team.clear()"
         >{{ t('team.clear') }}</button>
       </template>
@@ -145,7 +145,7 @@ const availability = computed(() =>
       <!-- warnings -->
       <section v-if="dangerTypes.length || notCovered.length" class="animate-fadeup mt-5 grid gap-4 lg:grid-cols-2">
         <div v-if="dangerTypes.length" class="rounded-2xl border border-bad/40 bg-bad/5 p-4">
-          <h2 class="flex items-center gap-2 font-display text-sm uppercase tracking-wider text-bad">
+          <h2 class="flex items-center gap-2 font-display text-base uppercase tracking-wider text-bad">
             <Icon name="warn" />{{ t('team.sharedWeak') }}
           </h2>
           <p class="mt-1.5 text-sm text-muted">{{ t('team.sharedWeakHint') }}</p>
@@ -209,7 +209,7 @@ const availability = computed(() =>
         <p class="mt-1 text-sm text-dim">{{ t('team.availabilityHint') }}</p>
         <div class="mt-3 space-y-2">
           <div v-for="a in availability" :key="a.version" class="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-            <span class="w-24 shrink-0 font-display text-sm tracking-wider" :style="{ color: GAMES[a.version].color }">{{ GAMES[a.version].label }}</span>
+            <span class="w-24 shrink-0 font-display text-base tracking-wider" :style="{ color: GAMES[a.version].color }">{{ GAMES[a.version].label }}</span>
             <ul class="flex flex-wrap gap-2">
               <li
                 v-for="x in a.members" :key="x.m.id"

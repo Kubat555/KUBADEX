@@ -65,7 +65,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onGlobalKeydown))
 <template>
   <a
     href="#main"
-    class="skip-link rounded-lg border border-line-strong bg-surface-2 px-4 py-2.5 font-display text-sm uppercase tracking-wide text-ink shadow-[0_8px_24px_rgb(0_0_0/0.5)]"
+    class="skip-link rounded-lg border border-line-strong bg-surface-2 px-4 py-2.5 font-display text-base uppercase tracking-wide text-ink shadow-[0_8px_24px_rgb(0_0_0/0.5)]"
     @click.prevent="skipToContent"
   >{{ t('nav.skip') }}</a>
 

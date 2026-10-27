@@ -32,7 +32,7 @@ const shortcut = isApple ? '⌘K' : 'Ctrl K'
           height="32"
           class="size-8 drop-shadow-[0_0_10px_rgba(227,53,13,0.45)] transition-transform duration-(--dur-3) group-hover:rotate-[20deg]"
         />
-        <span class="font-display text-xl tracking-wide text-ink transition-colors duration-(--dur-2) group-hover:text-dexglow sm:max-md:hidden">KUBADEX</span>
+        <span class="font-display text-2xl tracking-wide text-ink transition-colors duration-(--dur-2) group-hover:text-dexglow sm:max-md:hidden">KUBADEX</span>
         <span aria-hidden="true" class="ml-1 hidden gap-1 xl:flex">
           <span class="size-1.5 rounded-full bg-dex animate-blink" />
           <span class="size-1.5 rounded-full bg-type-electric" />
@@ -45,7 +45,7 @@ const shortcut = isApple ? '⌘K' : 'Ctrl K'
           <li v-for="name in MENU" :key="name">
             <RouterLink
               :to="to[name]"
-              class="relative flex h-9 items-center rounded-md px-1.5 font-display text-sm uppercase tracking-wide whitespace-nowrap transition-colors duration-(--dur-1) lg:px-2.5"
+              class="relative flex h-9 items-center rounded-md px-1 font-display text-base uppercase tracking-normal whitespace-nowrap transition-colors duration-(--dur-1) lg:px-2"
               :class="section === name ? 'text-ink' : 'text-muted hover:text-ink'"
             >
               <template v-if="SHORT[name]">
@@ -53,7 +53,7 @@ const shortcut = isApple ? '⌘K' : 'Ctrl K'
                 <span class="hidden lg:inline">{{ t(`nav.${name}`) }}</span>
               </template>
               <template v-else>{{ t(`nav.${name}`) }}</template>
-              <span v-if="section === name" aria-hidden="true" class="absolute inset-x-1.5 bottom-0.5 h-0.5 bg-dexglow lg:inset-x-2.5" />
+              <span v-if="section === name" aria-hidden="true" class="absolute inset-x-1 bottom-0.5 h-0.5 bg-dexglow lg:inset-x-2" />
             </RouterLink>
           </li>
         </ul>

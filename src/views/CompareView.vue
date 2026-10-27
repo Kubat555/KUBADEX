@@ -122,7 +122,7 @@ const statMax = (s) => Math.max(...mons.value.map((m) => m.stats[s]))
           <RouterLink :to="`/pokemon/${m.id}`" class="block">
             <img :src="spriteUrl(m.id, 'art')" alt="" class="mx-auto size-28 object-contain drop-shadow-lg" />
             <p class="num mt-1 text-sm" :style="{ color: COLORS[i] }">{{ dexNo(m.id) }}</p>
-            <p class="font-display text-xl text-ink">{{ m.label }}</p>
+            <p class="font-display text-2xl text-ink">{{ m.label }}</p>
           </RouterLink>
           <div class="mt-1.5 flex justify-center gap-1"><TypeBadge v-for="ty in m.types" :key="ty" :type="ty" size="sm" /></div>
           <p class="mt-2 text-sm text-muted">{{ m.abilities.map((a) => abilitydex[a]?.label ?? a).join(' / ') }}</p>
@@ -186,7 +186,7 @@ const statMax = (s) => Math.max(...mons.value.map((m) => m.stats[s]))
             <thead>
               <tr class="border-b border-line text-left">
                 <th scope="col" class="eyebrow py-2 pr-3">{{ t('compare.vs') }}</th>
-                <th v-for="(m, i) in mons" :key="m.id" scope="col" class="py-2 pr-3 font-display text-sm font-normal uppercase" :style="{ color: COLORS[i] }">{{ m.label }}</th>
+                <th v-for="(m, i) in mons" :key="m.id" scope="col" class="py-2 pr-3 font-display text-base font-normal uppercase" :style="{ color: COLORS[i] }">{{ m.label }}</th>
               </tr>
             </thead>
             <tbody>

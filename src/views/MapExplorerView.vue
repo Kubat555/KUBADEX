@@ -172,7 +172,7 @@ const levels = (m) => (m.max !== m.min ? `${m.min}–${m.max}` : String(m.min))
 
         <template v-else>
           <!-- on a phone the sheet's own header carries the name -->
-          <h2 class="mb-4 font-display text-xl text-ink max-sm:hidden">{{ selected.label }}</h2>
+          <h2 class="mb-4 font-display text-2xl text-ink max-sm:hidden">{{ selected.label }}</h2>
 
           <EmptyState v-if="failed" :title="t('errors.loadFailed')" :hint="t('errors.loadFailedHint')">
             <template #actions>
@@ -180,7 +180,7 @@ const levels = (m) => (m.max !== m.min ? `${m.min}–${m.max}` : String(m.min))
                 type="button"
                 :disabled="loading"
                 :aria-busy="loading"
-                class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-sm uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
+                class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-base uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
                 @click="load"
               >{{ t('common.retry') }}</button>
             </template>
@@ -197,7 +197,7 @@ const levels = (m) => (m.max !== m.min ? `${m.min}–${m.max}` : String(m.min))
           <div v-else class="scrollbar-thin space-y-5 sm:max-h-150 sm:overflow-y-auto sm:pr-1">
             <section v-for="g in groups" :key="g.version">
               <h3
-                class="sticky top-0 z-10 flex items-baseline gap-2 bg-surface-1 py-1 font-display text-sm uppercase tracking-wider"
+                class="sticky top-0 z-10 flex items-baseline gap-2 bg-surface-1 py-1 font-display text-base uppercase tracking-wider"
                 :style="{ color: GAMES[g.version].color }"
               >
                 {{ GAMES[g.version].label }} <span class="num text-xs text-dim">{{ g.mons.length }}</span>
