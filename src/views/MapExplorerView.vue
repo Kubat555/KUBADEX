@@ -1,18 +1,30 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { loadByLocation, spriteUrl } from '../lib/api'
-import { GAMES, GAME_ORDER, METHOD_LABELS, METHOD_ICONS } from '../data/games'
-import { dexNo } from '../lib/utils'
+import { GAMES, GAME_ORDER, METHOD_ICON_NAMES } from '../data/games'
+import { cap, dexNo } from '../lib/utils'
 import { useQueryState } from '../composables/useQueryState'
 import { usePrefsStore } from '../stores/prefs'
 import kantoMap from '../data/maps/kanto.json'
 import hoennMap from '../data/maps/hoenn.json'
 import RegionMap from '../components/RegionMap.vue'
+import PageHeader from '../components/ui/PageHeader.vue'
+import Segmented from '../components/ui/Segmented.vue'
+import Chip from '../components/ui/Chip.vue'
+import Sheet from '../components/ui/Sheet.vue'
+import Skeleton from '../components/ui/Skeleton.vue'
+import EmptyState from '../components/ui/EmptyState.vue'
+import SpriteImg from '../components/ui/SpriteImg.vue'
+import Icon from '../components/ui/Icon.vue'
+
+const { t, te } = useI18n()
 
 const byLoc = ref(null)
 onMounted(async () => (byLoc.value = await loadByLocation()))
 
 const REGIONS = ['hoenn', 'kanto']
+const REGION_OPTIONS = REGIONS.map((r) => ({ value: r, label: cap(r) })) // place names stay English in this stage
 const maps = { kanto: kantoMap, hoenn: hoennMap }
 const prefs = usePrefsStore()
 
@@ -40,6 +52,12 @@ function pickRegion(r) {
 // a click, not typing: the place goes to the URL at once, so Back from one of its Pokémon finds it selected
 const pickPlace = (slug) => set({ place: slug }, { immediate: true })
 
+// Phone: the panel is a bottom sheet, open while a place is selected, and closing it clears the selection.
+// The sheet also closes when the screen grows past phone width: then the selection stays, for the side panel.
+function onSheetClose() {
+  if (window.matchMedia?.('(max-width: 639px)').matches ?? true) pickPlace('')
+}
+
 /** locations with data that aren't placed on the map (roaming etc.) */
 const offMap = computed(() => {
   if (!byLoc.value) return []
@@ -66,7 +84,8 @@ const selected = computed(() => {
 /** all slugs (incl. collapsed areas) belonging to the selected place */
 const selectedSlugs = computed(() => (selected.value ? [selected.value.slug, ...(selected.value.areas ?? [])] : []))
 
-const panel = computed(() => {
+/** wild Pokémon of the selected place per version of its region; null until the encounter data is loaded */
+const groups = computed(() => {
   if (!selected.value || !byLoc.value) return null
   const regData = byLoc.value[region.value] ?? {}
   const versions = {}
@@ -82,94 +101,104 @@ const panel = computed(() => {
       }
     }
   }
-  const ordered = regionGames.value
+  return regionGames.value
     .filter((v) => versions[v]?.size)
     .map((v) => ({ version: v, mons: [...versions[v].values()].sort((a, b) => a.id - b.id) }))
-  return { label: selected.value.label, groups: ordered }
 })
 
-const fmtMethod = (m) =>
-  `${METHOD_ICONS[m.method] ?? '·'} ${METHOD_LABELS[m.method] ?? m.method} · Lv ${m.min}${m.max !== m.min ? '–' + m.max : ''} · ${m.chance}%`
+// methods outside the label list (roaming, in-game trade…) show their data slug
+const methodLabel = (method) => (te(`methods.${method}`) ? t(`methods.${method}`) : method)
+const levels = (m) => (m.max !== m.min ? `${m.min}–${m.max}` : String(m.min))
 </script>
 
 <template>
   <div>
-    <section class="animate-fadeup mb-5 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-panel/60 p-5">
-      <div>
-        <h1 class="font-display text-2xl text-ink">MAP <span class="text-dexglow">EXPLORER</span></h1>
-        <p class="mt-1 text-sm text-muted">Click any location to see every wild Pokémon there, per version.</p>
-      </div>
-      <div class="flex overflow-hidden rounded-lg border border-line">
-        <button
-          v-for="r in REGIONS" :key="r"
-          class="px-4 py-2 font-display text-sm uppercase tracking-wider transition-colors"
-          :class="region === r ? 'bg-panel2 text-dexglow' : 'text-dim hover:text-muted'"
-          @click="pickRegion(r)"
-        >{{ r }}</button>
-      </div>
-    </section>
+    <PageHeader :title="t('map.title')" :accent="t('map.accent')">
+      {{ t('map.subtitle') }}
+      <template #actions>
+        <Segmented :model-value="region" :options="REGION_OPTIONS" :label="t('map.region')" @update:model-value="pickRegion" />
+      </template>
+    </PageHeader>
 
-    <div class="grid gap-5 lg:grid-cols-[1.5fr_1fr]">
-      <section class="animate-fadeup min-w-0 rounded-2xl border border-line bg-panel/60 p-4" style="animation-delay: 60ms">
+    <div class="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+      <section class="animate-fadeup min-w-0 rounded-2xl border border-line bg-surface-1 p-4" style="animation-delay: 60ms">
         <RegionMap
           :map="maps[region]"
           :selected="selected?.slug"
           @select="pickPlace($event.slug)"
         />
         <div v-if="offMap.length" class="mt-3 border-t border-line pt-3">
-          <p class="font-display text-[10px] tracking-wider text-dim">OFF-MAP AREAS</p>
-          <div class="mt-1.5 flex flex-wrap gap-1.5">
-            <button
+          <h2 class="eyebrow">{{ t('map.offMap') }}</h2>
+          <div class="mt-2 flex flex-wrap gap-1.5">
+            <Chip
               v-for="o in offMap" :key="o.slug"
-              class="rounded-md border px-2 py-1 text-xs transition-colors"
-              :class="selected?.slug === o.slug ? 'border-dexglow text-dexglow' : 'border-line text-muted hover:border-line2 hover:text-ink'"
+              :pressed="selected?.slug === o.slug"
               @click="pickPlace(o.slug)"
-            >{{ o.label }}</button>
+            >{{ o.label }}</Chip>
           </div>
         </div>
       </section>
 
-      <section class="animate-fadeup min-w-0 rounded-2xl border border-line bg-panel/60 p-5" style="animation-delay: 100ms">
+      <Sheet
+        :open="!!selected"
+        :title="selected?.label ?? t('map.selectTitle')"
+        :close-label="t('common.close')"
+        class="animate-fadeup min-w-0 rounded-2xl border border-line bg-surface-1 p-5"
+        style="animation-delay: 100ms"
+        @close="onSheetClose"
+      >
         <div v-if="!selected" class="grid h-full min-h-60 place-items-center text-center">
           <div>
-            <p class="font-display text-sm tracking-widest text-dim">SELECT A LOCATION</p>
-            <p class="mt-2 max-w-55 text-xs text-dim">Cities, routes, caves and forests — anything glowing has wild Pokémon.</p>
+            <p class="font-display text-base uppercase tracking-wider text-muted">{{ t('map.selectTitle') }}</p>
+            <p class="mx-auto mt-2 max-w-60 text-sm text-dim text-pretty">{{ t('map.selectHint') }}</p>
           </div>
         </div>
 
         <template v-else>
-          <h2 class="font-display text-xl text-ink">{{ panel?.label ?? selected.label }}</h2>
+          <!-- on a phone the sheet's own header carries the name -->
+          <h2 class="mb-4 font-display text-xl text-ink max-sm:hidden">{{ selected.label }}</h2>
 
-          <div v-if="!panel?.groups.length" class="mt-4 rounded-lg border border-dashed border-line p-6 text-center text-sm text-dim">
-            No wild encounters recorded here.
+          <div v-if="!groups" aria-busy="true" class="space-y-2">
+            <p class="sr-only">{{ t('common.loading') }}</p>
+            <Skeleton w="40%" :h="14" />
+            <Skeleton v-for="i in 4" :key="i" :h="66" :rounded="8" />
           </div>
 
-          <div v-else class="scrollbar-thin mt-4 max-h-150 space-y-5 overflow-y-auto pr-1">
-            <div v-for="g in panel.groups" :key="g.version">
-              <p class="sticky top-0 bg-panel py-1 font-display text-xs tracking-widest" :style="{ color: GAMES[g.version].color }">
-                {{ GAMES[g.version].label.toUpperCase() }} <span class="text-dim">· {{ g.mons.length }}</span>
-              </p>
+          <EmptyState v-else-if="!groups.length" :title="t('map.none')" />
+
+          <div v-else class="scrollbar-thin space-y-5 sm:max-h-150 sm:overflow-y-auto sm:pr-1">
+            <section v-for="g in groups" :key="g.version">
+              <h3
+                class="sticky top-0 z-10 flex items-baseline gap-2 bg-surface-1 py-1 font-display text-sm uppercase tracking-wider"
+                :style="{ color: GAMES[g.version].color }"
+              >
+                {{ GAMES[g.version].label }} <span class="num text-xs text-dim">{{ g.mons.length }}</span>
+              </h3>
               <ul class="mt-1.5 space-y-1.5">
                 <li v-for="mon in g.mons" :key="mon.id">
                   <RouterLink
                     :to="`/pokemon/${mon.id}`"
-                    class="group/mon flex items-center gap-2.5 rounded-lg border border-line bg-bg/40 px-2 py-1.5 transition-colors hover:border-line2 hover:bg-panel2"
+                    class="flex items-center gap-2 rounded-lg border border-line bg-bg/40 py-0.5 pl-1 pr-2.5 transition-colors hover:border-line2 hover:bg-surface-2"
                   >
-                    <img :src="spriteUrl(mon.id, 'gen3')" class="pixelated size-12 shrink-0 object-contain transition-transform duration-200 group-hover/mon:scale-110" alt="" />
+                    <SpriteImg :src="spriteUrl(mon.id, 'gen3')" alt="" />
                     <div class="min-w-0">
                       <p class="text-sm font-medium text-ink">
-                        <span class="font-display text-[10px] text-dim">{{ dexNo(mon.id) }}</span>
-                        {{ mon.name }}
+                        <span class="num mr-1 text-xs text-dim">{{ dexNo(mon.id) }}</span>{{ mon.name }}
                       </p>
-                      <p class="truncate text-[11px] text-dim">{{ mon.methods.map(fmtMethod).join('  ·  ') }}</p>
+                      <ul class="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted tabular-nums">
+                        <li v-for="(m, i) in mon.methods" :key="i" class="flex items-center gap-1">
+                          <Icon v-if="METHOD_ICON_NAMES[m.method]" :name="METHOD_ICON_NAMES[m.method]" class="text-dim" />
+                          {{ methodLabel(m.method) }} · {{ t('map.encounter', { lv: levels(m), chance: m.chance }) }}
+                        </li>
+                      </ul>
                     </div>
                   </RouterLink>
                 </li>
               </ul>
-            </div>
+            </section>
           </div>
         </template>
-      </section>
+      </Sheet>
     </div>
   </div>
 </template>
