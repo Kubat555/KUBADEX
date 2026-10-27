@@ -295,7 +295,7 @@ watch(selected, () => {
                   :to="`/pokemon/${p.id}`"
                   class="flex items-center gap-1 rounded-lg border border-line bg-bg/40 pr-2 transition-colors hover:border-line2 hover:bg-surface-2"
                 >
-                  <SpriteImg :src="spriteUrl(p.id, 'icons')" alt="" :w="68" :h="56" />
+                  <SpriteImg :src="spriteUrl(p.id, 'icons')" alt="" :w="68" :h="56" centred />
                   <span class="min-w-0 flex-1 leading-tight">
                     <span class="block truncate text-sm font-medium text-ink">{{ p.label }}</span>
                     <span v-if="g.id === 'level-up'" class="num block text-xs text-dim">{{ t('moves.lv', { n: p.level }) }}</span>

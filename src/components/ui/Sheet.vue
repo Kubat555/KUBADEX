@@ -4,7 +4,7 @@
 // and page scroll is locked while it is open. The parent owns `open` and flips it on `close`.
 // Wider screens: no dialog and `open` is ignored — the slot renders in place inside a plain <div> that receives
 // the attributes given to <Sheet> (class, style), so the parent styles its desktop panel through them.
-import { computed, nextTick, onBeforeUnmount, onDeactivated, onMounted, ref, useId, watch } from 'vue'
+import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, useId, watch } from 'vue'
 import Icon from './Icon.vue'
 
 defineOptions({ inheritAttrs: false })
@@ -26,6 +26,7 @@ const panel = ref(null)
 const visible = ref(false) // scrim and panel are rendered; toggling it runs the enter/leave transitions
 let returnFocus = null
 let savedOverflow = null // the page's own overflow value while the sheet locks scrolling
+let deactivated = false // a kept-alive view holding the sheet is cached: its DOM is detached from the document
 
 function lockScroll() {
   if (savedOverflow !== null) return
@@ -41,7 +42,9 @@ function unlockScroll() {
 async function show() {
   await nextTick() // the <dialog> is rendered in the same update that made `shown` true
   const d = dialog.value
-  if (!d || !shown.value) return
+  // a cached view still updates while detached (Back restores its selection before it is shown again), and
+  // showModal() throws outside the document: onActivated shows the sheet once the view is back
+  if (!d || !shown.value || deactivated || !d.isConnected) return
   if (!d.open) {
     returnFocus = document.activeElement
     d.showModal?.()
@@ -93,8 +96,15 @@ onBeforeUnmount(() => {
 // a kept-alive view left with the sheet open (e.g. a link inside it was followed): close for real,
 // otherwise the scroll lock would outlive the page
 onDeactivated(() => {
+  deactivated = true
   if (shown.value) emit('close')
   teardown()
+})
+// the view is shown again (e.g. Back): reopen the sheet if its selection came back meanwhile
+onActivated(() => {
+  if (!deactivated) return // the first activation comes right after mount, which has shown it already
+  deactivated = false
+  if (shown.value) show()
 })
 
 const FOCUSABLE = 'a[href], button, input, select, textarea, summary, [tabindex]'

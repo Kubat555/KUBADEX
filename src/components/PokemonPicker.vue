@@ -119,7 +119,7 @@ const closeSoon = () => setTimeout(() => (open.value = false), 150)
         @mousemove="active = i"
         @click="pick(p)"
       >
-        <SpriteImg :src="spriteUrl(p.id, 'icons')" alt="" :w="68" :h="56" class="-my-1" />
+        <SpriteImg :src="spriteUrl(p.id, 'icons')" alt="" :w="68" :h="56" centred class="-my-1" />
         <span class="num w-10 shrink-0 text-xs text-dim">{{ dexNo(p.id) }}</span>
         <span class="min-w-0 truncate font-medium">{{ p.label }}</span>
       </li>

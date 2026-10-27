@@ -185,7 +185,7 @@ const typeNames = (p) => p.types.map((type) => t(`types.${type}`)).join(' · ')
           @mousemove="active = i"
           @click="go(p)"
         >
-          <SpriteImg :src="spriteUrl(p.id, 'icons')" alt="" :w="68" :h="56" class="-my-1" />
+          <SpriteImg :src="spriteUrl(p.id, 'icons')" alt="" :w="68" :h="56" centred class="-my-1" />
           <span class="num w-11 shrink-0 text-sm text-dim">{{ dexNo(p.id) }}</span>
           <span class="min-w-0 flex-1">
             <span class="block truncate font-display text-base text-ink">{{ p.label }}</span>
