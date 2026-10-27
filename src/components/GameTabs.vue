@@ -1,10 +1,10 @@
 <script setup>
 import { GAMES, GAME_ORDER } from '../data/games'
 
-const props = defineProps({
+defineProps({
   modelValue: String,
   versions: { type: Array, default: () => GAME_ORDER },
-  /** versions that have data — others render dimmed but stay clickable */
+  /** versions that have data — the others get a dashed outline but stay readable and clickable */
   active: { type: Array, default: null },
 })
 const emit = defineEmits(['update:modelValue'])
@@ -14,11 +14,14 @@ const emit = defineEmits(['update:modelValue'])
   <div class="flex flex-wrap gap-1.5">
     <button
       v-for="v in versions" :key="v"
-      class="rounded-lg border px-3 py-1.5 font-display text-xs tracking-wider transition-all"
-      :class="[
-        modelValue === v ? 'text-bg' : 'border-line text-muted hover:border-line2 hover:text-ink',
-        active && !active.includes(v) && modelValue !== v ? 'opacity-45' : '',
-      ]"
+      type="button"
+      :aria-pressed="modelValue === v"
+      class="h-8 rounded-lg border px-3 font-display text-sm leading-none tracking-wider transition-colors duration-(--dur-1) active:translate-y-px"
+      :class="modelValue === v
+        ? 'text-bg'
+        : active && !active.includes(v)
+          ? 'border-dashed border-line text-dim hover:border-line-strong hover:text-ink'
+          : 'border-line-strong text-muted hover:text-ink'"
       :style="modelValue === v ? { background: GAMES[v].color, borderColor: GAMES[v].color } : null"
       @click="emit('update:modelValue', v)"
     >{{ GAMES[v].label }}</button>

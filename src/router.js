@@ -42,7 +42,7 @@ const router = createRouter({
   scrollBehavior,
   routes: [
     { path: '/', name: 'pokedex', component: () => import('./views/PokedexView.vue'), meta: { titleKey: 'nav.pokedex' } },
-    // no titleKey: the entry page sets "<Name> — KUBADEX" itself
+    // no titleKey: the entry page sets "<Name> — KUBADEX" itself (and its own 404 / error title)
     { path: '/pokemon/:id(\\d+)', name: 'pokemon', component: () => import('./views/PokemonView.vue') },
     { path: '/map', name: 'map', component: () => import('./views/MapExplorerView.vue'), meta: { titleKey: 'nav.map' } },
     { path: '/moves', name: 'moves', component: () => import('./views/MovedexView.vue'), meta: { titleKey: 'nav.moves' } },
@@ -51,7 +51,8 @@ const router = createRouter({
     { path: '/compare', name: 'compare', component: () => import('./views/CompareView.vue'), meta: { titleKey: 'nav.compare' } },
     { path: '/team', name: 'team', component: () => import('./views/TeamView.vue'), meta: { titleKey: 'nav.team' } },
     { path: '/settings', name: 'settings', component: () => import('./views/SettingsView.vue'), meta: { titleKey: 'nav.settings' } },
-    { path: '/:pathMatch(.*)*', redirect: '/' },
+    // an unknown address shows a 404 page under that address instead of silently opening the Pokédex
+    { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('./views/NotFoundView.vue'), meta: { titleKey: 'errors.notFound' } },
   ],
 })
 

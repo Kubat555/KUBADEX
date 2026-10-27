@@ -68,7 +68,13 @@
     "gift-egg": "Gift Egg",
     "only-one": "Static",
     "feebas-tile-fishing": "Fishing — 6 hidden tiles",
-    "seaweed": "Seaweed (dive)"
+    "seaweed": "Seaweed (dive)",
+    "npc-trade": "In-game trade",
+    "pokeflute": "Poké Flute",
+    "wailmer-pail": "Wailmer Pail",
+    "roaming-grass": "Roaming (grass)",
+    "roaming-water": "Roaming (water)",
+    "devon-scope": "Devon Scope"
   },
   "classes": {
     "physical": "PHYS",
@@ -79,14 +85,106 @@
     "found": "none found | {n} found | {n} found"
   },
   "wtp": {},
-  "pokemon": {},
+  "pokemon": {
+    "siblings": "Previous and next Pokémon",
+    "prev": "Previous: {n}",
+    "next": "Next: {n}",
+    "opening": "Opening entry…",
+    "shiny": "Shiny",
+    "spriteLabel": "Sprite",
+    "spriteAlt": "{name} sprite",
+    "cry": "Cry",
+    "national": "National",
+    "region": {
+      "kanto": "Kanto",
+      "hoenn": "Hoenn"
+    },
+    "gameScope": "Game — applies to the whole page",
+    "flavorFallback": "{game} has no dex entry of its own — this one is from {from}.",
+    "height": "Height",
+    "weight": "Weight",
+    "metres": "{n} m",
+    "kilograms": "{n} kg",
+    "abilities": "Ability | Abilities",
+    "total": "Total",
+    "sections": {
+      "stats": "Base stats",
+      "matchups": "Type matchups",
+      "evolution": "Evolution",
+      "where": "Where to find",
+      "moves": "Moves",
+      "training": "Training & breeding",
+      "catch": "Catch calculator"
+    },
+    "matchups": {
+      "weak": "Weak",
+      "resist": "Resists",
+      "immune": "Immune",
+      "neutral": "Takes neutral damage from every type."
+    },
+    "evolution": {
+      "special": "Special condition",
+      "notInDex": "Not in Gen 3 games"
+    },
+    "where": {
+      "notWild": "Not found in the wild in {game}.",
+      "evolve": "Evolves from {name}, which can be obtained in {game}.",
+      "trade": "Trade it in from a version where it or a pre-evolution can be obtained:",
+      "none": "Neither it nor its pre-evolutions appear in the wild in any of the five games — it comes from breeding, an in-game trade or an event.",
+      "special": "Special",
+      "level": "Lv {lv}",
+      "offMap": "Places outside the {map} town map are only in the list."
+    },
+    "moves": {
+      "empty": "No {method} moves in {game}.",
+      "level": "Lv",
+      "move": "Move",
+      "type": "Type",
+      "class": "Class",
+      "power": "Pwr",
+      "accuracy": "Acc",
+      "pp": "PP",
+      "classNote": "In Gen 3 a move is physical or special by its type, not by the move itself."
+    },
+    "training": {
+      "catchRate": "Catch rate",
+      "baseExp": "Base EXP",
+      "growth": "Growth rate",
+      "happiness": "Base happiness",
+      "evYield": "EV yield",
+      "gender": "Gender",
+      "genderless": "Genderless",
+      "eggGroups": "Egg groups",
+      "hatchSteps": "Hatch steps"
+    }
+  },
   "moves": {},
   "map": {},
   "bosses": {},
   "ev": {},
   "compare": {},
   "team": {},
-  "catch": {},
+  "catch": {
+    "hp": "HP",
+    "oneHp": "1 HP",
+    "falseSwipe": "False Swipe",
+    "statusLabel": "Status",
+    "status": {
+      "none": "Healthy",
+      "par": "PAR/PSN/BRN",
+      "slp": "SLP/FRZ"
+    },
+    "always": "No condition",
+    "notes": {
+      "net": "×3 vs Bug and Water types",
+      "repeat": "×3 if caught before",
+      "timer": "×4 after 30+ turns",
+      "dive": "×3.5 underwater only"
+    },
+    "inFive": "{chance} in 5 throws",
+    "never": "Can't be caught",
+    "footnote": "Chance per throw, exact Gen 3 formula (catch rate {rate}). Balls with a condition show their best case."
+  },
   "settings": {
     "saved": "Saved in this browser.",
     "language": "Language",
@@ -99,7 +197,14 @@
   "footer": {
     "text": "KUBADEX — a field guide for Pokémon FireRed · LeafGreen · Ruby · Sapphire · Emerald. Data from {source}. Pokémon © Nintendo / Creatures Inc. / GAME FREAK — fan project, not affiliated."
   },
-  "errors": {},
+  "errors": {
+    "notFound": "Page not found",
+    "notFoundHint": "There is nothing at this address — the link may be broken.",
+    "pokemonNotFound": "There is no Pokémon {n} here: this Pokédex ends at {max}.",
+    "toPokedex": "Open the Pokédex",
+    "loadFailed": "Couldn't load",
+    "loadFailedHint": "Check your connection and try again."
+  },
   "search": {
     "button": "Search…",
     "label": "Search Pokémon",
