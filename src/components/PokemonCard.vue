@@ -17,11 +17,9 @@ const { t } = useI18n()
 const t0 = computed(() => props.pokemon.types[0])
 const shiny = ref(false) // the shiny sprite while hovered
 
-// A 6px band of the first type's colour cuts the top-right corner. It sits 10–16px from the corner:
-// clear of the rounded border (radius 12) and of the BST label in the padding box.
+// the first type's colour tints the border on hover
 const cardStyle = computed(() => ({
   '--t': `color-mix(in srgb, var(--color-type-${t0.value}) 55%, var(--color-line))`,
-  backgroundImage: `linear-gradient(225deg, transparent 10px, var(--color-type-${t0.value}) 10px 16px, transparent 16px)`,
 }))
 </script>
 
