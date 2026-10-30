@@ -17,9 +17,10 @@ const { to, section } = useNavLinks()
 const moreOpen = ref(false)
 const inMore = computed(() => MORE.includes(section.value))
 
-// leaving the page another way (Back, a link elsewhere) closes "More" too, as it does the search palette
+// leaving the page another way (Back, a link elsewhere) closes "More" too, as it does the search palette;
+// a query-only change (a filter or search text written to the URL) is not leaving it
 const route = useRoute()
-watch(() => route.fullPath, () => (moreOpen.value = false))
+watch(() => route.path, () => (moreOpen.value = false))
 
 const tab = 'relative flex h-14 w-full flex-col items-center justify-center gap-1 text-xs font-medium transition-colors duration-(--dur-1)'
 const tone = (on) => (on ? 'text-ink' : 'text-muted hover:text-ink')

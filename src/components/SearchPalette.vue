@@ -88,8 +88,9 @@ function onBackdropClick(e) {
   downOnBackdrop = false
 }
 
-// leaving the page another way (Back, a link) closes the palette too
-watch(() => router.currentRoute.value.fullPath, () => props.open && emit('close'))
+// leaving the page another way (Back, a link) closes the palette too; a query-only change is not leaving it
+// (a page's debounced search text can land in its URL just after the palette was opened)
+watch(() => router.currentRoute.value.path, () => props.open && emit('close'))
 
 function go(p) {
   if (!p) return

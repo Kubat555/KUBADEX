@@ -159,6 +159,7 @@ const levels = (m) => (m.max !== m.min ? `${m.min}–${m.max}` : String(m.min))
         :title="selected?.label ?? t('map.selectTitle')"
         :close-label="t('common.close')"
         :content-key="selected?.slug"
+        keep-when-cached
         class="animate-fadeup min-w-0 rounded-2xl border border-line bg-surface-1 p-5"
         style="animation-delay: 100ms"
         @close="onSheetClose"

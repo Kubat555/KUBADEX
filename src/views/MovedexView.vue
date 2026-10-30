@@ -254,6 +254,7 @@ watch(selected, () => {
         :title="panel?.move.label ?? t('moves.selectTitle')"
         :close-label="t('common.close')"
         :content-key="selected"
+        keep-when-cached
         class="animate-fadeup rounded-2xl border border-line bg-surface-1 p-4 sm:sticky sm:top-[4.5rem] sm:flex sm:max-h-[calc(100dvh-5.5rem)] sm:flex-col lg:p-5"
         style="animation-delay: 140ms"
         @close="onSheetClose"

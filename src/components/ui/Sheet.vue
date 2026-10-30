@@ -9,8 +9,9 @@ let pageOverflow = ''
 // Phone (<640px): a bottom sheet. A modal <dialog> sits in the top layer (no z-index fights, background inert);
 // Tab is kept inside, Esc / the Android back gesture / a tap on the scrim / the close button emit `close`,
 // and page scroll is locked while it is open. The parent owns `open` and flips it on `close`.
-// In a kept-alive view the sheet stays open while the view is cached (its URL still holds the selection): Back shows
-// it again with its list where it was left, unless `contentKey` (what it shows) has changed meanwhile.
+// Leaving a kept-alive view closes its sheet (emits `close`), unless `keepWhenCached`: a sheet whose open state comes
+// from the view's URL (a selected move, place) stays open while the view is cached, and Back shows it again with its
+// list where it was left, unless `contentKey` (what it shows) has changed meanwhile.
 // Wider screens: no dialog and `open` is ignored — the slot renders in place inside a plain <div> that receives
 // the attributes given to <Sheet> (class, style), so the parent styles its desktop panel through them.
 import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, useId, watch } from 'vue'
@@ -23,6 +24,7 @@ const props = defineProps({
   title: { type: String, required: true },
   closeLabel: { type: String, default: 'Close' }, // accessible name of the close button (pass the localized word)
   contentKey: { type: String, default: null }, // what the sheet shows (the selected move, place); another one starts at the top
+  keepWhenCached: { type: Boolean, default: false }, // the open state lives in the view's URL: survive the view being cached
 })
 const emit = defineEmits(['close'])
 
@@ -94,7 +96,7 @@ function onAfterLeave() {
   if (!shown.value) release() // unless it was reopened meanwhile
 }
 
-// no transition: unmount, growing past the breakpoint
+// no transition: unmount, deactivation (a sheet not kept), growing past the breakpoint
 function teardown() {
   visible.value = false
   release()
@@ -120,11 +122,14 @@ onBeforeUnmount(() => {
   teardown()
 })
 // a kept-alive view left with the sheet open (e.g. a link inside it was followed): the dialog closes and the page
-// scroll is released, so neither outlives the page, but the sheet stays open for the parent and keeps its panel:
-// the view's URL still holds the selection, and Back shows the same panel again
+// scroll is released, so neither outlives the page. With `keepWhenCached` the sheet stays open for the parent and
+// keeps its panel (the view's URL still holds the selection, and Back shows the same panel again); any other sheet
+// closes for real, so it is closed when the view comes back
 onDeactivated(() => {
   deactivated = true
-  release()
+  if (props.keepWhenCached) return release()
+  if (shown.value) emit('close')
+  teardown()
 })
 // the view is shown again (e.g. Back): reopen the sheet if it is (still or again) open
 onActivated(() => {
@@ -203,7 +208,7 @@ function onNativeClose() {
         class="absolute inset-x-0 bottom-0 flex max-h-[85dvh] flex-col rounded-t-2xl border-t border-line-strong bg-surface-1 shadow-[0_-16px_40px_rgb(0_0_0/0.45)] outline-none"
       >
         <div aria-hidden="true" class="mx-auto mt-2 h-1 w-10 shrink-0 bg-line-strong" />
-        <header class="flex shrink-0 items-center justify-between gap-3 pt-1 pr-1.5 pl-4">
+        <header class="flex shrink-0 items-center justify-between gap-3 pt-1 pr-1.5 pb-2 pl-4">
           <h2 :id="titleId" class="min-w-0 truncate font-display text-base uppercase tracking-wider">{{ title }}</h2>
           <button
             type="button"
@@ -216,7 +221,7 @@ function onNativeClose() {
         </header>
         <div
           ref="box"
-          class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))]"
+          class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
           @scroll.passive="onBoxScroll"
         >
           <slot />

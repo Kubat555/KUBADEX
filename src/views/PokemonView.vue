@@ -371,7 +371,7 @@ function playCry() {
       <!-- EVOLUTION -->
       <section v-if="p.evolution && (p.evolution.evolvesTo.length || p.evolution.id !== p.id)" class="animate-fadeup rounded-2xl border border-line bg-surface-1 p-5" style="animation-delay: 160ms">
         <h2 class="eyebrow">{{ t('pokemon.sections.evolution') }}</h2>
-        <div class="scrollbar-thin mt-4 overflow-x-auto pb-1">
+        <div class="scrollbar-thin -mx-3.5 mt-0.5 -mb-2.5 overflow-x-auto p-3.5">
           <EvolutionTree :node="p.evolution" :current-id="p.id" />
         </div>
       </section>
