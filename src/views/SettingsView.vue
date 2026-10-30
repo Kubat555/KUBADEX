@@ -37,7 +37,13 @@ const motionOptions = computed(() => [
           <h2 class="eyebrow">{{ t('settings.motion') }}</h2>
           <p class="mt-1 text-sm text-muted text-pretty">{{ t('settings.motionHint') }}</p>
         </div>
-        <Segmented v-model="prefs.motion" :options="motionOptions" :label="t('settings.motion')" />
+        <!-- phone: on the narrowest screens (RU at 320) the control scrolls sideways inside the card instead of pushing
+             the page sideways. The box reaches the card's borders; its padding keeps the focus outline inside it. The end
+             padding is only 8px, so the control may use half of the card's padding before it scrolls (no scroll at 360);
+             on a phone the control always has a line of its own, so that moves nothing -->
+        <div class="scrollbar-thin flex max-sm:-mx-4 max-sm:-my-1 max-sm:overflow-x-auto max-sm:py-1 max-sm:pr-2 max-sm:pl-4">
+          <Segmented v-model="prefs.motion" :options="motionOptions" :label="t('settings.motion')" />
+        </div>
       </section>
     </div>
   </div>

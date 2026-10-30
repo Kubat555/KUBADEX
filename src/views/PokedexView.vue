@@ -404,11 +404,13 @@ const sheetOpen = ref(false) // the filter sheet on a phone; wider screens show 
           >
             <Icon name="dice" /><span class="sr-only sm:not-sr-only">{{ t('pokedex.random') }}</span>
           </button>
+          <!-- no letter-spacing (unlike the other display-font buttons): with 1px per letter this phone-only button
+               leaves the search field too narrow for the whole EN placeholder at 375px -->
           <button
             type="button"
             aria-haspopup="dialog"
             :aria-expanded="sheetOpen"
-            class="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-line-strong px-3 font-display text-base uppercase tracking-[1px] text-ink transition-colors duration-(--dur-1) active:translate-y-px sm:hidden"
+            class="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-line-strong px-3 font-display text-base uppercase text-ink transition-colors duration-(--dur-1) active:translate-y-px sm:hidden"
             @click="sheetOpen = true"
           >
             <Icon name="filter" />{{ t('pokedex.filters') }}

@@ -70,11 +70,13 @@ const tone = (on) => (on ? 'text-ink' : 'text-muted hover:text-ink')
     </ul>
 
     <Sheet :open="moreOpen" :title="t('nav.more')" :close-label="t('common.close')" @close="moreOpen = false">
+      <!-- the first link sits flush under the sheet header, at the top of the clipping scroll box, so the focus ring is
+           drawn inside the link; `!` because the global :focus-visible rule (main.css) is outside Tailwind's layers -->
       <ul class="flex flex-col gap-1 pb-2">
         <li v-for="name in MORE" :key="name">
           <RouterLink
             :to="to[name]"
-            class="flex h-12 items-center justify-between gap-3 rounded-lg px-3 font-display text-base uppercase transition-colors duration-(--dur-1)"
+            class="flex h-12 items-center justify-between gap-3 rounded-lg px-3 font-display text-base uppercase transition-colors duration-(--dur-1) focus-visible:-outline-offset-2!"
             :class="section === name ? 'bg-surface-2 text-ink' : 'text-muted hover:text-ink'"
             @click="moreOpen = false"
           >

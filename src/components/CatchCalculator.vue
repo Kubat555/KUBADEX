@@ -54,7 +54,7 @@ const chanceColor = (p) => (p >= 0.5 ? 'var(--color-good)' : p >= 0.15 ? 'var(--
           {{ oneHp ? t('catch.oneHp') : hpText }}
         </span>
       </div>
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex min-w-0 flex-wrap items-center gap-2">
         <button
           type="button"
           :aria-pressed="oneHp"
@@ -62,7 +62,13 @@ const chanceColor = (p) => (p >= 0.5 ? 'var(--color-good)' : p >= 0.15 ? 'var(--
           :class="oneHp ? 'border-dex bg-dex/15 text-dexglow' : 'border-line-strong text-muted hover:text-ink'"
           @click="oneHp = !oneHp"
         >{{ t('catch.falseSwipe') }}</button>
-        <Segmented v-model="status" :options="statusOptions" :label="t('catch.statusLabel')" size="sm" />
+        <!-- phone: on the narrowest screens (320) the status control scrolls sideways instead of pushing the page sideways.
+             The box reaches the host card's right border (PokemonView pads it 20px, p-5) but only 4px to the left, so it
+             never covers the button beside it; its padding keeps the focus outline inside it. Each negative margin equals
+             its padding, so the control wraps beside the button exactly as without the box -->
+        <div class="scrollbar-thin flex max-sm:-my-1 max-sm:-mr-5 max-sm:-ml-1 max-sm:overflow-x-auto max-sm:py-1 max-sm:pr-5 max-sm:pl-1">
+          <Segmented v-model="status" :options="statusOptions" :label="t('catch.statusLabel')" size="sm" />
+        </div>
       </div>
     </div>
 
