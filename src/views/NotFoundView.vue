@@ -16,7 +16,7 @@ const { t } = useI18n()
       <template #actions>
         <RouterLink
           to="/"
-          class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-base uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px"
+          class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-base uppercase tracking-[1px] text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px"
         >{{ t('errors.toPokedex') }}</RouterLink>
       </template>
     </EmptyState>

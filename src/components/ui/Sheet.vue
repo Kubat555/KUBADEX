@@ -209,7 +209,7 @@ function onNativeClose() {
       >
         <div aria-hidden="true" class="mx-auto mt-2 h-1 w-10 shrink-0 bg-line-strong" />
         <header class="flex shrink-0 items-center justify-between gap-3 pt-1 pr-1.5 pb-2 pl-4">
-          <h2 :id="titleId" class="min-w-0 truncate font-display text-base uppercase tracking-wider">{{ title }}</h2>
+          <h2 :id="titleId" class="min-w-0 truncate font-display text-base uppercase tracking-[1px]">{{ title }}</h2>
           <button
             type="button"
             :aria-label="closeLabel"

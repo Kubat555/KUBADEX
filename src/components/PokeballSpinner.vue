@@ -16,6 +16,6 @@ const { t } = useI18n()
       <circle cx="16" cy="16" r="5" class="fill-bg" />
       <circle cx="16" cy="16" r="3" class="fill-ink" />
     </svg>
-    <p class="font-display text-base uppercase tracking-widest text-dim">{{ label ?? t('common.loading') }}</p>
+    <p class="font-display text-base uppercase tracking-[2px] text-dim">{{ label ?? t('common.loading') }}</p>
   </div>
 </template>

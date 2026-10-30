@@ -166,7 +166,7 @@ const levels = (m) => (m.max !== m.min ? `${m.min}–${m.max}` : String(m.min))
       >
         <div v-if="!selected" class="grid h-full min-h-60 place-items-center text-center">
           <div>
-            <p class="font-display text-base uppercase tracking-wider text-muted">{{ t('map.selectTitle') }}</p>
+            <p class="font-display text-base uppercase tracking-[1px] text-muted">{{ t('map.selectTitle') }}</p>
             <p class="mx-auto mt-2 max-w-60 text-sm text-dim text-pretty">{{ t('map.selectHint') }}</p>
           </div>
         </div>
@@ -181,7 +181,7 @@ const levels = (m) => (m.max !== m.min ? `${m.min}–${m.max}` : String(m.min))
                 type="button"
                 :disabled="loading"
                 :aria-busy="loading"
-                class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-base uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
+                class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-base uppercase tracking-[1px] text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
                 @click="load"
               >{{ t('common.retry') }}</button>
             </template>
@@ -198,7 +198,7 @@ const levels = (m) => (m.max !== m.min ? `${m.min}–${m.max}` : String(m.min))
           <div v-else class="scrollbar-thin space-y-5 sm:max-h-150 sm:overflow-y-auto sm:pr-1">
             <section v-for="g in groups" :key="g.version">
               <h3
-                class="sticky top-0 z-10 flex items-baseline gap-2 bg-surface-1 py-1 font-display text-base uppercase tracking-wider"
+                class="sticky top-0 z-10 flex items-baseline gap-2 bg-surface-1 py-1 font-display text-base uppercase tracking-[1px]"
                 :style="{ color: GAMES[g.version].color }"
               >
                 {{ GAMES[g.version].label }} <span class="num text-xs text-dim">{{ g.mons.length }}</span>

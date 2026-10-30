@@ -309,7 +309,7 @@ const sheetOpen = ref(false) // the filter sheet on a phone; wider screens show 
                the answer's height (88px, sprite 80px), wider screens a fixed width next to the 112px art. -->
           <div class="flex min-h-22 min-w-0 flex-1 flex-col justify-center sm:min-h-0 sm:w-56 sm:flex-none">
             <p
-              class="font-display text-base leading-5 uppercase tracking-wide"
+              class="font-display text-base leading-5 uppercase"
               :class="!revealed ? 'text-lens' : solved ? 'text-good' : 'text-dim'"
             >{{ !revealed ? t('wtp.title') : solved ? t('wtp.solved') : t('wtp.gaveUp') }}</p>
 
@@ -329,7 +329,7 @@ const sheetOpen = ref(false) // the filter sheet on a phone; wider screens show 
                 />
                 <button
                   type="submit"
-                  class="h-10 shrink-0 rounded-lg border border-lens/50 px-3 font-display text-base uppercase tracking-wider text-lens transition-colors duration-(--dur-1) hover:bg-lens/10 active:translate-y-px"
+                  class="h-10 shrink-0 rounded-lg border border-lens/50 px-3 font-display text-base uppercase tracking-[1px] text-lens transition-colors duration-(--dur-1) hover:bg-lens/10 active:translate-y-px"
                 >{{ t('wtp.submit') }}</button>
               </form>
               <p v-if="guessMsg" :key="`msg-${wrongShake}`" role="alert" class="mt-1 text-xs text-bad">{{ t(guessMsg) }}</p>
@@ -360,7 +360,7 @@ const sheetOpen = ref(false) // the filter sheet on a phone; wider screens show 
               <div class="mt-2 flex flex-wrap gap-1.5">
                 <button
                   type="button"
-                  class="inline-flex size-8 shrink-0 items-center justify-center gap-1.5 rounded-lg border font-display text-base uppercase tracking-wide transition-colors duration-(--dur-1) active:translate-y-px sm:w-auto sm:px-2.5"
+                  class="inline-flex size-8 shrink-0 items-center justify-center gap-1.5 rounded-lg border font-display text-base uppercase transition-colors duration-(--dur-1) active:translate-y-px sm:w-auto sm:px-2.5"
                   :class="crying ? 'border-dex bg-dex/15 text-dexglow' : 'border-line-strong text-muted hover:border-dexglow hover:text-ink'"
                   @click="playCry"
                 >
@@ -368,7 +368,7 @@ const sheetOpen = ref(false) // the filter sheet on a phone; wider screens show 
                 </button>
                 <button
                   type="button"
-                  class="inline-flex h-8 items-center gap-1.5 rounded-lg border border-lens/50 px-2.5 font-display text-base uppercase tracking-wide whitespace-nowrap text-lens transition-colors duration-(--dur-1) hover:bg-lens/10 active:translate-y-px"
+                  class="inline-flex h-8 items-center gap-1.5 rounded-lg border border-lens/50 px-2.5 font-display text-base uppercase whitespace-nowrap text-lens transition-colors duration-(--dur-1) hover:bg-lens/10 active:translate-y-px"
                   @click="playAgain"
                 >
                   <Icon name="dice" />{{ t('wtp.playAgain') }}
@@ -399,7 +399,7 @@ const sheetOpen = ref(false) // the filter sheet on a phone; wider screens show 
           <button
             type="button"
             :title="t('pokedex.randomHint')"
-            class="inline-flex h-10 min-w-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-line-strong font-display text-base uppercase tracking-wider text-muted transition-colors duration-(--dur-1) hover:border-dexglow hover:text-ink active:translate-y-px sm:px-3"
+            class="inline-flex h-10 min-w-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-line-strong font-display text-base uppercase tracking-[1px] text-muted transition-colors duration-(--dur-1) hover:border-dexglow hover:text-ink active:translate-y-px sm:px-3"
             @click="goRandom"
           >
             <Icon name="dice" /><span class="sr-only sm:not-sr-only">{{ t('pokedex.random') }}</span>
@@ -408,7 +408,7 @@ const sheetOpen = ref(false) // the filter sheet on a phone; wider screens show 
             type="button"
             aria-haspopup="dialog"
             :aria-expanded="sheetOpen"
-            class="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-line-strong px-3 font-display text-base uppercase tracking-wider text-ink transition-colors duration-(--dur-1) active:translate-y-px sm:hidden"
+            class="inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-line-strong px-3 font-display text-base uppercase tracking-[1px] text-ink transition-colors duration-(--dur-1) active:translate-y-px sm:hidden"
             @click="sheetOpen = true"
           >
             <Icon name="filter" />{{ t('pokedex.filters') }}
@@ -480,7 +480,7 @@ const sheetOpen = ref(false) // the filter sheet on a phone; wider screens show 
             :key="f.key"
             type="button"
             :aria-label="t('pokedex.removeFilter', { name: f.label })"
-            class="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-(--chip) bg-[color-mix(in_srgb,var(--chip)_24%,transparent)] pr-1.5 pl-2.5 font-display text-base leading-none uppercase tracking-wide whitespace-nowrap text-ink active:translate-y-px sm:hidden"
+            class="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-(--chip) bg-[color-mix(in_srgb,var(--chip)_24%,transparent)] pr-1.5 pl-2.5 font-display text-base leading-none uppercase whitespace-nowrap text-ink active:translate-y-px sm:hidden"
             :style="{ '--chip': f.color }"
             @click="f.remove()"
           >
@@ -504,7 +504,7 @@ const sheetOpen = ref(false) // the filter sheet on a phone; wider screens show 
           type="button"
           :disabled="loading"
           :aria-busy="loading"
-          class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-base uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
+          class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-base uppercase tracking-[1px] text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
           @click="load"
         >{{ t('common.retry') }}</button>
       </template>
@@ -514,7 +514,7 @@ const sheetOpen = ref(false) // the filter sheet on a phone; wider screens show 
       <template #actions>
         <button
           type="button"
-          class="h-10 rounded-lg border border-line-strong px-4 font-display text-base uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px"
+          class="h-10 rounded-lg border border-line-strong px-4 font-display text-base uppercase tracking-[1px] text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px"
           @click="reset"
         >{{ t('pokedex.resetFilters') }}</button>
       </template>

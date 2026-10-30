@@ -14,7 +14,7 @@ defineProps({
       <span class="size-1.5 bg-warn/60" />
       <span class="size-1.5 bg-good/60" />
     </div>
-    <p class="font-display text-base uppercase tracking-wider text-ink text-balance">{{ title }}</p>
+    <p class="font-display text-base uppercase tracking-[1px] text-ink text-balance">{{ title }}</p>
     <p v-if="hint" class="max-w-md text-sm text-muted text-pretty">{{ hint }}</p>
     <div v-if="$slots.actions" class="mt-2 flex flex-wrap justify-center gap-2">
       <slot name="actions" />

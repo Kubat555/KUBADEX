@@ -178,7 +178,7 @@ watch(selected, () => {
               type="button"
               :disabled="loading"
               :aria-busy="loading"
-              class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-base uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
+              class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-base uppercase tracking-[1px] text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
               @click="load"
             >{{ t('common.retry') }}</button>
           </template>
@@ -188,7 +188,7 @@ watch(selected, () => {
           <template #actions>
             <button
               type="button"
-              class="h-10 rounded-lg border border-line-strong px-4 font-display text-base uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px"
+              class="h-10 rounded-lg border border-line-strong px-4 font-display text-base uppercase tracking-[1px] text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px"
               @click="resetFilters"
             >{{ t('moves.resetFilters') }}</button>
           </template>
@@ -261,7 +261,7 @@ watch(selected, () => {
       >
         <div v-if="!panel" class="grid min-h-48 place-items-center text-center">
           <div>
-            <p class="font-display text-base uppercase tracking-wider text-muted">{{ t('moves.selectTitle') }}</p>
+            <p class="font-display text-base uppercase tracking-[1px] text-muted">{{ t('moves.selectTitle') }}</p>
             <p class="mt-2 text-sm text-dim text-pretty">{{ t('moves.selectHint', { game: GAMES[version].label }) }}</p>
           </div>
         </div>

@@ -52,7 +52,7 @@ function onKeydown(e, i) {
       role="radio"
       :aria-checked="o.value === modelValue"
       :tabindex="tabStop(i) ? 0 : -1"
-      class="relative min-w-max flex-1 rounded font-display text-base uppercase leading-none tracking-wide whitespace-nowrap transition-colors duration-(--dur-2) ease-out active:translate-y-px"
+      class="relative min-w-max flex-1 rounded font-display text-base uppercase leading-none whitespace-nowrap transition-colors duration-(--dur-2) ease-out active:translate-y-px"
       :class="[
         size === 'sm' ? 'px-2' : 'px-3',
         o.value === modelValue ? 'bg-surface-2 text-ink' : 'text-muted hover:bg-surface-2/50 hover:text-ink',

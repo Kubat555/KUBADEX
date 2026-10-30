@@ -243,7 +243,7 @@ function playCry() {
           type="button"
           :disabled="loading"
           :aria-busy="loading"
-          class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-base uppercase tracking-wider text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
+          class="inline-flex h-10 items-center rounded-lg border border-line-strong bg-surface-2 px-4 font-display text-base uppercase tracking-[1px] text-ink transition-colors duration-(--dur-1) hover:border-dexglow active:translate-y-px disabled:opacity-60"
           @click="retry"
         >{{ t('common.retry') }}</button>
       </template>
@@ -282,7 +282,7 @@ function playCry() {
             </div>
             <button
               type="button"
-              class="mt-2 inline-flex h-8 items-center gap-2 rounded-lg border px-3 font-display text-base uppercase tracking-wider transition-colors duration-(--dur-1) active:translate-y-px"
+              class="mt-2 inline-flex h-8 items-center gap-2 rounded-lg border px-3 font-display text-base uppercase tracking-[1px] transition-colors duration-(--dur-1) active:translate-y-px"
               :class="crying ? 'border-dex bg-dex/15 text-dexglow' : 'border-line-strong text-muted hover:border-dexglow hover:text-ink'"
               @click="playCry"
             ><Icon name="sound" />{{ t('pokemon.cry') }}</button>
@@ -380,7 +380,7 @@ function playCry() {
       <section class="animate-fadeup rounded-2xl border border-line bg-surface-1 p-5" style="animation-delay: 200ms">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <h2 class="eyebrow">{{ t('pokemon.sections.where') }}</h2>
-          <span class="inline-flex items-center gap-2 font-display text-base uppercase tracking-wider text-ink">
+          <span class="inline-flex items-center gap-2 font-display text-base uppercase tracking-[1px] text-ink">
             <span aria-hidden="true" class="size-2" :style="{ background: GAMES[version].color }"></span>{{ GAMES[version].label }}
           </span>
         </div>
@@ -404,7 +404,7 @@ function playCry() {
                 <button
                   v-for="v in h.versions" :key="v"
                   type="button"
-                  class="inline-flex h-8 items-center gap-2 rounded-lg border border-line-strong px-3 font-display text-base tracking-wider text-muted transition-colors duration-(--dur-1) hover:text-ink active:translate-y-px"
+                  class="inline-flex h-8 items-center gap-2 rounded-lg border border-line-strong px-3 font-display text-base tracking-[1px] text-muted transition-colors duration-(--dur-1) hover:text-ink active:translate-y-px"
                   @click="pickGame(v)"
                 ><span aria-hidden="true" class="size-2" :style="{ background: GAMES[v].color }"></span>{{ GAMES[v].label }}</button>
               </div>
@@ -453,7 +453,7 @@ function playCry() {
       <section class="animate-fadeup rounded-2xl border border-line bg-surface-1 p-5" style="animation-delay: 240ms">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 class="eyebrow">{{ t('pokemon.sections.moves') }}</h2>
-          <span class="inline-flex items-center gap-2 font-display text-base uppercase tracking-wider text-ink">
+          <span class="inline-flex items-center gap-2 font-display text-base uppercase tracking-[1px] text-ink">
             <span aria-hidden="true" class="size-2" :style="{ background: GAMES[version].color }"></span>{{ GAMES[version].label }}
           </span>
         </div>

@@ -74,7 +74,7 @@ const tone = (on) => (on ? 'text-ink' : 'text-muted hover:text-ink')
         <li v-for="name in MORE" :key="name">
           <RouterLink
             :to="to[name]"
-            class="flex h-12 items-center justify-between gap-3 rounded-lg px-3 font-display text-base uppercase tracking-wide transition-colors duration-(--dur-1)"
+            class="flex h-12 items-center justify-between gap-3 rounded-lg px-3 font-display text-base uppercase transition-colors duration-(--dur-1)"
             :class="section === name ? 'bg-surface-2 text-ink' : 'text-muted hover:text-ink'"
             @click="moreOpen = false"
           >
