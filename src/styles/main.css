@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme static {
-  --font-display: "Pixelify Sans", ui-monospace, monospace;
-  --font-body: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Tiny5", ui-monospace, monospace;
+  --font-body: "Onest Variable", ui-sans-serif, system-ui, sans-serif;
 
   --color-bg: #0a0e1a;
   --color-panel: #111729;
@@ -11,7 +11,24 @@
   --color-line2: #2e3f6b;
   --color-ink: #e9eefc;
   --color-muted: #8d99bd;
-  --color-dim: #5b678c;
+  --color-dim: #7e88a8; /* text: >= 4.5:1 on bg (5.48) and panel2 (4.55) */
+  --color-faint: #5b678c; /* decoration and dividers ONLY, never text */
+
+  /* two surface levels instead of panel/60 and panel/70 */
+  --color-surface-1: #0f1425;
+  --color-surface-2: #182138;
+  --color-line-strong: #576386; /* control borders, 3:1 */
+
+  /* semantics */
+  --color-bad: #e0564b;
+  --color-warn: #e8cf45;
+  --color-good: #7ac74c;
+  --color-immune: #58c7f3;
+
+  /* move damage classes */
+  --color-phys: #e8845a;
+  --color-spec: #6d96d8;
+  --color-status: #9aa3bd;
 
   --color-dex: #e3350d;
   --color-dexglow: #ff5c33;
@@ -34,6 +51,21 @@
   --color-type-dragon: #0a6dc4;
   --color-type-dark: #6e6486;
   --color-type-steel: #5a8ea1;
+  /* text variants for types whose fill is < 4.5:1 on the dark background */
+  --color-type-ghost-ink: #7689bd;
+  --color-type-dragon-ink: #408dd1;
+  --color-type-dark-ink: #8c859f;
+  --color-type-fighting-ink: #d76284;
+  --color-type-poison-ink: #b174cc;
+  --color-type-steel-ink: #6495a7;
+  --color-type-water-ink: #5192d6;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+  --dur-4: 520ms;
 
   --animate-marker: marker 1.6s ease-in-out infinite;
   /* `backwards`, not `both`: a persisted transform (even identity) keeps a stacking
@@ -55,6 +87,27 @@
     0%, 92%, 100% { opacity: 1; }
     96% { opacity: 0.2; }
   }
+}
+
+/* Tiny5, the pixel display font: woff2 only, one file per script. The unicode-range values are fontsource's
+   (@fontsource/tiny5/unicode.json), so a file is downloaded only when display text uses its script: an English
+   page never fetches the Cyrillic one. */
+@font-face {
+  font-family: "Tiny5";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("@fontsource/tiny5/files/tiny5-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Tiny5";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("@fontsource/tiny5/files/tiny5-cyrillic-400-normal.woff2") format("woff2");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
 }
 
 html {
@@ -93,3 +146,53 @@ body::before {
 .scrollbar-thin { scrollbar-width: thin; scrollbar-color: var(--color-line2) transparent; }
 
 ::selection { background: rgba(227, 53, 13, 0.5); }
+
+/* section headings: quiet caps label; the red accent is kept for active/selected state and actions */
+@utility eyebrow {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-muted);
+}
+
+/* the pixel display font has one weight (400): never let the browser fake a bold of it.
+   Its letter-spacing is whole pixels only — none, tracking-[1px] or tracking-[2px]: the em-based
+   tracking-wide/wider/widest put its glyphs on half pixels and blur them */
+@utility font-display {
+  font-synthesis: none;
+}
+
+/* every number: Onest, tabular */
+@utility num {
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+:focus-visible { outline: 2px solid var(--color-lens); outline-offset: 2px; }
+
+/* Reduced motion: the OS setting applies unless the user forced "full" in Settings;
+   `data-motion="reduce"` forces it regardless of the OS. Same rule twice — a media query cannot be OR-ed with an attribute selector. */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) *,
+  :root:not([data-motion="full"]) *::before,
+  :root:not([data-motion="full"]) *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+  :root:not([data-motion="full"])::view-transition-group(*) { animation: none !important; }
+}
+:root[data-motion="reduce"] *,
+:root[data-motion="reduce"] *::before,
+:root[data-motion="reduce"] *::after {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
+}
+:root[data-motion="reduce"]::view-transition-group(*) { animation: none !important; }

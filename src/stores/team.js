@@ -1,16 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
-
-const KEY = 'dex3-team'
+import { readJSON, writeJSON } from '../lib/storage'
 
 export const useTeamStore = defineStore('team', () => {
   const slots = ref([null, null, null, null, null, null])
-  try {
-    const saved = JSON.parse(localStorage.getItem(KEY))
-    if (Array.isArray(saved)) slots.value = [...saved.slice(0, 6), null, null, null, null, null, null].slice(0, 6)
-  } catch { /* fresh start */ }
+  const saved = readJSON('team', null)
+  if (Array.isArray(saved)) slots.value = [...saved.slice(0, 6), null, null, null, null, null, null].slice(0, 6)
 
-  watch(slots, (v) => localStorage.setItem(KEY, JSON.stringify(v)), { deep: true })
+  watch(slots, (v) => writeJSON('team', v), { deep: true })
 
   function add(id) {
     const i = slots.value.indexOf(null)

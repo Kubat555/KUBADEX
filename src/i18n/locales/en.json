@@ -1,0 +1,370 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "retry": "Try again",
+    "close": "Close",
+    "search": "Search",
+    "reset": "Reset"
+  },
+  "nav": {
+    "pokedex": "Pokédex",
+    "map": "Map",
+    "moves": "Moves",
+    "bosses": "Bosses",
+    "ev": "EV",
+    "compare": "Compare",
+    "team": "Team",
+    "settings": "Settings",
+    "more": "More",
+    "main": "Main menu",
+    "skip": "Skip to content",
+    "short": {
+      "pokedex": "Dex",
+      "compare": "Compare"
+    }
+  },
+  "types": {
+    "normal": "Normal",
+    "fire": "Fire",
+    "water": "Water",
+    "electric": "Electric",
+    "grass": "Grass",
+    "ice": "Ice",
+    "fighting": "Fighting",
+    "poison": "Poison",
+    "ground": "Ground",
+    "flying": "Flying",
+    "psychic": "Psychic",
+    "bug": "Bug",
+    "rock": "Rock",
+    "ghost": "Ghost",
+    "dragon": "Dragon",
+    "dark": "Dark",
+    "steel": "Steel",
+    "fairy": "Fairy"
+  },
+  "stats": {
+    "hp": "HP",
+    "atk": "Attack",
+    "def": "Defense",
+    "spa": "Sp. Atk",
+    "spd": "Sp. Def",
+    "spe": "Speed",
+    "total": "Total stats",
+    "bst": "BST"
+  },
+  "methods": {
+    "level-up": "Level Up",
+    "machine": "TM / HM",
+    "tutor": "Tutor",
+    "egg": "Egg",
+    "walk": "Grass / Cave",
+    "surf": "Surfing",
+    "old-rod": "Old Rod",
+    "good-rod": "Good Rod",
+    "super-rod": "Super Rod",
+    "rock-smash": "Rock Smash",
+    "gift": "Gift",
+    "gift-egg": "Gift Egg",
+    "only-one": "Static",
+    "feebas-tile-fishing": "Fishing — 6 hidden tiles",
+    "seaweed": "Seaweed (dive)",
+    "npc-trade": "In-game trade",
+    "pokeflute": "Poké Flute",
+    "wailmer-pail": "Wailmer Pail",
+    "roaming-grass": "Roaming (grass)",
+    "roaming-water": "Roaming (water)",
+    "devon-scope": "Devon Scope"
+  },
+  "classes": {
+    "physical": "PHYS",
+    "special": "SPEC",
+    "status": "STAT"
+  },
+  "pokedex": {
+    "found": "none found | {n} found | {n} found",
+    "title": "Gen III",
+    "accent": "Field Guide",
+    "intro": "Every Pokémon of FireRed, LeafGreen, Ruby, Sapphire & Emerald — stats, abilities, evolutions, full movesets and exactly {where} in each version.",
+    "introWhere": "where to find them",
+    "search": "Search by name or number",
+    "searchPlaceholder": "Name or number…",
+    "random": "Random",
+    "randomHint": "Open a random Pokémon",
+    "filters": "Filters",
+    "dex": "Dex",
+    "dexes": {
+      "national": "National",
+      "kanto": "Kanto",
+      "hoenn": "Hoenn"
+    },
+    "sort": "Sort",
+    "sortId": "Dex №",
+    "sortName": "Name",
+    "sortChip": "Sort: {name}",
+    "game": "Game",
+    "type": "Type, up to two",
+    "removeFilter": "Remove filter: {name}",
+    "empty": "Nothing matches these filters",
+    "emptyHint": "Try another name or remove a filter.",
+    "resetFilters": "Reset filters"
+  },
+  "wtp": {
+    "title": "Who's that Pokémon?",
+    "guessLabel": "Your guess",
+    "placeholder": "Your guess…",
+    "submit": "Go",
+    "wrong": "Nope, that’s not it!",
+    "unknown": "No such Pokémon in this dex…",
+    "hint": "Hint",
+    "giveUp": "I give up, show me",
+    "solved": "It's…",
+    "gaveUp": "It was…",
+    "cry": "Cry",
+    "playAgain": "Play again",
+    "streak": "Streak: {n} in a row"
+  },
+  "pokemon": {
+    "siblings": "Previous and next Pokémon",
+    "prev": "Previous: {n}",
+    "next": "Next: {n}",
+    "opening": "Opening entry…",
+    "shiny": "Shiny",
+    "spriteLabel": "Sprite",
+    "spriteAlt": "{name} sprite",
+    "cry": "Cry",
+    "national": "National",
+    "region": {
+      "kanto": "Kanto",
+      "hoenn": "Hoenn"
+    },
+    "gameScope": "Game — applies to the whole page",
+    "flavorFallback": "{game} has no dex entry of its own — this one is from {from}.",
+    "height": "Height",
+    "weight": "Weight",
+    "metres": "{n} m",
+    "kilograms": "{n} kg",
+    "abilities": "Ability | Abilities",
+    "total": "Total",
+    "sections": {
+      "stats": "Base stats",
+      "matchups": "Type matchups",
+      "evolution": "Evolution",
+      "where": "Where to find",
+      "moves": "Moves",
+      "training": "Training & breeding",
+      "catch": "Catch calculator"
+    },
+    "matchups": {
+      "weak": "Weak",
+      "resist": "Resists",
+      "immune": "Immune",
+      "neutral": "Takes neutral damage from every type."
+    },
+    "evolution": {
+      "special": "Special condition",
+      "notInDex": "Not in Gen 3 games"
+    },
+    "where": {
+      "notWild": "Not found in the wild in {game}.",
+      "evolve": "Evolves from {name}, which can be obtained in {game}.",
+      "trade": "Trade it in from a version where it or a pre-evolution can be obtained:",
+      "none": "Neither it nor its pre-evolutions appear in the wild in any of the five games — it comes from breeding, an in-game trade or an event.",
+      "special": "Special",
+      "level": "Lv {lv}",
+      "offMap": "Places outside the {map} town map are only in the list."
+    },
+    "moves": {
+      "empty": "No {method} moves in {game}.",
+      "level": "Lv",
+      "move": "Move",
+      "type": "Type",
+      "class": "Class",
+      "power": "Pwr",
+      "accuracy": "Acc",
+      "pp": "PP",
+      "classNote": "In Gen 3 a move is physical or special by its type, not by the move itself."
+    },
+    "training": {
+      "catchRate": "Catch rate",
+      "baseExp": "Base EXP",
+      "growth": "Growth rate",
+      "happiness": "Base happiness",
+      "evYield": "EV yield",
+      "gender": "Gender",
+      "male": "Male",
+      "female": "Female",
+      "genderless": "Genderless",
+      "eggGroups": "Egg groups",
+      "hatchSteps": "Hatch steps"
+    }
+  },
+  "moves": {
+    "title": "Movedex",
+    "subtitle": "Every Gen 3 move — pick one to see every Pokémon that learns it.",
+    "search": "Search moves",
+    "placeholder": "Move name…",
+    "classFilter": "Damage class",
+    "typeFilter": "Type",
+    "tmOnly": "TM / HM only",
+    "count": "{n} move | {n} moves",
+    "col": {
+      "move": "Move",
+      "type": "Type",
+      "class": "Class",
+      "power": "Pwr",
+      "accuracy": "Acc",
+      "tm": "TM"
+    },
+    "power": "Power",
+    "accuracy": "Accuracy",
+    "pp": "PP",
+    "learners": "{n} learner | {n} learners",
+    "lv": "Lv {n}",
+    "selectTitle": "Select a move",
+    "selectHint": "to see who learns it in {game}",
+    "nobody": "Nobody learns it in {game}.",
+    "empty": "No moves found",
+    "emptyHint": "Try another name or reset the filters.",
+    "resetFilters": "Reset filters"
+  },
+  "map": {
+    "title": "Map",
+    "accent": "Explorer",
+    "subtitle": "Pick any place to see every wild Pokémon there, per version.",
+    "region": "Region",
+    "places": "Places",
+    "offMap": "Off-map areas",
+    "selectTitle": "Select a location",
+    "selectHint": "Cities, routes, caves and forests — each lists its wild Pokémon.",
+    "none": "No wild encounters recorded here",
+    "encounter": "Lv {lv} · {chance}%",
+    "tipHint": "Click for encounters",
+    "legend": {
+      "city": "City",
+      "route": "Route",
+      "water": "Water",
+      "cave": "Cave",
+      "forest": "Forest",
+      "event": "Event"
+    }
+  },
+  "bosses": {
+    "title": "Gyms",
+    "accent": "& League",
+    "subtitle": "Every boss battle of {game} in order — teams, levels and what to bring.",
+    "gyms": "Gym Leaders",
+    "league": "Elite Four & Champion",
+    "bring": "Bring",
+    "lv": "Lv {n}",
+    "role": {
+      "gymLeader": "Gym Leader",
+      "gymLeaders": "Gym Leaders",
+      "eliteFour": "Elite Four",
+      "champion": "Champion"
+    }
+  },
+  "ev": {
+    "title": "EV",
+    "accent": "Hotspots",
+    "subtitle": "Best places to grind effort values — ranked by expected EVs per wild encounter, computed from real encounter tables. One-time encounters are left out.",
+    "stat": "Stat",
+    "empty": "No good spots for this stat",
+    "emptyHint": "Try another version.",
+    "perEncounter": "{stat} EV / encounter",
+    "yield": "+{ev} EV · {chance}%",
+    "footnote": "Expected EVs assume one knock-out per encounter at the listed method. Macho Brace doubles the gain; Pokérus doubles it again."
+  },
+  "compare": {
+    "title": "Compare",
+    "accent": "Pokémon",
+    "subtitle": "Put up to three side by side — stats, typing and defensive matchups.",
+    "add": "Add a Pokémon…",
+    "addLabel": "Add a Pokémon to compare",
+    "empty": "Nothing to compare yet",
+    "emptyHint": "Pick a Pokémon above to start comparing.",
+    "remove": "Remove {name}",
+    "measures": "{h} m · {w} kg",
+    "radar": "Stat radar",
+    "baseStats": "Base stats",
+    "damageTaken": "Damage taken",
+    "vs": "Vs"
+  },
+  "team": {
+    "title": "Team",
+    "accent": "Builder",
+    "subtitle": "Build a party of six, then check its type coverage before the Elite Four.",
+    "clear": "Clear all",
+    "slot": "Slot {n}",
+    "add": "Add…",
+    "addLabel": "Add a Pokémon to slot {n}",
+    "remove": "Remove {name}",
+    "empty": "Your team is empty",
+    "emptyHint": "Add Pokémon to see its coverage analysis.",
+    "sharedWeak": "Shared weaknesses",
+    "sharedWeakHint": "Several members fall to:",
+    "noStab": "No super-effective STAB vs",
+    "defense": "Defensive coverage",
+    "defenseHint": "For each attacking type — who on your team takes extra damage, and who walls it.",
+    "col": {
+      "attack": "Attack",
+      "weak": "Weak",
+      "resist": "Resist / immune"
+    },
+    "availability": "Team availability by version",
+    "availabilityHint": "Whether each member appears in that game's dex or wild areas (trades not counted).",
+    "available": "{name} — available",
+    "unavailable": "{name} — not obtainable here (trade required)"
+  },
+  "catch": {
+    "hp": "HP",
+    "oneHp": "1 HP",
+    "falseSwipe": "False Swipe",
+    "statusLabel": "Status",
+    "status": {
+      "none": "Healthy",
+      "par": "PAR/PSN/BRN",
+      "slp": "SLP/FRZ"
+    },
+    "always": "No condition",
+    "notes": {
+      "net": "×3 vs Bug and Water types",
+      "repeat": "×3 if caught before",
+      "timer": "×4 after 30+ turns",
+      "dive": "×3.5 underwater only"
+    },
+    "inFive": "{chance} in 5 throws",
+    "never": "Can't be caught",
+    "footnote": "Chance per throw, exact Gen 3 formula (catch rate {rate}). Balls with a condition show their best case."
+  },
+  "settings": {
+    "saved": "Saved in this browser.",
+    "language": "Language",
+    "motion": "Motion",
+    "motionHint": "Animations and page transitions. “System” follows your device setting.",
+    "motionSystem": "System",
+    "motionReduce": "Less",
+    "motionFull": "Full"
+  },
+  "footer": {
+    "text": "KUBADEX — a field guide for Pokémon FireRed · LeafGreen · Ruby · Sapphire · Emerald. Data from {source}. Pokémon © Nintendo / Creatures Inc. / GAME FREAK — fan project, not affiliated."
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "notFoundHint": "There is nothing at this address — the link may be broken.",
+    "pokemonNotFound": "There is no Pokémon {n} here: this Pokédex ends at {max}.",
+    "toPokedex": "Open the Pokédex",
+    "loadFailed": "Couldn't load",
+    "loadFailedHint": "Check your connection and try again."
+  },
+  "search": {
+    "button": "Search…",
+    "label": "Search Pokémon",
+    "placeholder": "Name or number",
+    "hint": "Type a name or a dex number: pika, #025, 25",
+    "results": "Pokémon found",
+    "count": "{n} result | {n} results",
+    "empty": "Nothing found for “{q}”",
+    "failed": "Could not load the Pokémon list"
+  }
+}
